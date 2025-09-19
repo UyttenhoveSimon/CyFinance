@@ -1,4 +1,5 @@
-﻿using YahooFinanceClient.CsvParser;
+﻿using System.Threading.Tasks;
+using YahooFinanceClient.CsvParser;
 using YahooFinanceClient.Models;
 using YahooFinanceClient.WebClient;
 
@@ -16,9 +17,9 @@ namespace YahooFinance
             csvParser = new CsvParser(webClient);
         }
 
-        public Stock RetrieveStock(string ticker)
+        public async Task<Stock> RetrieveStockAsync(string ticker)
         {
-            return csvParser.RetrieveStock(ticker);
+            return await csvParser.RetrieveStockAsync(ticker);
         }
     }
 }

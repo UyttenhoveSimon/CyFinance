@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>YahooFinanceClient</id>
-    <version>1.3</version>
-    <title>Yahoo Finance API Client</title>
-    <authors>Doug Dellolio</authors>
-    <projectUrl>https://github.com/dougdellolio/YahooFinanceAPI</projectUrl>
+    <id>Csharp Yahoo Client</id>
+    <version>1.4</version>
+    <title>C# Yahoo Finance API Client</title>
+    <authors>Doug Dellolio, Simon Uyttenhove</authors>
+    <projectUrl>https://github.com/UyttenhoveSimon/CyFinance</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>C# Client Library used to interact with the Yahoo Finance API</description>
-    <copyright>Copyright 2017</copyright>
-    <tags>Yahoo Finance API NET Wrapper Client</tags>
+    <description>C# Client Library used to interact with the Yahoo Finance API, forked from https://github.com/dougdellolio/YahooFinanceAPI</description>
+    <copyright>Copyright</copyright>
+    <tags>Csharp Yahoo Finance API NET Wrapper Client</tags>
   </metadata>
   <files>
     <file src="YahooFinanceClient\bin\$configuration$\YahooFinanceClient.dll" target="lib\net40\" />

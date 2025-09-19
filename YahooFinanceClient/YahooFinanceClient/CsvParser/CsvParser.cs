@@ -1,6 +1,7 @@
 ﻿using YahooFinanceClient.WebClient;
 using YahooFinanceClient.Models;
 using YahooFinanceClient.Conversion;
+using System.Threading.Tasks;
 
 namespace YahooFinanceClient.CsvParser
 {
@@ -16,13 +17,13 @@ namespace YahooFinanceClient.CsvParser
             inputConverter = new InputConverter();
         }
 
-        public Stock RetrieveStock(string ticker)
+        public async Task<Stock> RetrieveStockAsync(string ticker)
         {
-            var pricingData = RetrievePricingData(ticker);
-            var volumeData = RetrieveVolumeData(ticker);
-            var averagesData = RetrieveAverageData(ticker);
-            var dividendData = RetrieveDividendData(ticker);
-            var ratioData = RetrieveRatioData(ticker);
+            var pricingData = await RetrievePricingData(ticker);
+            var volumeData = await RetrieveVolumeData(ticker);
+            var averagesData = await RetrieveAverageData(ticker);
+            var dividendData = await RetrieveDividendData(ticker);
+            var ratioData = await RetrieveRatioData(ticker);
 
             return new Stock
             {
@@ -34,15 +35,15 @@ namespace YahooFinanceClient.CsvParser
             };
         }
 
-        private string[] GetStockData(string ticker, string queryParameters)
+        private async Task<string[]> GetStockData(string ticker, string queryParameters)
         {
-            var stockData = webClient.DownloadFile(ticker, queryParameters);
+            var stockData = await webClient.DownloadFileAsync(ticker, queryParameters);
             return stockData.Split(',');
         }
 
-        private PricingData RetrievePricingData(string ticker)
+        private async Task<PricingData> RetrievePricingData(string ticker)
         {
-            var stockData = GetStockData(ticker, "abb2b3pokjj5k4j6k5w");
+            var stockData = await GetStockData(ticker, "abb2b3pokjj5k4j6k5w");
 
             return new PricingData
             {
@@ -62,9 +63,9 @@ namespace YahooFinanceClient.CsvParser
             };
         }
 
-        private VolumeData RetrieveVolumeData(string ticker)
+        private async Task<VolumeData> RetrieveVolumeData(string ticker)
         {
-            var stockData = GetStockData(ticker, "va5b6k3a2");
+            var stockData = await GetStockData(ticker, "va5b6k3a2");
 
             return new VolumeData
             {
@@ -76,9 +77,9 @@ namespace YahooFinanceClient.CsvParser
             };
         }
 
-        private AverageData RetrieveAverageData(string ticker)
+        private async Task<AverageData> RetrieveAverageData(string ticker)
         {
-            var stockData = GetStockData(ticker, "ghl1m3m4t8");
+            var stockData = await GetStockData(ticker, "ghl1m3m4t8");
 
             return new AverageData
             {
@@ -91,9 +92,9 @@ namespace YahooFinanceClient.CsvParser
             };
         }
 
-        private DividendData RetrieveDividendData(string ticker)
+        private async Task<DividendData> RetrieveDividendData(string ticker)
         {
-            var stockData = GetStockData(ticker, "ydr1q");
+            var stockData = await GetStockData(ticker, "ydr1q");
 
             return new DividendData
             {
@@ -104,9 +105,9 @@ namespace YahooFinanceClient.CsvParser
             };
         }
 
-        private RatioData RetrieveRatioData(string ticker)
+        private async Task<RatioData> RetrieveRatioData(string ticker)
         {
-            var stockData = GetStockData(ticker, "ee7e8e9b4j4p5p6rr2r5r6r7s7");
+            var stockData = await GetStockData(ticker, "ee7e8e9b4j4p5p6rr2r5r6r7s7");
 
             return new RatioData
             {

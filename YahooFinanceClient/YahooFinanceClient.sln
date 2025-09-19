@@ -1,11 +1,11 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YahooFinanceClient", "YahooFinanceClient\YahooFinanceClient.csproj", "{D4E2E929-DB2E-4198-8E43-50B3BF588B7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YahooFinanceClient", "YahooFinanceClient\YahooFinanceClient.csproj", "{D4E2E929-DB2E-4198-8E43-50B3BF588B7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YahooFinanceClient.Specs", "YahooFinanceClient.Specs\YahooFinanceClient.Specs.csproj", "{9606EB5A-9A95-43DD-A9C8-C1D5BEC43294}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YahooFinanceClient.Specs", "YahooFinanceClient.Specs\YahooFinanceClient.Specs.csproj", "{9606EB5A-9A95-43DD-A9C8-C1D5BEC43294}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

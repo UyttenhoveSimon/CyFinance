@@ -1,9 +1,10 @@
-﻿using YahooFinanceClient.Models;
+﻿using System.Threading.Tasks;
+using YahooFinanceClient.Models;
 
 namespace YahooFinanceClient.CsvParser
 {
     public interface ICsvParser
     {
-        Stock RetrieveStock(string ticker);
+        Task<Stock> RetrieveStockAsync(string ticker);
     }
 }
