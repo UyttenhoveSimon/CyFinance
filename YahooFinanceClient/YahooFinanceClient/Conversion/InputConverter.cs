@@ -61,16 +61,16 @@ namespace YahooFinanceClient.Conversion
             {
                 return false;
             }
-            
+
             var dataWithoutSpaces = data.Replace(" ", string.Empty);
 
             return !(dataWithoutSpaces == ""
                 || dataWithoutSpaces == "N/A"
                 || dataWithoutSpaces == "N/A\n"
-                || dataWithoutSpaces == "N/A\n"
+                || dataWithoutSpaces == "N / A\n"
                 || dataWithoutSpaces == "n/a"
                 || dataWithoutSpaces == "n/a\n"
-                || dataWithoutSpaces == "n/a\n");
+                || dataWithoutSpaces == "n / a\n");
         }
     }
 }
