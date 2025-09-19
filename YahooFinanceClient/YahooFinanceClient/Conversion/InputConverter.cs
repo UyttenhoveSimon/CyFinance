@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace YahooFinanceClient.Conversion
 {
@@ -13,7 +14,7 @@ namespace YahooFinanceClient.Conversion
 
             var dateWithoutQuotes = data.Replace("\"", string.Empty);
 
-            return DateTime.Parse(dateWithoutQuotes);
+            return DateTime.Parse(dateWithoutQuotes, CultureInfo.InvariantCulture);
         }
 
         public decimal? ConvertStringToDecimal(string data)
@@ -23,7 +24,7 @@ namespace YahooFinanceClient.Conversion
                 return null;
             }
 
-            return Convert.ToDecimal(data);
+            return Convert.ToDecimal(data, CultureInfo.InvariantCulture);
         }
 
         public decimal? ConvertStringToPercentDecimal(string data)
@@ -38,10 +39,10 @@ namespace YahooFinanceClient.Conversion
 
             if (direction == '-')
             {
-                return -Convert.ToDecimal(number);
+                return -Convert.ToDecimal(number, CultureInfo.InvariantCulture);
             }
 
-            return Convert.ToDecimal(number);
+            return Convert.ToDecimal(number, CultureInfo.InvariantCulture);
         }
 
         public string CheckIfNotAvailable(string data)
@@ -56,15 +57,20 @@ namespace YahooFinanceClient.Conversion
 
         private bool IsAcceptableInput(string data)
         {
+            if (string.IsNullOrEmpty(data))
+            {
+                return false;
+            }
+            
             var dataWithoutSpaces = data.Replace(" ", string.Empty);
 
             return !(dataWithoutSpaces == ""
                 || dataWithoutSpaces == "N/A"
                 || dataWithoutSpaces == "N/A\n"
-                || dataWithoutSpaces == "N / A\n"
+                || dataWithoutSpaces == "N/A\n"
                 || dataWithoutSpaces == "n/a"
                 || dataWithoutSpaces == "n/a\n"
-                || dataWithoutSpaces == "n  / a\n");
+                || dataWithoutSpaces == "n/a\n");
         }
     }
 }

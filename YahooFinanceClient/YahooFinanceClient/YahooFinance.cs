@@ -10,7 +10,7 @@ namespace YahooFinance
         private readonly IWebClient webClient;
 
         private readonly ICsvParser csvParser;
-        
+
         public YahooFinance()
         {
             webClient = new WebClient();

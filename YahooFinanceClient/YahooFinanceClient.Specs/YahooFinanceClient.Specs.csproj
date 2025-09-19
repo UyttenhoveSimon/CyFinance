@@ -1,20 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AssemblyTitle>C# Yahoo Finance Client Specs</AssemblyTitle>
     <Product>C# Yahoo Finance Client Specs</Product>
     <description>C# Client Library Specss used to test the Csharp Yahoo Finance API, forked from https://github.com/dougdellolio/YahooFinanceAPI</description>
     <Copyright>Copyright</Copyright>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Build|AnyCPU'">
     <OutputPath>bin\Build\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NSubstitute" Version="5.3.0" />
-    <PackageReference Include="TUnit" Version="0.58.3" />
+    <PackageReference Include="TUnit" Version="0.59.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\YahooFinanceClient\YahooFinanceClient.csproj" />
