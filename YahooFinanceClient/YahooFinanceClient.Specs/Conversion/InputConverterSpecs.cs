@@ -1,138 +1,115 @@
-﻿using Machine.Fakes;
-using Machine.Specifications;
-using System;
+﻿using TUnit.Core;
+using TUnit.Assertions;
+using YahooFinanceClient.Conversion;
+using System.Threading.Tasks;
+using System; // Assuming this is the namespace for InputConverter
 
-namespace YahooFinanceClient.Specs.Conversion
+namespace YahooFinanceClient.Specs.Conversion;
+
+public class InputConverterTests
 {
-    public class InputConverterSpecs : WithSubject<YahooFinanceClient.Conversion.InputConverter>
+    // A single instance can be reused if the class is stateless.
+    private readonly InputConverter _inputConverter = new();
+
+    [Test]
+    public async Task ConvertStringToDecimal_WithValidDecimalString_ReturnsCorrectDecimal()
     {
-        static decimal? decimal_result;
+        // Arrange
+        const string input = "9.3";
+        const decimal expected = 9.3M;
 
-        static DateTime? date_result;
+        // Act
+        var result = _inputConverter.ConvertStringToDecimal(input);
 
-        static string string_result;
+        // Assert
+        await Assert.That(result).IsEqualTo(expected);
+    }
 
-        public class when_converting_string_to_decimal
-        {
-            Because of = () =>
-                decimal_result = Subject.ConvertStringToDecimal("9.3");
+    [Test]
+    public async Task ConvertStringToDate_WithValidDateString_ReturnsCorrectDateTime()
+    {
+        // Arrange
+        const string input = "2/2/2017";
+        var expected = new DateTime(2017, 2, 2);
 
-            It should_convert_to_decimal = () =>
-                decimal_result.ShouldEqual(9.3M);
-        }
+        // Act
+        var result = _inputConverter.ConvertStringToDate(input);
 
-        public class when_converting_string_to_datetime
-        {
-            Because of = () =>
-                date_result = Subject.ConvertStringToDate("2/2/2017");
+        // Assert
+        await Assert.That(result).IsEqualTo(expected);
+    }
 
-            It should_convert_to_decimal = () =>
-                date_result.ShouldEqual(new DateTime(2017, 2, 2));
-        }
+    [Test]
+    public async Task CheckIfNotAvailable_WithAvailableString_ReturnsTheString()
+    {
+        // Arrange
+        const string input = "2.78B";
 
-        public class when_checking_for_an_available_string
-        {
-            Because of = () =>
-                string_result = Subject.CheckIfNotAvailable("2.78B");
+        // Act
+        var result = _inputConverter.CheckIfNotAvailable(input);
 
-            It should_convert_to_decimal = () =>
-                string_result.ShouldEqual("2.78B");
-        }
+        // Assert
+       await Assert.That(result).IsEqualTo(input);
+    }
 
-        public class when_converting_percent_to_decimal
-        {
-            public class when_converting_positive_percent
-            {
-                Because of = () =>
-                    decimal_result = Subject.ConvertStringToPercentDecimal("+2.5%");
+    [Arguments("+2.5%", 2.5)]
+    [Arguments("-2.5%", -2.5)]
+    [Test]
+    public async Task ConvertStringToPercentDecimal_WithValidPercentString_ReturnsCorrectDecimal(string input, double expectedValue)
+    {
+        // Arrange
+        var expected = (decimal)expectedValue;
 
-                It should_convert_to_decimal = () =>
-                    decimal_result.ShouldEqual(2.5M);
-            }
+        // Act
+        var result = _inputConverter.ConvertStringToPercentDecimal(input);
 
-            public class when_converting_negative_percent
-            {
-                Because of = () =>
-                    decimal_result = Subject.ConvertStringToPercentDecimal("-2.5%");
+        // Assert
+        await Assert.That(result).IsEqualTo(expected);
+    }
 
-                It should_convert_to_decimal = () =>
-                    decimal_result.ShouldEqual(-2.5M);
-            }
-        }
+    [Arguments("N/A")]
+    [Arguments("N / A")]
+    [Arguments("N/A\n")]
+    [Arguments("N / A\n")]
+    [Arguments("")]
+    [Arguments(null)]
+    [Test]
+    public async Task ConvertStringToDecimal_WithNotAvailableOrEmptyStrings_ReturnsNull(string? input)
+    {
+        // Act
+        var result = _inputConverter.ConvertStringToDecimal(input);
 
-        public class when_converting_to_null
-        {
-            public class when_converting_not_available_to_decimal
-            {
-                Because of = () =>
-                    decimal_result = Subject.ConvertStringToDecimal("N/A");
+        // Assert
+        await Assert.That(result).IsNull();
+    }
+    
+    [Test]
+    public async Task ConvertStringToDate_WithNotAvailableString_ReturnsNull()
+    {
+        // Act
+        var result = _inputConverter.ConvertStringToDate("N/A");
 
-                It should_convert_to_null = () =>
-                    decimal_result.ShouldBeNull();
-            }
+        // Assert
+        await Assert.That(result).IsNull();
+    }
 
-            public class when_converting_not_available_with_spaces_to_decimal
-            {
-                Because of = () =>
-                    decimal_result = Subject.ConvertStringToDecimal("N / A");
+    [Test]
+    public async Task ConvertStringToPercentDecimal_WithNotAvailableString_ReturnsNull()
+    {
+        // Act
+        var result = _inputConverter.ConvertStringToPercentDecimal("N/A");
 
-                It should_convert_to_null = () =>
-                    decimal_result.ShouldBeNull();
-            }
+        // Assert
+        await Assert.That(result).IsNull();
+    }
+    
+    [Test]
+    public async Task CheckIfNotAvailable_WithNotAvailableString_ReturnsNull()
+    {
+        // Act
+        var result = _inputConverter.CheckIfNotAvailable("N/A");
 
-            public class when_converting_not_available_with_new_line_to_decimal
-            {
-                Because of = () =>
-                    decimal_result = Subject.ConvertStringToDecimal("N/A\n");
-
-                It should_convert_to_null = () =>
-                    decimal_result.ShouldBeNull();
-            }
-
-            public class when_converting_not_available_with_new_line_and_spaces_to_decimal
-            {
-                Because of = () =>
-                    decimal_result = Subject.ConvertStringToDecimal("N / A\n");
-
-                It should_convert_to_null = () =>
-                    decimal_result.ShouldBeNull();
-            }
-
-            public class when_converting_blank
-            {
-                Because of = () =>
-                    decimal_result = Subject.ConvertStringToDecimal("");
-
-                It should_convert_to_null = () =>
-                    decimal_result.ShouldBeNull();
-            }
-
-            public class when_converting_date
-            {
-                Because of = () =>
-                    date_result = Subject.ConvertStringToDate("N/A");
-
-                It should_convert_to_null = () =>
-                    date_result.ShouldBeNull();
-            }
-
-            public class when_converting_percent
-            {
-                Because of = () =>
-                    decimal_result = Subject.ConvertStringToPercentDecimal("N/A");
-
-                It should_convert_to_null = () =>
-                    decimal_result.ShouldBeNull();
-            }
-
-            public class when_checking_string_for_not_available
-            {
-                Because of = () =>
-                    string_result = Subject.CheckIfNotAvailable("N/A");
-
-                It should_convert_to_null = () =>
-                    decimal_result.ShouldBeNull();
-            }
-        }
+        // Assert
+        await Assert.That(result).IsNull();
     }
 }

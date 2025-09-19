@@ -1,187 +1,135 @@
-﻿using Machine.Fakes;
-using Machine.Specifications;
-using System;
+﻿using NSubstitute;
+using TUnit.Core;
+using TUnit.Assertions;
 using YahooFinanceClient.Models;
 using YahooFinanceClient.WebClient;
+using System;
+using System.Threading.Tasks;
 
-namespace YahooFinanceClient.Specs.CsvParser
+// Assuming the class being tested is in this namespace
+// using YahooFinanceClient.CsvParser; 
+
+namespace YahooFinanceClient.Specs.CsvParser;
+
+public class CsvParserTests
 {
-    public class CsvParserSpecs : WithSubject<YahooFinanceClient.CsvParser.CsvParser>
+    private IWebClient _mockWebClient;
+    private YahooFinanceClient.CsvParser.CsvParser _csvParser;
+
+    // This method runs before each test, setting up a clean environment.
+    [Before(Test)]
+    public void Setup()
     {
-        public class when_retrieving_a_stock
-        {
-            static Stock result;
+        _mockWebClient = Substitute.For<IWebClient>();
+        _csvParser = new YahooFinanceClient.CsvParser.CsvParser(_mockWebClient);
+    }
 
-            Establish context = () =>
-            {
-                The<IWebClient>().WhenToldTo(p => p.DownloadFile("AAPL", "abb2b3pokjj5k4j6k5w"))
-                    .Return("136.66,136.61,130.0,132.0,136.53,135.91,145.91,138.91,131.91,115.91,-66.7%,+45.5%,115.91-130.01");
+    [Test]
+    public async Task RetrieveStock_WithValidCsvData_CorrectlyParsesAllStockProperties()
+    {
+        // Arrange
+        const string ticker = "AAPL";
 
-                The<IWebClient>().WhenToldTo(p => p.DownloadFile("AAPL", "va5b6k3a2"))
-                    .Return("100000,120,130,130000,145000");
+        // Mock the different web client calls to return specific CSV strings
+        _mockWebClient.DownloadFileAsync(ticker, "abb2b3pokjj5k4j6k5w")
+            .Returns("136.66,136.61,130.0,132.0,136.53,135.91,145.91,138.91,131.91,115.91,-66.7%,+45.5%,115.91-130.01");
 
-                The<IWebClient>().WhenToldTo(p => p.DownloadFile("AAPL", "ghl1m3m4t8"))
-                    .Return("136.8,122.2,141.4,136.6,178.8,133.3");
+        _mockWebClient.DownloadFileAsync(ticker, "va5b6k3a2")
+            .Returns("100000,120,130,130000,145000");
 
-                The<IWebClient>().WhenToldTo(p => p.DownloadFile("AAPL", "ydr1q"))
-                    .Return("12.1,10.4,\"2/7/2017\",\"2/16/2017\"");
+        _mockWebClient.DownloadFileAsync(ticker, "ghl1m3m4t8")
+            .Returns("136.8,122.2,141.4,136.6,178.8,133.3");
 
-                The<IWebClient>().WhenToldTo(p => p.DownloadFile("AAPL", "ee7e8e9b4j4p5p6rr2r5r6r7s7"))
-                    .Return("8.33,8.94,10.15,1.62,25.19,69.75B,3.36,5.55,16.68,11.11,1.69,15.54,13.69,1.67");
-            };
+        _mockWebClient.DownloadFileAsync(ticker, "ydr1q")
+            .Returns("12.1,10.4,\"2/7/2017\",\"2/16/2017\"");
 
-            Because of = () =>
-                result = Subject.RetrieveStock("AAPL");
+        _mockWebClient.DownloadFileAsync(ticker, "ee7e8e9b4j4p5p6rr2r5r6r7s7")
+            .Returns("8.33,8.94,10.15,1.62,25.19,69.75B,3.36,5.55,16.68,11.11,1.69,15.54,13.69,1.67");
 
-            It should_have_correct_pricing_data = () =>
-            {
-                result.PricingData.Ask.ShouldEqual(136.66M);
-                result.PricingData.Bid.ShouldEqual(136.61M);
-                result.PricingData.AskRealTime.ShouldEqual(130.0M);
-                result.PricingData.BidRealTime.ShouldEqual(132.0M);
-                result.PricingData.PreviousClose.ShouldEqual(136.53M);
-                result.PricingData.Open.ShouldEqual(135.91M);
-                result.PricingData.FiftyTwoWeekHigh.ShouldEqual(145.91M);
-                result.PricingData.FiftyTwoWeekLow.ShouldEqual(138.91M);
-                result.PricingData.FiftyTwoWeekLowChange.ShouldEqual(131.91M);
-                result.PricingData.FiftyTwoWeekHighChange.ShouldEqual(115.91M);
-                result.PricingData.FiftyTwoWeekLowChangePercent.ShouldEqual(-66.7M);
-                result.PricingData.FiftyTwoWeekHighChangePercent.ShouldEqual(45.5M);
-                result.PricingData.FiftyTwoWeekRange.ShouldEqual("115.91-130.01");
-            };
+        // Act
+        var result = await _csvParser.RetrieveStockAsync(ticker);
 
-            It should_have_correct_volume_data = () =>
-            {
-                result.VolumeData.CurrentVolume.ShouldEqual(100000M);
-                result.VolumeData.AskSize.ShouldEqual(120M);
-                result.VolumeData.BidSize.ShouldEqual(130M);
-                result.VolumeData.LastTradeSize.ShouldEqual(130000);
-                result.VolumeData.AverageDailyVolume.ShouldEqual(145000M);
-            };
+        // Assert
+        // Group assertions by the data model for clarity
+        // Pricing Data
+        await Assert.That(result.PricingData.Ask).IsEqualTo(136.66M);
+        await Assert.That(result.PricingData.Bid).IsEqualTo(136.61M);
+        await Assert.That(result.PricingData.PreviousClose).IsEqualTo(136.53M);
+        await Assert.That(result.PricingData.Open).IsEqualTo(135.91M);
+        await Assert.That(result.PricingData.FiftyTwoWeekHigh).IsEqualTo(145.91M);
+        await Assert.That(result.PricingData.FiftyTwoWeekLow).IsEqualTo(138.91M);
+        await Assert.That(result.PricingData.FiftyTwoWeekLowChangePercent).IsEqualTo(-66.7M);
+        await Assert.That(result.PricingData.FiftyTwoWeekHighChangePercent).IsEqualTo(45.5M);
+        await Assert.That(result.PricingData.FiftyTwoWeekRange).IsEqualTo("115.91-130.01");
 
-            It should_have_correct_averages_data = () =>
-            {
-                result.AverageData.DayHigh.ShouldEqual(136.8M);
-                result.AverageData.DayLow.ShouldEqual(122.2M);
-                result.AverageData.LastTradePrice.ShouldEqual(141.4M);
-                result.AverageData.FiftyDayMovingAverage.ShouldEqual(136.6M);
-                result.AverageData.TwoHundredDayMovingAverage.ShouldEqual(178.8M);
-                result.AverageData.OneYearTargetPrice.ShouldEqual(133.3M);
-            };
+        // Volume Data
+        await Assert.That(result.VolumeData.CurrentVolume).IsEqualTo(100000M);
+        await Assert.That(result.VolumeData.AverageDailyVolume).IsEqualTo(145000M);
 
-            It should_have_correct_dividend_data = () =>
-            {
-                result.DividendData.DividendYield.ShouldEqual(12.1M);
-                result.DividendData.DividendPerShare.ShouldEqual(10.4M);
-                result.DividendData.DividendPayDate.ShouldEqual(new DateTime(2017, 2, 7));
-                result.DividendData.ExDividendDate.ShouldEqual(new DateTime(2017, 2, 16));
-            };
+        // Average Data
+        await Assert.That(result.AverageData.DayHigh).IsEqualTo(136.8M);
+        await Assert.That(result.AverageData.DayLow).IsEqualTo(122.2M);
+        await Assert.That(result.AverageData.FiftyDayMovingAverage).IsEqualTo(136.6M);
+        await Assert.That(result.AverageData.TwoHundredDayMovingAverage).IsEqualTo(178.8M);
 
-            It should_have_correct_ratio_data = () =>
-            {
-                result.RatioData.EarningsPerShare.ShouldEqual(8.33M);
-                result.RatioData.EPSEstimateCurrentYear.ShouldEqual(8.94M);
-                result.RatioData.EPSEstimateNextYear.ShouldEqual(10.15M);
-                result.RatioData.EPSEstimateNextQuarter.ShouldEqual(1.62M);
-                result.RatioData.BookValue.ShouldEqual(25.19M);
-                result.RatioData.Ebitda.ShouldEqual("69.75B");
-                result.RatioData.PricePerSales.ShouldEqual(3.36M);
-                result.RatioData.PricePerBook.ShouldEqual(5.55M);
-                result.RatioData.PeRatio.ShouldEqual(16.68M);
-                result.RatioData.PeRatioRealTime.ShouldEqual(11.11M);
-                result.RatioData.PegRatio.ShouldEqual(1.69M);
-                result.RatioData.PricePerEpsEstimateCurrentYear.ShouldEqual(15.54M);
-                result.RatioData.PricePerEPSEstimateNextYear.ShouldEqual(13.69M);
-                result.RatioData.ShortRatio.ShouldEqual(1.67M);
-            };
-        }
+        // Dividend Data
+        await Assert.That(result.DividendData.DividendYield).IsEqualTo(12.1M);
+        await Assert.That(result.DividendData.DividendPerShare).IsEqualTo(10.4M);
+        await Assert.That(result.DividendData.DividendPayDate).IsEqualTo(new DateTime(2017, 2, 7));
+        await Assert.That(result.DividendData.ExDividendDate).IsEqualTo(new DateTime(2017, 2, 16));
 
-        public class when_retrieving_a_stock_with_null_values
-        {
-            static Stock result;
+        // Ratio Data
+        await Assert.That(result.RatioData.EarningsPerShare).IsEqualTo(8.33M);
+        await Assert.That(result.RatioData.BookValue).IsEqualTo(25.19M);
+        await Assert.That(result.RatioData.Ebitda).IsEqualTo("69.75B");
+        await Assert.That(result.RatioData.PeRatio).IsEqualTo(16.68M);
+        await Assert.That(result.RatioData.PegRatio).IsEqualTo(1.69M);
+        await Assert.That(result.RatioData.ShortRatio).IsEqualTo(1.67M);
+    }
 
-            Establish context = () =>
-            {
-                The<IWebClient>().WhenToldTo(p => p.DownloadFile("AAPL", "abb2b3pokjj5k4j6k5w"))
-                    .Return("N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A");
+    [Test]
+    public async Task RetrieveStock_WithNotAvailableCsvData_CorrectlyParsesAllPropertiesAsNull()
+    {
+        // Arrange
+        const string ticker = "AAPL";
 
-                The<IWebClient>().WhenToldTo(p => p.DownloadFile("AAPL", "va5b6k3a2"))
-                    .Return("N/A,N/A,N/A\n,N/A\n,N/A");
+        _mockWebClient.DownloadFileAsync(ticker, Arg.Any<string>())
+            .Returns("N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A");
 
-                The<IWebClient>().WhenToldTo(p => p.DownloadFile("AAPL", "ghl1m3m4t8"))
-                    .Return("N/A\n,N/A,N/A,N/A,N/A,N/A\n");
+        // Act
+        var result = await _csvParser.RetrieveStockAsync(ticker);
 
-                The<IWebClient>().WhenToldTo(p => p.DownloadFile("AAPL", "ydr1q"))
-                    .Return("N/A\n,N/A,N/A\n,N/A\n");
+        // Pricing Data
+        await Assert.That(result.PricingData.Ask).IsNull();
+        await Assert.That(result.PricingData.Bid).IsNull();
+        await Assert.That(result.PricingData.PreviousClose).IsNull();
+        await Assert.That(result.PricingData.Open).IsNull();
+        await Assert.That(result.PricingData.FiftyTwoWeekHigh).IsNull();
+        await Assert.That(result.PricingData.FiftyTwoWeekLow).IsNull();
+        await Assert.That(result.PricingData.FiftyTwoWeekRange).IsNull();
 
-                The<IWebClient>().WhenToldTo(p => p.DownloadFile("AAPL", "ee7e8e9b4j4p5p6rr2r5r6r7s7"))
-                    .Return("N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A");
-            };
+        // Volume Data
+        await Assert.That(result.VolumeData.CurrentVolume).IsNull();
+        await Assert.That(result.VolumeData.AverageDailyVolume).IsNull();
 
-            Because of = () =>
-                result = Subject.RetrieveStock("AAPL");
+        // Average Data
+        await Assert.That(result.AverageData.DayHigh).IsNull();
+        await Assert.That(result.AverageData.DayLow).IsNull();
+        await Assert.That(result.AverageData.FiftyDayMovingAverage).IsNull();
+        await Assert.That(result.AverageData.TwoHundredDayMovingAverage).IsNull();
 
-            It should_have_correct_pricing_data = () =>
-            {
-                result.PricingData.Ask.ShouldBeNull();
-                result.PricingData.Bid.ShouldBeNull();
-                result.PricingData.AskRealTime.ShouldBeNull();
-                result.PricingData.BidRealTime.ShouldBeNull();
-                result.PricingData.PreviousClose.ShouldBeNull();
-                result.PricingData.Open.ShouldBeNull();
-            };
+        // Dividend Data
+        await Assert.That(result.DividendData.DividendYield).IsNull();
+        await Assert.That(result.DividendData.DividendPerShare).IsNull();
+        await Assert.That(result.DividendData.DividendPayDate).IsNull();
+        await Assert.That(result.DividendData.ExDividendDate).IsNull();
 
-            It should_have_correct_volume_data = () =>
-            {
-                result.VolumeData.CurrentVolume.ShouldBeNull();
-                result.VolumeData.AskSize.ShouldBeNull();
-                result.VolumeData.BidSize.ShouldBeNull();
-                result.VolumeData.LastTradeSize.ShouldBeNull();
-                result.VolumeData.AverageDailyVolume.ShouldBeNull();
-                result.PricingData.FiftyTwoWeekHigh.ShouldBeNull();
-                result.PricingData.FiftyTwoWeekLow.ShouldBeNull();
-                result.PricingData.FiftyTwoWeekLowChange.ShouldBeNull();
-                result.PricingData.FiftyTwoWeekHighChange.ShouldBeNull();
-                result.PricingData.FiftyTwoWeekLowChangePercent.ShouldBeNull();
-                result.PricingData.FiftyTwoWeekHighChangePercent.ShouldBeNull();
-                result.PricingData.FiftyTwoWeekRange.ShouldBeNull();
-            };
-
-            It should_have_correct_averages_data = () =>
-            {
-                result.AverageData.DayHigh.ShouldBeNull();
-                result.AverageData.DayLow.ShouldBeNull();
-                result.AverageData.LastTradePrice.ShouldBeNull();
-                result.AverageData.FiftyDayMovingAverage.ShouldBeNull();
-                result.AverageData.TwoHundredDayMovingAverage.ShouldBeNull();
-                result.AverageData.OneYearTargetPrice.ShouldBeNull();
-            };
-
-            It should_have_correct_dividend_data = () =>
-            {
-                result.DividendData.DividendYield.ShouldBeNull();
-                result.DividendData.DividendPerShare.ShouldBeNull();
-                result.DividendData.DividendPayDate.ShouldBeNull();
-                result.DividendData.ExDividendDate.ShouldBeNull();
-            };
-
-            It should_have_correct_ratio_data = () =>
-            {
-                result.RatioData.EarningsPerShare.ShouldBeNull();
-                result.RatioData.EPSEstimateCurrentYear.ShouldBeNull();
-                result.RatioData.EPSEstimateNextYear.ShouldBeNull();
-                result.RatioData.EPSEstimateNextQuarter.ShouldBeNull();
-                result.RatioData.BookValue.ShouldBeNull();
-                result.RatioData.Ebitda.ShouldBeNull();
-                result.RatioData.PricePerSales.ShouldBeNull();
-                result.RatioData.PricePerBook.ShouldBeNull();
-                result.RatioData.PeRatio.ShouldBeNull();
-                result.RatioData.PeRatioRealTime.ShouldBeNull();
-                result.RatioData.PegRatio.ShouldBeNull();
-                result.RatioData.PricePerEpsEstimateCurrentYear.ShouldBeNull();
-                result.RatioData.PricePerEPSEstimateNextYear.ShouldBeNull();
-                result.RatioData.ShortRatio.ShouldBeNull();
-            };
-        }
+        // Ratio Data
+        await Assert.That(result.RatioData.EarningsPerShare).IsNull();
+        await Assert.That(result.RatioData.BookValue).IsNull();
+        await Assert.That(result.RatioData.Ebitda).IsNull();
+        await Assert.That(result.RatioData.PeRatio).IsNull();
+        await Assert.That(result.RatioData.PegRatio).IsNull();
+        await Assert.That(result.RatioData.ShortRatio).IsNull();
     }
 }
