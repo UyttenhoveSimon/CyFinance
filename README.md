@@ -2,34 +2,261 @@
 
 C# Client Library used to interact with the Yahoo Finance API
 
-[![yahoofinanceapi MyGet Build Status](https://www.myget.org/BuildSource/Badge/yahoofinanceapi?identifier=38997d9d-f6c0-4fd6-8f10-caa8cc0eb323)](https://www.myget.org/)
+This project is intended to be a C# implementation that mimics the popular Python `yfinance` library. The table below shows a comparison of the features currently available in this library versus `yfinance`.
 
-<h1>How to Install</h1>
+| Feature | yfinance (Python) | CyFinance (C#) |
+| :--- | :---: | :---: |
+| Current Quote Data | ✅ | ✅ |
+| Historical Price Data | ✅ | ❌ |
+| Company Information (Profile, Summary) | ✅ | Limited |
+| Financial Statements (Income, Balance Sheet, Cash Flow) | ✅ | ❌ |
+| Dividends & Splits History | ✅ | ✅ (Current dividend data only) |
+| Analyst Recommendations | ✅ | ❌ |
+| Shareholder Information (Major, Institutional) | ✅ | ❌ |
+| Earnings Calendar | ✅ | ❌ |
+| Option Chains | ✅ | ❌ |
+| Company News | ✅ | ❌ |
+| Download Data for Multiple Stocks at Once | ✅ | ❌ |
+
+##  Which internal APIs are used by yfinance ?
+
+Info from Claude: Based on analysis of the yfinance library source code and documentation.
+
+## Core Data Endpoints
+
+### 1. **Chart/Historical Data API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v8/finance/chart/{ticker}`
+- **Purpose**: Historical price data, volume, and chart information
+- **Parameters**:
+  - `period1` & `period2`: Unix timestamps for date range
+  - `interval`: Time intervals (1m, 2m, 5m, 15m, 30m, 1h, 1d, 5d, 1wk, 1mo, 3mo)
+  - `events`: dividends, splits
+- **Usage**: Primary endpoint for `.history()` method
+
+### 2. **Quote Summary API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}`
+- **Purpose**: Comprehensive ticker information including financials, statistics, and company data
+- **Modules**:
+  - `assetProfile`: Company profile and business description
+  - `summaryProfile`: Basic company information
+  - `summaryDetail`: Current price and market data
+  - `esgScores`: ESG (Environmental, Social, Governance) ratings
+  - `price`: Real-time price information
+  - `incomeStatementHistory`: Annual income statements
+  - `incomeStatementHistoryQuarterly`: Quarterly income statements
+  - `balanceSheetHistory`: Annual balance sheets
+  - `balanceSheetHistoryQuarterly`: Quarterly balance sheets
+  - `cashflowStatementHistory`: Annual cash flow statements
+  - `cashflowStatementHistoryQuarterly`: Quarterly cash flow statements
+  - `defaultKeyStatistics`: Key financial metrics
+  - `financialData`: Real-time financial data
+  - `calendarEvents`: Upcoming earnings and events
+  - `secFilings`: SEC filing information
+  - `recommendationTrend`: Analyst recommendations
+  - `upgradeDowngradeHistory`: Analyst upgrades/downgrades
+  - `institutionOwnership`: Institutional ownership data
+  - `fundOwnership`: Fund ownership data
+  - `majorDirectHolders`: Major direct shareholders
+  - `majorHoldersBreakdown`: Ownership breakdown
+  - `insiderTransactions`: Insider trading activity
+  - `insiderHolders`: Insider holdings
+  - `netSharePurchaseActivity`: Share buyback activity
+  - `earnings`: Earnings data and estimates
+  - `earningsHistory`: Historical earnings
+  - `earningsTrend`: Earnings trend and estimates
+  - `industryTrend`: Industry-wide trends
+  - `indexTrend`: Index trend data
+  - `sectorTrend`: Sector trend data
+
+### 3. **Options Data API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v7/finance/options/{ticker}`
+- **Purpose**: Options chain data
+- **Parameters**:
+  - `date`: Expiration date (Unix timestamp)
+- **Usage**: Used by `.option_chain()` method
+
+### 4. **Screener API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v1/finance/screener`
+- **Purpose**: Stock screening and filtering
+- **Usage**: Used by `Screener` and `EquityQuery` classes
+
+### 5. **Search API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v1/finance/search`
+- **Purpose**: Search for tickers, news, and quotes
+- **Parameters**:
+  - `q`: Search query
+  - `quotesCount`: Number of quote results
+  - `newsCount`: Number of news results
+- **Usage**: Used by `Search` class
+
+### 6. **News API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v2/finance/news`
+- **Purpose**: Financial news related to specific tickers
+- **Usage**: Used for `.news` property
+
+### 7. **Spark Chart API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v8/finance/spark`
+- **Purpose**: Lightweight chart data for quick price updates
+- **Parameters**:
+  - `symbols`: Comma-separated ticker symbols
+  - `range`: Time range (1d, 5d, 1mo, etc.)
+  - `interval`: Data interval
+
+## Market Data APIs
+
+### 8. **Market Summary API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v6/finance/quote/marketSummary`
+- **Purpose**: Market indices and summary information
+- **Usage**: Used by `Market` class
+
+### 9. **Trending Tickers API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v1/finance/trending/{region}`
+- **Purpose**: Get trending stocks by region
+- **Regions**: US, AU, CA, FR, DE, HK, IT, ES, GB, IN
+
+### 10. **Sector/Industry APIs**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v1/finance/sector/{sector_id}`
+- **Endpoint**: `https://query2.finance.yahoo.com/v1/finance/industry/{industry_id}`
+- **Purpose**: Sector and industry performance data
+- **Usage**: Used by `Sector` and `Industry` classes
+
+## Real-time Data APIs
+
+### 11. **WebSocket Streaming API**
+
+- **Endpoint**: `wss://streamer.finance.yahoo.com/`
+- **Purpose**: Live streaming price data
+- **Usage**: Used by `WebSocket` and `AsyncWebSocket` classes
+- **Protocol**: Uses Yahoo's proprietary streaming protocol
+
+### 12. **Quote API (Real-time)**
+
+- **Endpoint**: `https://query1.finance.yahoo.com/v7/finance/quote`
+- **Purpose**: Real-time quotes for multiple symbols
+- **Parameters**:
+  - `symbols`: Comma-separated ticker symbols
+  - `fields`: Specific fields to return
+- **Usage**: Used for real-time price updates
+
+## Additional Endpoints
+
+### 13. **Dividend History API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v8/finance/chart/{ticker}?events=div`
+- **Purpose**: Historical dividend data
+- **Usage**: Part of historical data retrieval
+
+### 14. **Stock Splits API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v8/finance/chart/{ticker}?events=split`
+- **Purpose**: Historical stock split data
+- **Usage**: Part of historical data retrieval
+
+### 15. **Mutual Fund/ETF Data API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}`
+- **Modules**:
+  - `fundProfile`: Fund-specific information
+  - `topHoldings`: Fund's top holdings
+  - `bondHoldings`: Bond fund holdings
+  - `equityHoldings`: Equity fund holdings
+  - `bondRatings`: Bond ratings distribution
+  - `sectorWeightings`: Sector allocation
+
+### 16. **Currency/Forex API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v8/finance/chart/{currency_pair}`
+- **Purpose**: Foreign exchange rates and historical data
+- **Usage**: Used for currency pairs (e.g., "EURUSD=X")
+
+### 17. **Cryptocurrency API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v8/finance/chart/{crypto_symbol}`
+- **Purpose**: Cryptocurrency price data
+- **Usage**: Used for crypto symbols (e.g., "BTC-USD")
+
+## Base URLs and Domains
+
+- **Primary Domain**: `query2.finance.yahoo.com` (main API endpoint)
+- **Fallback Domain**: `query1.finance.yahoo.com` (backup/alternative)
+- **Streaming Domain**: `streamer.finance.yahoo.com` (WebSocket streaming)
+
+## How to Install?
 
 `PM> Install-Package YahooFinanceClient`
 
-<h1>What is Provided?</h1>
+## What is Provided?
 
-This library provides some methods that should make it easy to communicate with the Yahoo Finance API
+This library provides easy access to a variety of stock data points, categorized as follows:
 
-| Pricing Data                  | Dividend Data      | Volume Data          | Average Data           | Ratio Data                        |
-|-------------------------------|--------------------|----------------------|------------------------|-----------------------------------|
-| Ask                           | Dividend Yield     | Volume               | Day Low                | Earnings per Share                |
-| Bid                           | Dividend per Share | Ask Size             | Day High               | EPS Estimate Current Year         |
-| Ask Realtime                  | Dividend Pay Date  | Bid Size             | Last Trade Price       | EPS Estimate Next Year            |
-| Bid Realtime                  | Ex-Dividend Date   | Last Trade Size      | 50 Day Moving Average  | EPS Estimate Next Quarter         |
-| Previous Close                |                    | Average Daily Volume | 200 Day Moving Average | Book Value                        |
-| Open                          |                    |                      | One Year Target Price  | EBITDA                            |
-| 52 Week High                  |                    |                      |                        | Price / Sales                     |
-| 52 Week Low                   |                    |                      |                        | Price / Book                      |
-| 52 Week Low Change            |                    |                      |                        | P/E Ratio                         |
-| 52 Week High Change           |                    |                      |                        | P/E Ratio (Realtime)              |
-| 52 Week Low Change (Percent)  |                    |                      |                        | PEG Ratio                         |
-| 52 Week High Change (Percent) |                    |                      |                        | Price / EPS Estimate Current Year |
-| 52 Week Range                 |                    |                      |                        | Price / EPS Estimate Next Year    |
-|                               |                    |                      |                        | Short Ratio                       |
+### Pricing Data
 
-<h1>Examples</h1>
+- Ask
+- Bid
+- Ask Realtime
+- Bid Realtime
+- Previous Close
+- Open
+- 52 Week High
+- 52 Week Low
+- 52 Week Low Change
+- 52 Week High Change
+- 52 Week Low Change (Percent)
+- 52 Week High Change (Percent)
+- 52 Week Range
+
+### Dividend Data
+
+- Dividend Yield
+- Dividend per Share§
+- Dividend Pay Date
+- Ex-Dividend Date
+
+### Volume Data
+
+- Volume
+- Ask Size
+- Bid Size
+- Last Trade Size
+- Average Daily Volume
+
+### Average Data
+
+- Day Low
+- Day High
+- Last Trade Price
+- 50 Day Moving Average
+- 200 Day Moving Average
+- One Year Target Price
+
+### Ratio Data
+
+- Earnings per Share
+- EPS Estimate Current Year
+- EPS Estimate Next Year
+- EPS Estimate Next Quarter
+- Book Value
+- EBITDA
+- Price / Sales
+- Price / Book
+- P/E Ratio
+- P/E Ratio (Realtime)
+- PEG Ratio
+- Price / EPS Estimate Current Year
+- Price / EPS Estimate Next Year
+- Short Ratio
+
+## Examples
 
 ````
 var yahooFinanceClient = new YahooFinance.YahooFinance();
@@ -50,4 +277,4 @@ Console.WriteLine($"Ask Size is {apple.VolumeData.AskSize}");
 Console.WriteLine($"Bid Size is {apple.VolumeData.BidSize}");
 Console.WriteLine($"Last Trade Size is {apple.VolumeData.LastTradeSize}");
 Console.WriteLine($"Average Daily Volume is {apple.VolumeData.AverageDailyVolume}");
-````            
+````
