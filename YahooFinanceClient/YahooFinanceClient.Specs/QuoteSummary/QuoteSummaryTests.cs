@@ -9,29 +9,20 @@ using TUnit.Core;
 using TUnit.Assertions;
 using YahooFinanceClient.QuoteSummary;
 using TUnit.Assertions.Extensions;
-using System.Net;
 
 namespace YahooFinanceClient.Specs.QuoteSummary
 {
-    public class SmokeTests
+    public class QuoteSummaryTests
     {
         private readonly HttpClient _httpClient;
         private readonly QuoteSummaryService _service;
-        public SmokeTests()
+        public QuoteSummaryTests()
         {
-            _httpClient = new HttpClient(new HttpClientHandler
-            {
-                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate,
-                AllowAutoRedirect = true,
-                UseCookies = true,
-                CookieContainer = new CookieContainer()
-            });
-
+            _httpClient = new HttpClient();
             _service = new QuoteSummaryService(_httpClient);
-
         }
 
-        [Test]
+        [Test] 
         public async Task GetQuoteSummaryAsync_ValidTicker_ReturnsQuoteResponse()
         {
             // Arrange
@@ -45,7 +36,7 @@ namespace YahooFinanceClient.Specs.QuoteSummary
             await Assert.That(result?.QuoteSummary).IsNotNull();
             await Assert.That(result?.QuoteSummary?.Result).IsNotNull();
             await Assert.That(result?.QuoteSummary?.Result).IsNotEmpty();
-            await Assert.That(ticker).IsEqualTo(result?.QuoteSummary?.Result?.FirstOrDefault().Price?.Symbol);
+            await Assert.That(ticker).IsEqualTo( result?.QuoteSummary?.Result?.FirstOrDefault().Price?.Symbol);
         }
     }
 }

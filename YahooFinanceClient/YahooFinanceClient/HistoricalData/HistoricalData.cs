@@ -106,7 +106,6 @@ namespace YahooFinanceClient.Models.HistoricalData
         string SplitRatio
     );
 
-    // Simplified Models for Easy Consumption
     public class HistoricalPrice
     {
         public DateTime Date { get; set; }
