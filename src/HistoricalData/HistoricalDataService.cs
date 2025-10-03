@@ -6,7 +6,7 @@ namespace CyFinance.HistoricalData
 
     public class HistoricalDataService : BaseService
     {
-        protected HistoricalDataService(HttpClient client) : base(client)
+        public HistoricalDataService(HttpClient client) : base(client)
         {
             if (!Client.DefaultRequestHeaders.Contains("User-Agent"))
             {

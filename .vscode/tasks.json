@@ -1,25 +1,35 @@
 {
     "version": "2.0.0",
     "tasks": [
-        {
+         {
             "label": "build",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/YahooFinanceClient/YahooFinanceClient.Specs/YahooFinanceClient.Specs.csproj"
+                "${workspaceFolder}/src/CyFinance.csproj"
             ],
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "run",
+            "label": "BuildTests",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/tests/CyFinance.Tests.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "RunTests",
             "dependsOn": "build",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "run",
                 "--project",
-                "${workspaceFolder}/YahooFinanceClient/YahooFinanceClient.Specs/YahooFinanceClient.Specs.csproj"
+                "${workspaceFolder}/tests/CyFinance.Tests.csproj"
             ],
             "problemMatcher": []
         }

@@ -16,7 +16,7 @@ namespace CyFinance
         };
 
         private const string COOKIE_URL = "https://fc.yahoo.com";
-        private string? _crumb;
+        protected string? _crumb;
         private DateTime _crumbExpiry = DateTime.MinValue;
         private static readonly TimeSpan CrumbValidDuration = TimeSpan.FromHours(1);
 
