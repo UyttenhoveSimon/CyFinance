@@ -19,7 +19,7 @@
     <PackageReference Include="TUnit" Version="0.59.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\YahooFinanceClient\YahooFinanceClient.csproj" />
+    <ProjectReference Include="..\src\CyFinance.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

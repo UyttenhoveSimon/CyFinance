@@ -1,22 +1,24 @@
 # Yahoo Finance API Client Library
 
-C# Client Library used to interact with the Yahoo Finance API
+This is a **C# client library** designed to interact with the **Yahoo Finance API**.
 
-This project is intended to be a C# implementation that mimics the popular Python `yfinance` library. The table below shows a comparison of the features currently available in this library versus `yfinance`.
+The project was originally a fork of [dougdellolio/YahooFinanceAPI](https://github.com/dougdellolio/YahooFinanceAPI). However, due to significant changes in Yahoo’s API, the library has been **rebuilt from scratch** with the goal of providing a **C# implementation** that closely mirrors the popular Python library [`yfinance`](https://github.com/ranaroussi/yfinance).
+
+The table below outlines the current feature parity between `yfinance` and this C# library (**CyFinance**):
 
 | Feature | yfinance (Python) | CyFinance (C#) |
 | :--- | :---: | :---: |
 | Current Quote Data | ✅ | ✅ |
 | Historical Price Data | ✅ | ❌ |
-| Company Information (Profile, Summary) | ✅ | Limited |
+| Company Information (Profile, Summary) | ✅ | ⚠️ Limited |
 | Financial Statements (Income, Balance Sheet, Cash Flow) | ✅ | ❌ |
-| Dividends & Splits History | ✅ | ✅ (Current dividend data only) |
+| Dividends & Splits History | ✅ | ✅ *(Current dividend data only)* |
 | Analyst Recommendations | ✅ | ❌ |
 | Shareholder Information (Major, Institutional) | ✅ | ❌ |
 | Earnings Calendar | ✅ | ❌ |
 | Option Chains | ✅ | ❌ |
 | Company News | ✅ | ❌ |
-| Download Data for Multiple Stocks at Once | ✅ | ❌ |
+| Multi-Ticker Data Download | ✅ | ❌ |
 
 ##  Which internal APIs are used by yfinance ?
 
@@ -193,88 +195,5 @@ Info from Claude: Based on analysis of the yfinance library source code and docu
 
 ## How to Install?
 
-`PM> Install-Package YahooFinanceClient`
 
 ## What is Provided?
-
-This library provides easy access to a variety of stock data points, categorized as follows:
-
-### Pricing Data
-
-- Ask
-- Bid
-- Ask Realtime
-- Bid Realtime
-- Previous Close
-- Open
-- 52 Week High
-- 52 Week Low
-- 52 Week Low Change
-- 52 Week High Change
-- 52 Week Low Change (Percent)
-- 52 Week High Change (Percent)
-- 52 Week Range
-
-### Dividend Data
-
-- Dividend Yield
-- Dividend per Share§
-- Dividend Pay Date
-- Ex-Dividend Date
-
-### Volume Data
-
-- Volume
-- Ask Size
-- Bid Size
-- Last Trade Size
-- Average Daily Volume
-
-### Average Data
-
-- Day Low
-- Day High
-- Last Trade Price
-- 50 Day Moving Average
-- 200 Day Moving Average
-- One Year Target Price
-
-### Ratio Data
-
-- Earnings per Share
-- EPS Estimate Current Year
-- EPS Estimate Next Year
-- EPS Estimate Next Quarter
-- Book Value
-- EBITDA
-- Price / Sales
-- Price / Book
-- P/E Ratio
-- P/E Ratio (Realtime)
-- PEG Ratio
-- Price / EPS Estimate Current Year
-- Price / EPS Estimate Next Year
-- Short Ratio
-
-## Examples
-
-````
-var yahooFinanceClient = new YahooFinance.YahooFinance();
-var apple = yahooFinanceClient.RetrieveStock("AAPL");
-
-Console.WriteLine($"Ask Price is {apple.PricingData.Ask}");
-Console.WriteLine($"Bid Price is {apple.PricingData.Bid}");
-Console.WriteLine($"Open Price is {apple.PricingData.Open}");
-Console.WriteLine($"Previous Close is {apple.PricingData.PreviousClose}");
-````
-
-````
-var yahooFinanceClient = new YahooFinance.YahooFinance();
-var apple = yahooFinanceClient.RetrieveStock("AAPL");
-
-Console.WriteLine($"Volume is {apple.VolumeData.CurrentVolume}");
-Console.WriteLine($"Ask Size is {apple.VolumeData.AskSize}");
-Console.WriteLine($"Bid Size is {apple.VolumeData.BidSize}");
-Console.WriteLine($"Last Trade Size is {apple.VolumeData.LastTradeSize}");
-Console.WriteLine($"Average Daily Volume is {apple.VolumeData.AverageDailyVolume}");
-````

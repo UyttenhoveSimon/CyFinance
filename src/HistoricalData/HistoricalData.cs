@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace YahooFinanceClient.Models.HistoricalData
+namespace CyFinance.Models.HistoricalData
 {
   // Enums
     public enum ChartInterval

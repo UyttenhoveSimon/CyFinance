@@ -1,7 +1,7 @@
-using YahooFinanceClient.Models.HistoricalData;
+using CyFinance.Models.HistoricalData;
 using System.Net.Http.Json;
 
-namespace YahooFinanceClient.HistoricalData
+namespace CyFinance.HistoricalData
 {
 
     public class HistoricalDataService : BaseService
@@ -17,12 +17,12 @@ namespace YahooFinanceClient.HistoricalData
         private const string BASE_URL = "https://query2.finance.yahoo.com";
 
         public async Task<ChartResponse> GetHistoricalDataAsync(
-       string ticker,
-       DateTime? startDate = null,
-       DateTime? endDate = null,
-       ChartInterval interval = ChartInterval.OneDay,
-       bool includeDividends = true,
-       bool includeSplits = true)
+            string ticker,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            ChartInterval interval = ChartInterval.OneDay,
+            bool includeDividends = true,
+            bool includeSplits = true)
         {
             try
             {

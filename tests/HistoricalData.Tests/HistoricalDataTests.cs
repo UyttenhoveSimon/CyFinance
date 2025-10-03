@@ -1,25 +1,25 @@
+using CyFinance.HistoricalData;
+using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using NSubstitute;
-using TUnit.Core;
 using TUnit.Assertions;
-using YahooFinanceClient.QuoteSummary;
 using TUnit.Assertions.Extensions;
+using TUnit.Core;
 
-namespace YahooFinanceClient.Specs.QuoteSummary
+namespace CyFinance.Tests.HistoricalData
 {
-    public class QuoteSummaryTests
+    public class HistoricalDataTests
     {
         private readonly HttpClient _httpClient;
-        private readonly QuoteSummaryService _service;
-        public QuoteSummaryTests()
+        private readonly HistoricalDataService _service;
+        public HistoricalDataTests()
         {
             _httpClient = new HttpClient();
-            _service = new QuoteSummaryService(_httpClient);
+            _service = new HistoricalDataService(_httpClient);
         }
 
         [Test] 
@@ -29,7 +29,7 @@ namespace YahooFinanceClient.Specs.QuoteSummary
             var ticker = "AAPL";
 
             // Act
-            var result = await _service.GetQuoteSummaryAsync(ticker);
+            //var result = await _service. (ticker);
 
             // Assert
             await Assert.That(result).IsNotNull();

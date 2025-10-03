@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization; // Required for JsonPropertyName
 
-namespace YahooFinanceClient.Models.QuoteSummary;
+namespace CyFinance.Models.QuoteSummary;
 
 public record QuoteResponse(QuoteSummary QuoteSummary);
 

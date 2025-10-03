@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 using NSubstitute;
 using TUnit.Core;
 using TUnit.Assertions;
-using YahooFinanceClient.QuoteSummary;
+using CyFinance.QuoteSummary;
 using TUnit.Assertions.Extensions;
 using System.Net;
 
-namespace YahooFinanceClient.Specs.QuoteSummary
+namespace CyFinance.Specs.QuoteSummary
 {
     public class SmokeTests
     {
