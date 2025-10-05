@@ -10,7 +10,7 @@ using TUnit.Assertions;
 using TUnit.Assertions.Extensions;
 using TUnit.Core;
 
-namespace CyFinance.Specs.QuoteSummary
+namespace CyFinance.Tests.QuoteSummary
 {
     public class QuoteSummaryTests
     {
