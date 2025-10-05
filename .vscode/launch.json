@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Build Tests",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "BuildTests",
+            "program": "${workspaceFolder}/tests/bin/Debug/net9.0/CyFinance.Tests.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+        },
+        {
+            "name": "Launch Tests",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "RunTests",
+            "program": "${workspaceFolder}/tests/bin/Debug/net9.0/CyFinance.Tests.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+        }
+    ]
+}

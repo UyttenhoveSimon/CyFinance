@@ -2,12 +2,12 @@
 <package >
   <metadata>
     <id>Csharp Yahoo Client</id>
-    <version>1.4</version>
+    <version>0.1.0</version>
     <title>C# Yahoo Finance API Client</title>
-    <authors>Doug Dellolio, Simon Uyttenhove</authors>
+    <authors>Simon Uyttenhove</authors>
     <projectUrl>https://github.com/UyttenhoveSimon/CyFinance</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>C# Client Library used to interact with the Yahoo Finance API, forked from https://github.com/dougdellolio/YahooFinanceAPI</description>
+    <description>C# Client Library used to interact with the Yahoo Finance API</description>
     <copyright>Copyright</copyright>
     <tags>Csharp Yahoo Finance API NET Wrapper Client</tags>
   </metadata>

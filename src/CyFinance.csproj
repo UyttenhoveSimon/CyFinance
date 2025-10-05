@@ -5,7 +5,7 @@
     <StartupObject />
     <AssemblyTitle>C# Yahoo Finance Client</AssemblyTitle>
     <Product>C# Yahoo Finance Client</Product>
-    <description>C# Client Library used to interact with the Yahoo Finance API, forked from https://github.com/dougdellolio/YahooFinanceAPI</description>
+    <description>C# Client Library used to interact with the Yahoo Finance API</description>
     <Copyright>Copyright</Copyright>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
@@ -15,5 +15,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Build|AnyCPU'">
     <OutputPath>bin\Build\</OutputPath>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+  </ItemGroup>
 
 </Project>
