@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using System.Collections.Generic;
 
 // This is the top-level object that wraps the entire JSON response.
 public class OptionsDataResponse

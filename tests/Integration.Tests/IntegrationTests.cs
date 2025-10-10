@@ -1,17 +1,17 @@
+using CyFinance.Models.HistoricalData;
+using CyFinance.Services.HistoricalData;
+using CyFinance.Services.QuoteSummary;
+using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using NSubstitute;
-using TUnit.Core;
 using TUnit.Assertions;
-using CyFinance.Services.QuoteSummary;
 using TUnit.Assertions.Extensions;
-using System.Net;
-using CyFinance.Services.HistoricalData;
-using CyFinance.Models.HistoricalData;
+using TUnit.Core;
 
 namespace CyFinance.Tests.Integration
 {
