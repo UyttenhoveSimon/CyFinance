@@ -1,9 +1,8 @@
 using CyFinance.Models.HistoricalData;
 using System.Net.Http.Json;
 
-namespace CyFinance.HistoricalData
+namespace CyFinance.Services.HistoricalData
 {
-
     public class HistoricalDataService : BaseService
     {
         public HistoricalDataService(HttpClient client) : base(client)
@@ -26,6 +25,7 @@ namespace CyFinance.HistoricalData
         {
             try
             {
+                await EnsureAuthenticatedAsync(ticker);
                 var url = BuildChartUrl(ticker, startDate, endDate, interval, includeDividends, includeSplits);
                 return await Client.GetFromJsonAsync<ChartResponse>(url, _jsonOptions);
             }
