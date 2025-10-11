@@ -4,7 +4,7 @@ using CyFinance.Models.QuoteSummary;
 
 namespace CyFinance.Services.QuoteSummary
 {
-    public class QuoteSummaryService : BaseService
+    public class QuoteSummaryService : BaseService, IQuoteSummaryService
     {
         private const string BASE_URL = "https://query2.finance.yahoo.com";
         public QuoteSummaryService(HttpClient client) : base(client)

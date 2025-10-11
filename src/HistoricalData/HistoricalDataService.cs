@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 
 namespace CyFinance.Services.HistoricalData
 {
-    public class HistoricalDataService : BaseService
+    public class HistoricalDataService : BaseService, IHistoricalDataService
     {
         public HistoricalDataService(HttpClient client) : base(client)
         {

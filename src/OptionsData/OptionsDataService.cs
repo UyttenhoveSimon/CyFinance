@@ -1,9 +1,8 @@
-
 using System.Text.Json;
 
 namespace CyFinance.Services.OptionsData
 {
-    public class OptionsDataService : BaseService
+    public class OptionsDataService : BaseService, IOptionsDataService
     {
         public OptionsDataService(HttpClient client) : base(client)
         {
