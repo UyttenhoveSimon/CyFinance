@@ -1,4 +1,4 @@
-using CyFinance.QuoteSummary;
+using CyFinance.Services.QuoteSummary;
 using NSubstitute;
 using System;
 using System.Collections.Generic;

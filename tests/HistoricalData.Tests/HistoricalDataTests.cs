@@ -1,4 +1,4 @@
-using CyFinance.HistoricalData;
+using CyFinance.Services.HistoricalData;
 using CyFinance.Models.HistoricalData;
 using System;
 using System.Collections.Generic;

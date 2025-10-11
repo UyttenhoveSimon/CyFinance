@@ -2,7 +2,7 @@ using System.Net;
 using System.Text.Json;
 using CyFinance.Models.QuoteSummary;
 
-namespace CyFinance.QuoteSummary
+namespace CyFinance.Services.QuoteSummary
 {
     public class QuoteSummaryService : BaseService
     {

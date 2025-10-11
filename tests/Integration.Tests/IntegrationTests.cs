@@ -1,17 +1,17 @@
+using CyFinance.Models.HistoricalData;
+using CyFinance.Services.HistoricalData;
+using CyFinance.Services.QuoteSummary;
+using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using NSubstitute;
-using TUnit.Core;
 using TUnit.Assertions;
-using CyFinance.QuoteSummary;
 using TUnit.Assertions.Extensions;
-using System.Net;
-using CyFinance.HistoricalData;
-using CyFinance.Models.HistoricalData;
+using TUnit.Core;
 
 namespace CyFinance.Tests.Integration
 {
@@ -67,6 +67,24 @@ namespace CyFinance.Tests.Integration
             await Assert.That(result?.Chart?.Result).IsNotNull();
             await Assert.That(result?.Chart?.Result).IsNotEmpty();
             await Assert.That(ticker).IsEqualTo(result?.Chart?.Result?.FirstOrDefault().Meta?.Symbol);
+        }
+
+        [Test]
+        public async Task GetOptionsDataAsync_ValidTicker_ReturnsOptionsData()
+        {
+            // Arrange
+            var ticker = "MSFT";
+
+            // Act
+            var optionsDataService = new CyFinance.Services.OptionsData.OptionsDataService(_httpClient);
+            var result = await optionsDataService.GetOptionsChainAsync(ticker);
+
+            // Assert
+            await Assert.That(result).IsNotNull();
+            await Assert.That(result?.OptionChain).IsNotNull();
+            await Assert.That(result?.OptionChain?.Result).IsNotNull();
+            await Assert.That(result?.OptionChain?.Result).IsNotEmpty();
+            await Assert.That(ticker).IsEqualTo(result?.OptionChain?.Result?.FirstOrDefault()?.UnderlyingSymbol);
         }
     }
 }
