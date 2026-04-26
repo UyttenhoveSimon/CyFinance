@@ -1,4 +1,3 @@
-using CyFinance.Models.OptionsData;
 using CyFinance.Services.OptionsData;
 using System;
 using System.Net;
@@ -27,11 +26,13 @@ namespace CyFinance.Tests.OptionsData
         {
             var handler = new FakeHttpMessageHandler((req, ct) => Task.FromResult(response));
             // BaseAddress doesn't matter for most tests, but keep consistent with other tests
-            return new HttpClient(handler) { BaseAddress = new Uri("https://query2.finance.yahoo.com") };
+          var client = new HttpClient(handler) { BaseAddress = new Uri("https://query2.finance.yahoo.com") };
+          client.DefaultRequestHeaders.Add("X-CyFinance-SkipAuth", "1");
+          return client;
         }
 
         [Test]
-        public void DateTimeConversion_ShouldRoundTrip()
+        public async Task DateTimeConversion_ShouldRoundTrip()
         {
             // Arrange
             var service = new OptionsDataService(new HttpClient()); // only uses DateTime helpers
@@ -43,7 +44,7 @@ namespace CyFinance.Tests.OptionsData
             var back = service.UnixTimeStampToDateTime(unix);
 
             // Assert
-            Assert.That(back).IsEqualTo(dt);
+            await Assert.That(back).IsEqualTo(dt);
         }
 
         [Test]

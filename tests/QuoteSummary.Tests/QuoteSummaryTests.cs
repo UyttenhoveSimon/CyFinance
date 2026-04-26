@@ -25,7 +25,9 @@ namespace CyFinance.Tests.QuoteSummary
         private HttpClient CreateMockHttpClient(HttpResponseMessage response)
         {
             var handler = new FakeHttpMessageHandler((req, ct) => Task.FromResult(response));
-            return new HttpClient(handler) { BaseAddress = new Uri("https://query1.finance.yahoo.com") };
+            var client = new HttpClient(handler) { BaseAddress = new Uri("https://query1.finance.yahoo.com") };
+            client.DefaultRequestHeaders.Add("X-CyFinance-SkipAuth", "1");
+            return client;
         }
 
         private readonly IQuoteSummaryService _service;
@@ -33,19 +35,16 @@ namespace CyFinance.Tests.QuoteSummary
         public QuoteSummaryTests()
         {
             // prepare a minimal QuoteResponse payload to avoid network
-            var mockPayload = new QuoteResponse
-            {
-                QuoteSummary = new Models.QuoteSummary.QuoteSummary
-                {
-                    Result = new List<Models.QuoteSummary.QuoteSummaryResult>
+            var mockPayload = new QuoteResponse(
+                new CyFinance.Models.QuoteSummary.QuoteSummary(
+                    new List<QuoteResult>
                     {
-                        new Models.QuoteSummary.QuoteSummaryResult
+                        new QuoteResult
                         {
-                            Price = new Models.QuoteSummary.Price { Symbol = "AAPL" }
+                            Price = new PriceData { Symbol = "AAPL" }
                         }
-                    }
-                }
-            };
+                    },
+                    null));
             var json = JsonSerializer.Serialize(mockPayload);
             var mockResponse = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
             var client = CreateMockHttpClient(mockResponse);

@@ -77,7 +77,7 @@ namespace CyFinance.Services.OptionsData
         /// <summary>
         /// Convert Unix timestamp to DateTime
         /// </summary>
-        public static DateTime UnixTimeStampToDateTime(long unixTimeStamp)
+        public DateTime UnixTimeStampToDateTime(long unixTimeStamp)
         {
             return DateTimeOffset.FromUnixTimeSeconds(unixTimeStamp).DateTime;
         }
@@ -85,7 +85,7 @@ namespace CyFinance.Services.OptionsData
         /// <summary>
         /// Convert DateTime to Unix timestamp
         /// </summary>
-        public static long DateTimeToUnixTimeStamp(DateTime dateTime)
+        public long DateTimeToUnixTimeStamp(DateTime dateTime)
         {
             return new DateTimeOffset(dateTime).ToUnixTimeSeconds();
         }

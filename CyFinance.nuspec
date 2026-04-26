@@ -12,6 +12,6 @@
     <tags>Csharp Yahoo Finance API NET Wrapper Client</tags>
   </metadata>
   <files>
-    <file src="YahooFinanceClient\bin\$configuration$\YahooFinanceClient.dll" target="lib\net40\" />
+    <file src="YahooFinanceClient\bin\$configuration$\YahooFinanceClient.dll" target="lib\net1.0\" />
   </files>  
 </package>

@@ -1,7 +1,6 @@
-using CyFinance.Models.QuoteSummary;
+using CyFinance.Models.StockScreening;
 using CyFinance.Services.StockScreening;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -28,24 +27,33 @@ namespace CyFinance.Tests.StockScreening
         private HttpClient CreateMockHttpClient(HttpResponseMessage response)
         {
             var handler = new FakeHttpMessageHandler((req, ct) => Task.FromResult(response));
-            return new HttpClient(handler) { BaseAddress = new Uri("https://query1.finance.yahoo.com") };
+            var client = new HttpClient(handler) { BaseAddress = new Uri("https://query1.finance.yahoo.com") };
+            client.DefaultRequestHeaders.Add("X-CyFinance-SkipAuth", "1");
+            return client;
         }
 
         [Test]
-        public async Task GetStockScreeningAsync_ValidTicker_ReturnsQuoteResponse()
+        public async Task ScreenAsync_CustomQuery_ReturnsScreenerResult()
         {
-            // Arrange: minimal QuoteResponse payload
-            var payload = new QuoteResponse
+            // Arrange: minimal ScreenerResponse payload
+            var payload = new ScreenerResponse
             {
-                QuoteSummary = new CyFinance.Models.QuoteSummary.QuoteSummary
+                Finance = new FinanceResult
                 {
-                    Result = new List<CyFinance.Models.QuoteSummary.QuoteSummaryResult>
+                    Result = new List<ScreenerResult>
                     {
-                        new CyFinance.Models.QuoteSummary.QuoteSummaryResult
+                        new ScreenerResult
                         {
-                            Price = new Price { Symbol = "AAPL" }
+                            Id = "custom",
+                            Title = "Custom",
+                            Total = 1,
+                            Quotes = new List<CyFinance.Models.StockScreening.Quote>
+                            {
+                                new CyFinance.Models.StockScreening.Quote { Symbol = "AAPL", LongName = "Apple Inc." }
+                            }
                         }
-                    }
+                    },
+                    Error = null!
                 }
             };
             var json = JsonSerializer.Serialize(payload);
@@ -56,29 +64,50 @@ namespace CyFinance.Tests.StockScreening
 
             var client = CreateMockHttpClient(response);
             IStockScreeningService service = new StockScreeningService(client);
+            var request = new ScreenerRequest
+            {
+                Query = ScreenerQuery.And(
+                    ScreenerQuery.Eq("region", "us"),
+                    ScreenerQuery.Gt("dayvolume", 15000)),
+                SortField = "percentchange",
+                SortType = "DESC",
+                Size = 25,
+                QuoteType = "EQUITY"
+            };
 
             // Act
-            var result = await service.GetStockScreeningAsync("AAPL");
+            var result = await service.ScreenAsync(request);
 
             // Assert
             await Assert.That(result).IsNotNull();
-            await Assert.That(result?.QuoteSummary?.Result).IsNotEmpty();
-            await Assert.That(result?.QuoteSummary?.Result?[0]?.Price?.Symbol).IsEqualTo("AAPL");
+            await Assert.That(result?.Quotes).IsNotNull();
+            await Assert.That(result?.Quotes).IsNotEmpty();
+            await Assert.That(result?.Quotes?[0]?.Symbol).IsEqualTo("AAPL");
         }
 
         [Test]
-        public async Task GetStockScreeningAsync_WithModules_IncludesModulesInRequest()
+        public async Task ScreenPredefinedAsync_IncludesScrIdAndParametersInRequest()
         {
             // Arrange: capture the request that the service sends
             HttpRequestMessage? capturedRequest = null;
-            var samplePayload = new QuoteResponse
+            var samplePayload = new ScreenerResponse
             {
-                QuoteSummary = new CyFinance.Models.QuoteSummary.QuoteSummary
+                Finance = new FinanceResult
                 {
-                    Result = new List<CyFinance.Models.QuoteSummary.QuoteSummaryResult>
+                    Result = new List<ScreenerResult>
                     {
-                        new CyFinance.Models.QuoteSummary.QuoteSummaryResult { Price = new Price { Symbol = "MSFT" } }
-                    }
+                        new ScreenerResult
+                        {
+                            Id = "day_gainers",
+                            Title = "Day Gainers",
+                            Total = 1,
+                            Quotes = new List<CyFinance.Models.StockScreening.Quote>
+                            {
+                                new CyFinance.Models.StockScreening.Quote { Symbol = "MSFT", LongName = "Microsoft Corporation" }
+                            }
+                        }
+                    },
+                    Error = null!
                 }
             };
             var json = JsonSerializer.Serialize(samplePayload);
@@ -94,24 +123,35 @@ namespace CyFinance.Tests.StockScreening
             });
 
             var client = new HttpClient(handler) { BaseAddress = new Uri("https://query1.finance.yahoo.com") };
+            client.DefaultRequestHeaders.Add("X-CyFinance-SkipAuth", "1");
             IStockScreeningService service = new StockScreeningService(client);
 
             // Act
-            var modules = new[] { "price", "summaryDetail" };
-            var result = await service.GetStockScreeningAsync("MSFT", modules);
+            var result = await service.ScreenPredefinedAsync(
+                "day_gainers",
+                offset: 5,
+                count: 10,
+                sortField: "percentchange",
+                sortAsc: true);
 
             // Assert basic parsing
             await Assert.That(result).IsNotNull();
-            // Assert request included modules list (service should encode modules in query)
+            await Assert.That(result?.Quotes?[0]?.Symbol).IsEqualTo("MSFT");
+
+            // Assert request included predefined params
             await Assert.That(capturedRequest).IsNotNull();
             var uri = capturedRequest!.RequestUri?.ToString() ?? string.Empty;
-            await Assert.That(uri).Contains("modules=");
-            await Assert.That(uri).Contains("price");
-            await Assert.That(uri).Contains("summaryDetail");
+            await Assert.That(uri).Contains("/v1/finance/screener/predefined/saved");
+            await Assert.That(uri).Contains("scrIds=day_gainers");
+            await Assert.That(uri).Contains("offset=5");
+            await Assert.That(uri).Contains("count=10");
+            await Assert.That(uri).Contains("sortField=percentchange");
+            await Assert.That(uri).Contains("sortAsc=true");
+            await Assert.That(capturedRequest.Method).IsEqualTo(HttpMethod.Get);
         }
 
         [Test]
-        public async Task GetStockScreeningAsync_HttpFailure_ThrowsException()
+        public async Task ScreenAsync_HttpFailure_ThrowsException()
         {
             // Arrange: simulate server error
             var response = new HttpResponseMessage(HttpStatusCode.InternalServerError)
@@ -124,7 +164,11 @@ namespace CyFinance.Tests.StockScreening
             // Act / Assert: expect exception on non-success HTTP status
             try
             {
-                await service.GetStockScreeningAsync("FAIL");
+                var request = new ScreenerRequest
+                {
+                    Query = ScreenerQuery.Eq("region", "us")
+                };
+                await service.ScreenAsync(request);
                 // if we reach here the call didn't throw - fail the test
                 throw new Exception("Expected exception was not thrown for HTTP failure");
             }

@@ -32,10 +32,13 @@ namespace CyFinance.Tests.HistoricalData
         private HttpClient CreateMockHttpClient(HttpResponseMessage response)
         {
             var handler = new FakeHttpMessageHandler((req, ct) => Task.FromResult(response));
-            return new HttpClient(handler)
+            var client = new HttpClient(handler)
             {
                 BaseAddress = new Uri("https://query2.finance.yahoo.com")
             };
+
+            client.DefaultRequestHeaders.Add("X-CyFinance-SkipAuth", "1");
+            return client;
         }
 
         [Test]

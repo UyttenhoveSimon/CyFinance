@@ -5,6 +5,14 @@ namespace CyFinance.Services.StockScreening
 
     public interface IStockScreeningService
     {
-        Task<QuoteResponse?> GetStockScreeningAsync(string ticker, params string[] modules);
+        Task<ScreenerResult?> ScreenAsync(ScreenerRequest request);
+        Task<ScreenerResult?> ScreenPredefinedAsync(
+            string screenId,
+            int? offset = null,
+            int? count = null,
+            string? sortField = null,
+            bool? sortAsc = null,
+            string? userId = null,
+            string? userIdType = null);
     }
 }

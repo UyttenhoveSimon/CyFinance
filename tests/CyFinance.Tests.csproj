@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <AssemblyTitle>C# Yahoo Finance Client Specs</AssemblyTitle>
-    <Product>C# Yahoo Finance Client Specs</Product>
-    <description>C# Client Library Specss used to test the Csharp Yahoo Finance API, forked from https://github.com/dougdellolio/YahooFinanceAPI</description>
+    <AssemblyTitle>C# Yahoo Finance Client Tests</AssemblyTitle>
+    <Product>C# Yahoo Finance Client Tests</Product>
+    <description>C# Client Library Tests used to test the Csharp Yahoo Finance API, forked from https://github.com/dougdellolio/YahooFinanceAPI</description>
     <Copyright>Copyright</Copyright>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
@@ -19,6 +19,5 @@
     <ProjectReference Include="..\src\CyFinance.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
 </Project>
