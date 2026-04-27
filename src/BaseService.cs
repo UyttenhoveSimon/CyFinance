@@ -6,6 +6,7 @@ namespace CyFinance
 {
     public abstract class BaseService
     {
+        private const string SkipAuthHeader = "X-CyFinance-SkipAuth";
         protected readonly HttpClient Client;
         protected readonly JsonSerializerOptions _jsonOptions = new()
         {
@@ -98,6 +99,12 @@ namespace CyFinance
         /// </summary>
         protected async Task EnsureAuthenticatedAsync(string ticker)
         {
+            // Test-only bypass: mocked HttpClient instances can opt out of live Yahoo auth flow.
+            if (Client.DefaultRequestHeaders.Contains(SkipAuthHeader))
+            {
+                return;
+            }
+
             if (string.IsNullOrEmpty(_crumb) || DateTime.UtcNow >= _crumbExpiry)
             {
                 await RefreshAuthTokenAsync(ticker);

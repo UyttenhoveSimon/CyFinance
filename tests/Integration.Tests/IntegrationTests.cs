@@ -18,8 +18,8 @@ namespace CyFinance.Tests.Integration
     public class IntegrationTests
     {
         private readonly HttpClient _httpClient;
-        private readonly QuoteSummaryService _qsService;
-        private readonly HistoricalDataService _hdService;
+        private readonly IQuoteSummaryService _qsService;
+        private readonly IHistoricalDataService _hdService;
 
         public IntegrationTests()
         {

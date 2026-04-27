@@ -1,42 +1,67 @@
+using CyFinance.Models.QuoteSummary;
 using CyFinance.Services.QuoteSummary;
-using NSubstitute;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using TUnit.Assertions;
 using TUnit.Assertions.Extensions;
-using TUnit.Core;
 
 namespace CyFinance.Tests.QuoteSummary
 {
     public class QuoteSummaryTests
     {
-        private readonly HttpClient _httpClient;
-        private readonly QuoteSummaryService _service;
-        public QuoteSummaryTests()
+        private class FakeHttpMessageHandler : HttpMessageHandler
         {
-            _httpClient = new HttpClient();
-            _service = new QuoteSummaryService(_httpClient);
+            private readonly Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> _responder;
+            public FakeHttpMessageHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder) => _responder = responder;
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+                => _responder(request, cancellationToken);
         }
 
-        [Test] 
+        private HttpClient CreateMockHttpClient(HttpResponseMessage response)
+        {
+            var handler = new FakeHttpMessageHandler((req, ct) => Task.FromResult(response));
+            var client = new HttpClient(handler) { BaseAddress = new Uri("https://query1.finance.yahoo.com") };
+            client.DefaultRequestHeaders.Add("X-CyFinance-SkipAuth", "1");
+            return client;
+        }
+
+        private readonly IQuoteSummaryService _service;
+
+        public QuoteSummaryTests()
+        {
+            // prepare a minimal QuoteResponse payload to avoid network
+            var mockPayload = new QuoteResponse(
+                new CyFinance.Models.QuoteSummary.QuoteSummary(
+                    new List<QuoteResult>
+                    {
+                        new QuoteResult
+                        {
+                            Price = new PriceData { Symbol = "AAPL" }
+                        }
+                    },
+                    null));
+            var json = JsonSerializer.Serialize(mockPayload);
+            var mockResponse = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
+            var client = CreateMockHttpClient(mockResponse);
+
+            // typed as interface but concrete implementation created for these tests
+            _service = new QuoteSummaryService(client);
+        }
+
+        [Test]
         public async Task GetQuoteSummaryAsync_ValidTicker_ReturnsQuoteResponse()
         {
-            // Arrange
             var ticker = "AAPL";
-
-            // Act
             var result = await _service.GetQuoteSummaryAsync(ticker);
 
-            // Assert
             await Assert.That(result).IsNotNull();
-            await Assert.That(result?.QuoteSummary).IsNotNull();
-            await Assert.That(result?.QuoteSummary?.Result).IsNotNull();
             await Assert.That(result?.QuoteSummary?.Result).IsNotEmpty();
-            await Assert.That(ticker).IsEqualTo( result?.QuoteSummary?.Result?.FirstOrDefault().Price?.Symbol);
+            await Assert.That(ticker).IsEqualTo(result?.QuoteSummary?.Result?.FirstOrDefault()?.Price?.Symbol);
         }
     }
 }
