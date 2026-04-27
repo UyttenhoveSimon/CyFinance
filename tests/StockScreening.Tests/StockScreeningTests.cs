@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using TUnit;
@@ -177,6 +178,68 @@ namespace CyFinance.Tests.StockScreening
                 // success if an exception was thrown; optionally assert on type/message
                 await Assert.That(ex).IsNotNull();
             }
+        }
+
+        [Test]
+        public async Task ScreenAsync_FundQuery_InfersMutualFundQuoteType()
+        {
+            // Arrange
+            HttpRequestMessage? capturedRequest = null;
+            var okPayload = new ScreenerResponse
+            {
+                Finance = new FinanceResult
+                {
+                    Result = new List<ScreenerResult>
+                    {
+                        new ScreenerResult
+                        {
+                            Id = "fund",
+                            Title = "Fund",
+                            Total = 0,
+                            Quotes = new List<CyFinance.Models.StockScreening.Quote>()
+                        }
+                    },
+                    Error = null!
+                }
+            };
+
+            var handler = new FakeHttpMessageHandler((req, ct) =>
+            {
+                capturedRequest = req;
+                var json = JsonSerializer.Serialize(okPayload);
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(json, Encoding.UTF8, "application/json")
+                });
+            });
+
+            var client = new HttpClient(handler) { BaseAddress = new Uri("https://query1.finance.yahoo.com") };
+            client.DefaultRequestHeaders.Add("X-CyFinance-SkipAuth", "1");
+            IStockScreeningService service = new StockScreeningService(client);
+
+            var query = FundQuery.And(
+                FundQuery.Eq("exchange", "NAS"),
+                FundQuery.Gt("initialinvestment", 1000));
+
+            // Act
+            var result = await service.ScreenAsync(query);
+
+            // Assert
+            await Assert.That(result).IsNotNull();
+            await Assert.That(capturedRequest).IsNotNull();
+
+            var requestBody = await capturedRequest!.Content!.ReadAsStringAsync();
+            var root = JsonNode.Parse(requestBody);
+            var quoteType = root?["quoteType"]?.GetValue<string>();
+            await Assert.That(quoteType).IsEqualTo("MUTUALFUND");
+        }
+
+        [Test]
+        public async Task PredefinedCatalog_ContainsCommonKnownIds()
+        {
+            await Assert.That(PredefinedScreeners.IsKnown("day_gainers")).IsTrue();
+            await Assert.That(PredefinedScreeners.IsKnown("technology_etfs")).IsTrue();
+            await Assert.That(PredefinedScreeners.IsKnown("not_a_real_screen")).IsFalse();
         }
     }
 }

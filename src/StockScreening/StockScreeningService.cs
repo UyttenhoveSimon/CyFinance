@@ -62,6 +62,36 @@ namespace CyFinance.Services.StockScreening
         }
 
         /// <summary>
+        /// Executes a custom screener query using typed yfinance-like query helpers.
+        /// Quote type is inferred from query type (EQUITY, MUTUALFUND, ETF).
+        /// </summary>
+        public Task<ScreenerResult?> ScreenAsync(
+            QueryBase query,
+            int size = 25,
+            int offset = 0,
+            string sortField = "ticker",
+            bool sortAsc = false,
+            string userId = "",
+            string userIdType = "guid")
+        {
+            ArgumentNullException.ThrowIfNull(query);
+
+            var request = new ScreenerRequest
+            {
+                Query = query.ToNode(),
+                Size = size,
+                Offset = offset,
+                SortField = sortField,
+                SortType = sortAsc ? "ASC" : "DESC",
+                QuoteType = InferQuoteType(query),
+                UserId = userId,
+                UserIdType = userIdType,
+            };
+
+            return ScreenAsync(request);
+        }
+
+        /// <summary>
         /// Executes a predefined screener query by id (equivalent to yfinance screen("day_gainers")).
         /// </summary>
         public async Task<ScreenerResult?> ScreenPredefinedAsync(
@@ -127,6 +157,43 @@ namespace CyFinance.Services.StockScreening
             }
         }
 
+        public Task<ScreenerResult?> ScreenPredefinedAsync(
+            PredefinedScreenersCatalogItem screen,
+            int? offset = null,
+            int? count = null,
+            string? sortField = null,
+            bool? sortAsc = null,
+            string? userId = null,
+            string? userIdType = null)
+        {
+            var id = screen switch
+            {
+                PredefinedScreenersCatalogItem.AggressiveSmallCaps => PredefinedScreeners.AggressiveSmallCaps,
+                PredefinedScreenersCatalogItem.DayGainers => PredefinedScreeners.DayGainers,
+                PredefinedScreenersCatalogItem.DayLosers => PredefinedScreeners.DayLosers,
+                PredefinedScreenersCatalogItem.MostActives => PredefinedScreeners.MostActives,
+                PredefinedScreenersCatalogItem.MostShortedStocks => PredefinedScreeners.MostShortedStocks,
+                PredefinedScreenersCatalogItem.GrowthTechnologyStocks => PredefinedScreeners.GrowthTechnologyStocks,
+                PredefinedScreenersCatalogItem.SmallCapGainers => PredefinedScreeners.SmallCapGainers,
+                PredefinedScreenersCatalogItem.UndervaluedGrowthStocks => PredefinedScreeners.UndervaluedGrowthStocks,
+                PredefinedScreenersCatalogItem.UndervaluedLargeCaps => PredefinedScreeners.UndervaluedLargeCaps,
+                PredefinedScreenersCatalogItem.ConservativeForeignFunds => PredefinedScreeners.ConservativeForeignFunds,
+                PredefinedScreenersCatalogItem.HighYieldBond => PredefinedScreeners.HighYieldBond,
+                PredefinedScreenersCatalogItem.PortfolioAnchors => PredefinedScreeners.PortfolioAnchors,
+                PredefinedScreenersCatalogItem.SolidLargeBlendFunds => PredefinedScreeners.SolidLargeBlendFunds,
+                PredefinedScreenersCatalogItem.SolidLargeGrowthFunds => PredefinedScreeners.SolidLargeGrowthFunds,
+                PredefinedScreenersCatalogItem.SolidMidcapGrowthFunds => PredefinedScreeners.SolidMidcapGrowthFunds,
+                PredefinedScreenersCatalogItem.TopMutualFunds => PredefinedScreeners.TopMutualFunds,
+                PredefinedScreenersCatalogItem.TopEtfsUs => PredefinedScreeners.TopEtfsUs,
+                PredefinedScreenersCatalogItem.TopPerformingEtfs => PredefinedScreeners.TopPerformingEtfs,
+                PredefinedScreenersCatalogItem.TechnologyEtfs => PredefinedScreeners.TechnologyEtfs,
+                PredefinedScreenersCatalogItem.BondEtfs => PredefinedScreeners.BondEtfs,
+                _ => throw new ArgumentOutOfRangeException(nameof(screen), screen, null)
+            };
+
+            return ScreenPredefinedAsync(id, offset, count, sortField, sortAsc, userId, userIdType);
+        }
+
         private string BuildScreenerUrl()
         {
             return $"{ScreenerUrl}?corsDomain=finance.yahoo.com&formatted=false&lang=en-US&region=US";
@@ -138,6 +205,17 @@ namespace CyFinance.Services.StockScreening
             {
                 throw new ArgumentOutOfRangeException(parameterName, "Yahoo limits count/size to range [1, 250].");
             }
+        }
+
+        private static string InferQuoteType(QueryBase query)
+        {
+            return query switch
+            {
+                EquityQuery => "EQUITY",
+                FundQuery => "MUTUALFUND",
+                ETFQuery => "ETF",
+                _ => "EQUITY",
+            };
         }
     }
 }

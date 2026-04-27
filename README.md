@@ -95,6 +95,35 @@ Info from Claude: Based on analysis of the yfinance library source code and docu
 - Paging/sorting fields supported in request model:
   - `offset`, `size`, `sortField`, `sortType`, `quoteType`, `userId`, `userIdType`
 
+#### Screener catalog and typed helpers
+
+- Predefined screener catalog available via `PredefinedScreeners` constants and `PredefinedScreenersCatalogItem` enum
+- Typed query helpers available:
+  - `EquityQuery`
+  - `FundQuery`
+  - `ETFQuery`
+
+Example (predefined):
+
+```csharp
+var result = await screenerService.ScreenPredefinedAsync(PredefinedScreenersCatalogItem.DayGainers);
+```
+
+Example (typed custom query):
+
+```csharp
+var query = EquityQuery.And(
+    EquityQuery.Eq("region", "us"),
+    EquityQuery.Gte("intradaymarketcap", 2_000_000_000),
+    EquityQuery.Gt("dayvolume", 15_000));
+
+var result = await screenerService.ScreenAsync(
+    query,
+    size: 25,
+    sortField: "percentchange",
+    sortAsc: false);
+```
+
 ### 5. **Search API**
 
 - **Endpoint**: `https://query2.finance.yahoo.com/v1/finance/search`
