@@ -2,24 +2,21 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Build Tests",
-            "type": "coreclr",
+            "name": "Run CyFinance",
+            "type": "node-terminal",
             "request": "launch",
-            "preLaunchTask": "BuildTests",
-            "program": "${workspaceFolder}/tests/bin/Debug/net9.0/CyFinance.Tests.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}",
-            "stopAtEntry": false,
+            "command": "dotnet build ${workspaceFolder}/src/CyFinance.csproj",
+            "cwd": "${workspaceFolder}"
         },
         {
-            "name": "Launch Tests",
+            "name": "Run Tests",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "RunTests",
-            "program": "${workspaceFolder}/tests/bin/Debug/net9.0/CyFinance.Tests.dll",
+            "preLaunchTask": "Run Tests",
+            "program": "${workspaceFolder}/tests/bin/Debug/net10.0/CyFinance.Tests.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
-            "stopAtEntry": false,
+            "stopAtEntry": false
         }
     ]
 }
