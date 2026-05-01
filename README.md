@@ -15,7 +15,7 @@ The table below outlines the current feature parity between `yfinance` and this 
 | Company Information (Profile, Summary) | ✅ | ⚠️ Limited |
 | Financial Statements (Income, Balance Sheet, Cash Flow) | ✅ | ✅ |
 | Dividends & Splits History | ✅ | ✅ *(Current dividend data only)* |
-| Analyst Recommendations | ✅ | ❌ |
+| **Analyst Recommendations** | ✅ | ✅ |
 | Shareholder Information (Major, Institutional) | ✅ | ❌ |
 | Earnings Calendar | ✅ | ❌ |
 | Option Chains | ✅ | ❌ |
@@ -112,6 +112,48 @@ var allStatements = await financialStatementsService.GetAllStatementsAsync("MSFT
 var incomeStatements = allStatements?.IncomeStatementHistory?.IncomeStatementStatements;
 var balanceSheets = allStatements?.BalanceSheetHistory?.BalanceSheetStatements;
 var cashFlows = allStatements?.CashflowStatementHistory?.CashflowStatements;
+```
+
+### 2.6 **Analyst Recommendations Service** *(Dedicated Service)*
+
+- **Endpoint**: Uses `https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}` under the hood
+- **Purpose**: Simplified access to analyst recommendations and rating changes
+- **Usage**: Used by `AnalystRecommendationsService` class
+
+#### Analyst Recommendations parity with yfinance (implemented)
+
+- Recommendation trend data via `GetRecommendationTrendAsync(ticker)` - Returns analyst sentiment over time
+- Rating change history via `GetRatingChangeHistoryAsync(ticker)` - Returns upgrades/downgrades
+- Complete recommendations summary via `GetRecommendationsAsync(ticker)` - Returns both trend and history with convenience methods
+
+**Convenience Methods:**
+- `GetConsensusRating()` - Calculates consensus rating (Strong Buy, Buy, Hold, Sell, Strong Sell)
+- `GetRecommendationPercentages()` - Returns percentage breakdown of recommendations
+
+Example (get consensus rating):
+
+```csharp
+var recommendationsService = new AnalystRecommendationsService(quoteSummaryService);
+var recommendations = await recommendationsService.GetRecommendationsAsync("AAPL");
+
+Console.WriteLine($"Consensus: {recommendations?.GetConsensusRating()}");
+
+var breakdown = recommendations?.GetRecommendationPercentages();
+foreach (var (rating, percentage) in breakdown ?? new Dictionary<string, double>())
+{
+    Console.WriteLine($"{rating}: {percentage:F1}%");
+}
+```
+
+Example (get rating change history):
+
+```csharp
+var history = await recommendationsService.GetRatingChangeHistoryAsync("MSFT");
+
+foreach (var change in history ?? new List<RatingChange>())
+{
+    Console.WriteLine($"{change.Firm}: {change.FromGrade} → {change.ToGrade} ({change.Action})");
+}
 ```
 
 ### 3. **Options Data API**
