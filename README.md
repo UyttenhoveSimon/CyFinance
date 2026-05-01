@@ -3,7 +3,9 @@
 This is a **C# client library** designed to interact with the **Yahoo Finance API**.
 
 The project was originally a fork of [dougdellolio/YahooFinanceAPI](https://github.com/dougdellolio/YahooFinanceAPI). However, due to significant changes in Yahoo’s API, the library has been **rebuilt from scratch** with the goal of providing a **C# implementation** that closely mirrors the popular Python library [`yfinance`](https://github.com/ranaroussi/yfinance).
+## Native AOT Support
 
+CyFinance is configured for **Native AOT compilation** via `PublishAot=true` in the project file. This enables the library to be compiled into native code ahead-of-time for improved performance and reduced memory footprint. Currently, the library compiles successfully with warnings about JSON serialization that can be addressed by implementing `JsonSerializerContext` for full Native AOT compatibility.
 The table below outlines the current feature parity between `yfinance` and this C# library (**CyFinance**):
 
 | Feature | yfinance (Python) | CyFinance (C#) |
@@ -11,13 +13,15 @@ The table below outlines the current feature parity between `yfinance` and this 
 | Current Quote Data | ✅ | ✅ |
 | Historical Price Data | ✅ | ❌ |
 | Company Information (Profile, Summary) | ✅ | ⚠️ Limited |
-| Financial Statements (Income, Balance Sheet, Cash Flow) | ✅ | ❌ |
+| Financial Statements (Income, Balance Sheet, Cash Flow) | ✅ | ✅ |
 | Dividends & Splits History | ✅ | ✅ *(Current dividend data only)* |
 | Analyst Recommendations | ✅ | ❌ |
 | Shareholder Information (Major, Institutional) | ✅ | ❌ |
 | Earnings Calendar | ✅ | ❌ |
 | Option Chains | ✅ | ❌ |
 | Company News | ✅ | ❌ |
+| **Quote Search** | ✅ | ✅ |
+| **Stock Screening (Screener API)** | ✅ | ✅ |
 | Multi-Ticker Data Download | ✅ | ❌ |
 
 ##  Which internal APIs are used by yfinance ?
@@ -71,6 +75,44 @@ Info from Claude: Based on analysis of the yfinance library source code and docu
   - `industryTrend`: Industry-wide trends
   - `indexTrend`: Index trend data
   - `sectorTrend`: Sector trend data
+
+### 2.5 **Financial Statements API** *(Dedicated Service)*
+
+- **Endpoint**: Uses `https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}` under the hood
+- **Purpose**: Simplified access to income statements, balance sheets, and cash flow statements
+- **Usage**: Used by `FinancialStatementsService` class
+
+#### Financial Statements parity with yfinance (implemented)
+
+- Income statement data via `GetIncomeStatementAsync(ticker)` - Returns annual and quarterly data
+- Balance sheet data via `GetBalanceSheetAsync(ticker)` - Returns annual and quarterly data
+- Cash flow statement data via `GetCashFlowStatementAsync(ticker)` - Returns annual and quarterly data
+- All statements via `GetAllStatementsAsync(ticker)` - Returns all three statement types
+- Custom module selection via `GetStatementsAsync(ticker, params string[] modules)`
+
+Example (get income statement):
+
+```csharp
+var financialStatementsService = new FinancialStatementsService(quoteSummaryService);
+var incomeStatement = await financialStatementsService.GetIncomeStatementAsync("AAPL");
+
+foreach (var statement in incomeStatement?.AnnualStatements ?? new List<FinancialStatement>())
+{
+    Console.WriteLine($"Total Revenue: {statement.TotalRevenue?.Fmt}");
+    Console.WriteLine($"Net Income: {statement.NetIncome?.Fmt}");
+}
+```
+
+Example (get all financial statements):
+
+```csharp
+var allStatements = await financialStatementsService.GetAllStatementsAsync("MSFT");
+
+// Access each statement type
+var incomeStatements = allStatements?.IncomeStatementHistory?.IncomeStatementStatements;
+var balanceSheets = allStatements?.BalanceSheetHistory?.BalanceSheetStatements;
+var cashFlows = allStatements?.CashflowStatementHistory?.CashflowStatements;
+```
 
 ### 3. **Options Data API**
 
@@ -132,7 +174,38 @@ var result = await screenerService.ScreenAsync(
   - `q`: Search query
   - `quotesCount`: Number of quote results
   - `newsCount`: Number of news results
-- **Usage**: Used by `Search` class
+- **Usage**: Used by `SearchService` class
+
+#### Search API parity with yfinance (implemented)
+
+- Search for tickers and quotes via `SearchAsync(query, quotesCount, newsCount)`
+- Separate methods for quotes-only search: `SearchQuotesAsync(query, quotesCount)`
+- Separate methods for news-only search: `SearchNewsAsync(query, newsCount)`
+- Returns structured results with multiple result types: quotes, news, research, nav
+
+Example (comprehensive search):
+
+```csharp
+var searchService = new SearchService(httpClient);
+var results = await searchService.SearchAsync("Apple", quotesCount: 10, newsCount: 5);
+
+foreach (var quote in results?.Quotes ?? new List<SearchQuote>())
+{
+    Console.WriteLine($"{quote.Symbol}: {quote.LongName} ({quote.Exchange})");
+}
+```
+
+Example (quotes only):
+
+```csharp
+var quotes = await searchService.SearchQuotesAsync("Tesla", quotesCount: 5);
+```
+
+Example (news only):
+
+```csharp
+var news = await searchService.SearchNewsAsync("Microsoft", newsCount: 3);
+```
 
 ### 6. **News API**
 
