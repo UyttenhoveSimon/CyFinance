@@ -4,29 +4,37 @@ This is a **C# client library** designed to interact with the **Yahoo Finance AP
 
 The project was originally a fork of [dougdellolio/YahooFinanceAPI](https://github.com/dougdellolio/YahooFinanceAPI). However, due to significant changes in Yahoo’s API, the library has been **rebuilt from scratch** with the goal of providing a **C# implementation** that closely mirrors the popular Python library [`yfinance`](https://github.com/ranaroussi/yfinance).
 
-## Features Parity 
+## Features Parity
 
 The table below outlines the current feature parity between `yfinance` and this C# library (**CyFinance**):
 
-| Feature | yfinance (Python) | CyFinance (C#) |
-| :--- | :---: | :---: |
-| Current Quote Data | ✅ | ✅ |
-| Historical Price Data | ✅ | ❌ |
-| Company Information (Profile, Summary) | ✅ | ⚠️ Limited |
-| Financial Statements (Income, Balance Sheet, Cash Flow) | ✅ | ✅ |
-| Dividends & Splits History | ✅ | ✅ *(Current dividend data only)* |
-| **Analyst Recommendations** | ✅ | ✅ |
-| Shareholder Information (Major, Institutional) | ✅ | ❌ |
-| Earnings Calendar | ✅ | ❌ |
-| Option Chains | ✅ | ✅ |
-| Company News | ✅ | ❌ |
-| **Quote Search** | ✅ | ✅ |
-| **Stock Screening (Screener API)** | ✅ | ✅ |
-| Multi-Ticker Data Download | ✅ | ❌ |
+| Feature | yfinance (Python) | CyFinance (C#) | API Used |
+| :--- | :---: | :---: | :--- |
+| Current Quote Data | ✅ | ✅ | [Quote Summary API](#2-quote-summary-api) |
+| Historical Price Data | ✅ | ✅ | [Chart/Historical Data API](#1-charthistorical-data-api) |
+| Company Information (Profile, Summary) | ✅ | ⚠️ Limited | [Quote Summary API](#2-quote-summary-api) |
+| Financial Statements (Income, Balance Sheet, Cash Flow) | ✅ | ✅ | [Financial Statements API](#25-financial-statements-api) |
+| Dividends & Splits History | ✅ | ✅ *(Current dividend data only)* | [Chart/Historical Data API](#1-charthistorical-data-api) |
+| **Analyst Recommendations** | ✅ | ✅ | [Analyst Recommendations](#26-analyst-recommendations) |
+| Shareholder Information (Major, Institutional) | ✅ | ✅ | [Shareholder Information](#27-shareholder-information) |
+| Earnings Calendar | ✅ | ✅ | [Earnings Calendar](#28-earnings-calendar) |
+| Company News | ✅ | ✅ | [Company News](#29-company-news) |
+| Option Chains | ✅ | ✅ | [Options Data API](#3-options-data-api) |
+| **Quote Search** | ✅ | ✅ | [Search API](#4-search-api) |
+| **Stock Screening (Screener API)** | ✅ | ✅ | [Screener API](#5-screener-api) |
+| Multi-Ticker Data Download | ✅ | ❌ | [Quote API (Real-time)](#12-quote-api-real-time) |
+| **Market Status & Summary** | ✅ | ❌ | [Market Summary API](#8-market-summary-api) |
+| **Sector Domain Data** | ✅ | ❌ | [Sector/Industry APIs](#10-sectorindustry-apis) |
+| **Industry Domain Data** | ✅ | ❌ | [Sector/Industry APIs](#10-sectorindustry-apis) |
+| **Global Calendars (Earnings, IPO, Splits, Economic Events)** | ✅ | ❌ | — |
+| **Live Streaming (WebSocket)** | ✅ | ❌ | [WebSocket Streaming API](#11-websocket-streaming-api) |
+| **Mutual Fund / ETF Data** | ✅ | ❌ | [Mutual Fund/ETF Data API](#15-mutual-fundetf-data-api) |
+| **Currency / Forex Data** | ✅ | ❌ | [Currency/Forex API](#16-currencyforex-api) |
+| **Cryptocurrency Data** | ✅ | ❌ | [Cryptocurrency API](#17-cryptocurrency-api) |
 
 ##  Which internal APIs are used by yfinance ?
 
-Info from Claude: Based on analysis of the yfinance library source code and documentation.
+Info from Claude, based on analysis of the yfinance library source code and documentation.
 
 ## Core Data Endpoints
 
@@ -76,13 +84,13 @@ Info from Claude: Based on analysis of the yfinance library source code and docu
   - `indexTrend`: Index trend data
   - `sectorTrend`: Sector trend data
 
-### 2.5 **Financial Statements API** *(Dedicated Service)*
+### 2.5 **Financial Statements API**
 
 - **Endpoint**: Uses `https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}` under the hood
 - **Purpose**: Simplified access to income statements, balance sheets, and cash flow statements
 - **Usage**: Used by `FinancialStatementsService` class
 
-#### Financial Statements parity with yfinance (implemented)
+#### Financial Statements
 
 - Income statement data via `GetIncomeStatementAsync(ticker)` - Returns annual and quarterly data
 - Balance sheet data via `GetBalanceSheetAsync(ticker)` - Returns annual and quarterly data
@@ -114,19 +122,20 @@ var balanceSheets = allStatements?.BalanceSheetHistory?.BalanceSheetStatements;
 var cashFlows = allStatements?.CashflowStatementHistory?.CashflowStatements;
 ```
 
-### 2.6 **Analyst Recommendations Service** *(Dedicated Service)*
+### 2.6 **Analyst Recommendations**
 
 - **Endpoint**: Uses `https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}` under the hood
 - **Purpose**: Simplified access to analyst recommendations and rating changes
 - **Usage**: Used by `AnalystRecommendationsService` class
 
-#### Analyst Recommendations parity with yfinance (implemented)
+#### Analyst Recommendations
 
 - Recommendation trend data via `GetRecommendationTrendAsync(ticker)` - Returns analyst sentiment over time
 - Rating change history via `GetRatingChangeHistoryAsync(ticker)` - Returns upgrades/downgrades
 - Complete recommendations summary via `GetRecommendationsAsync(ticker)` - Returns both trend and history with convenience methods
 
 **Convenience Methods:**
+
 - `GetConsensusRating()` - Calculates consensus rating (Strong Buy, Buy, Hold, Sell, Strong Sell)
 - `GetRecommendationPercentages()` - Returns percentage breakdown of recommendations
 
@@ -156,6 +165,106 @@ foreach (var change in history ?? new List<RatingChange>())
 }
 ```
 
+### 2.7 **Shareholder Information**
+
+- **Endpoint**: Uses `https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}` under the hood
+- **Purpose**: Simplified access to major holders, institutional/fund ownership, and insider ownership data
+- **Usage**: Used by `ShareholderInformationService` class
+
+#### Shareholder Information
+
+- Major holders breakdown via `GetMajorHoldersBreakdownAsync(ticker)`
+- Institutional ownership list via `GetInstitutionalOwnershipAsync(ticker)`
+- Fund ownership list via `GetFundOwnershipAsync(ticker)`
+- Insider holders list via `GetInsiderHoldersAsync(ticker)`
+- Insider transactions via `GetInsiderTransactionsAsync(ticker)`
+- Full aggregate payload via `GetShareholderInformationAsync(ticker)`
+
+**Convenience Methods:**
+
+- `GetInstitutionalOwnershipPercent()`
+- `GetInsiderOwnershipPercent()`
+- `GetLargestInstitutionalHolder()`
+
+Example (full shareholder information):
+
+```csharp
+var shareholderService = new ShareholderInformationService(quoteSummaryService);
+var shareholders = await shareholderService.GetShareholderInformationAsync("AAPL");
+
+Console.WriteLine($"Institutional Ownership: {shareholders?.GetInstitutionalOwnershipPercent():F2}%");
+Console.WriteLine($"Insider Ownership: {shareholders?.GetInsiderOwnershipPercent():F2}%");
+Console.WriteLine($"Largest Holder: {shareholders?.GetLargestInstitutionalHolder()?.Organization}");
+```
+
+Example (institutional ownership details):
+
+```csharp
+var institutions = await shareholderService.GetInstitutionalOwnershipAsync("MSFT");
+
+foreach (var owner in institutions ?? new List<OwnershipEntry>())
+{
+  Console.WriteLine($"{owner.Organization}: {owner.PctHeld?.Fmt} ({owner.Position?.Fmt} shares)");
+}
+```
+
+### 2.8 Earnings Calendar
+
+- **Endpoint**: Uses `https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}` under the hood
+- **Purpose**: Simplified access to upcoming earnings dates and historical earnings surprises
+- **Usage**: Used by `EarningsCalendarService` class
+
+#### Earnings Calendar
+
+- Upcoming earnings dates via `GetUpcomingEarningsAsync(ticker)`
+- Historical quarterly earnings via `GetHistoricalEarningsAsync(ticker)`
+- Combined earnings snapshot via `GetEarningsCalendarAsync(ticker)`
+
+Example (get upcoming and historical earnings):
+
+```csharp
+var earningsService = new EarningsCalendarService(quoteSummaryService);
+var earnings = await earningsService.GetEarningsCalendarAsync("AAPL");
+
+Console.WriteLine($"Next Earnings Date (unix): {earnings?.GetNextEarningsDate()}");
+Console.WriteLine($"Most Recent Earnings Date: {earnings?.GetMostRecentEarningsDate()}");
+Console.WriteLine($"Beat Rate: {earnings?.GetEarningsBeatRate():F1}%");
+```
+
+### 2.9 **Company News
+
+- **Endpoint**: Uses `https://query2.finance.yahoo.com/v1/finance/search` under the hood
+- **Purpose**: Ticker-specific news headlines and article metadata
+- **Usage**: Used by `CompanyNewsService` class
+
+#### Company News
+
+- Company news list via `GetCompanyNewsAsync(ticker, newsCount)`
+- Latest company headline via `GetLatestCompanyNewsAsync(ticker)`
+- Filtered recent company news via `GetCompanyNewsSinceAsync(ticker, sinceUnixTime, newsCount)`
+
+Example (fetch latest company news):
+
+```csharp
+var companyNewsService = new CompanyNewsService(httpClient);
+var latest = await companyNewsService.GetLatestCompanyNewsAsync("AAPL");
+
+Console.WriteLine($"{latest?.Publisher}: {latest?.Title}");
+Console.WriteLine(latest?.Link);
+```
+
+Example (fetch recent company news since a timestamp):
+
+```csharp
+var oneDayAgo = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
+var recentNews = await companyNewsService.GetCompanyNewsSinceAsync("MSFT", oneDayAgo, newsCount: 20);
+
+foreach (var item in recentNews ?? new List<CompanyNewsItem>())
+{
+    Console.WriteLine($"{item.ProviderPublishTime}: {item.Title}");
+}
+```
+
 ### 3. **Options Data API**
 
 - **Endpoint**: `https://query2.finance.yahoo.com/v7/finance/options/{ticker}`
@@ -164,7 +273,7 @@ foreach (var change in history ?? new List<RatingChange>())
   - `date`: Expiration date (Unix timestamp)
 - **Usage**: Used by `.option_chain()` method
 
-#### Options chain parity with yfinance (implemented)
+#### Options chain
 
 - Full option chain retrieval via `GetOptionsChainAsync(ticker, date)`
 - Available expiration dates via `GetExpirationDatesAsync(ticker)`
@@ -196,13 +305,54 @@ var puts = await optionsService.GetPutsAsync("AAPL", expiration);
 Console.WriteLine($"Calls: {calls.Count}, Puts: {puts.Count}");
 ```
 
-### 4. **Screener API**
+### 4. **Search API**
+
+- **Endpoint**: `https://query2.finance.yahoo.com/v1/finance/search`
+- **Purpose**: Search for tickers, news, and quotes
+- **Parameters**:
+  - `q`: Search query
+  - `quotesCount`: Number of quote results
+  - `newsCount`: Number of news results
+- **Usage**: Used by `SearchService` class
+
+#### Search API
+
+- Search for tickers and quotes via `SearchAsync(query, quotesCount, newsCount)`
+- Separate methods for quotes-only search: `SearchQuotesAsync(query, quotesCount)`
+- Separate methods for news-only search: `SearchNewsAsync(query, newsCount)`
+- Returns structured results with multiple result types: quotes, news, research, nav
+
+Example (comprehensive search):
+
+```csharp
+var searchService = new SearchService(httpClient);
+var results = await searchService.SearchAsync("Apple", quotesCount: 10, newsCount: 5);
+
+foreach (var quote in results?.Quotes ?? new List<SearchQuote>())
+{
+    Console.WriteLine($"{quote.Symbol}: {quote.LongName} ({quote.Exchange})");
+}
+```
+
+Example (quotes only):
+
+```csharp
+var quotes = await searchService.SearchQuotesAsync("Tesla", quotesCount: 5);
+```
+
+Example (news only):
+
+```csharp
+var news = await searchService.SearchNewsAsync("Microsoft", newsCount: 3);
+```
+
+### 5. **Screener API**
 
 - **Endpoint**: `https://query2.finance.yahoo.com/v1/finance/screener`
 - **Purpose**: Stock screening and filtering
 - **Usage**: Used by `Screener` and `EquityQuery` classes
 
-#### Screener parity with yfinance (implemented)
+#### Screener
 
 - Custom screener query via `POST /v1/finance/screener` (equivalent to `yf.screen(query=...)`)
 - Predefined screener query via `GET /v1/finance/screener/predefined/saved?scrIds=...`
@@ -238,47 +388,6 @@ var result = await screenerService.ScreenAsync(
     size: 25,
     sortField: "percentchange",
     sortAsc: false);
-```
-
-### 5. **Search API**
-
-- **Endpoint**: `https://query2.finance.yahoo.com/v1/finance/search`
-- **Purpose**: Search for tickers, news, and quotes
-- **Parameters**:
-  - `q`: Search query
-  - `quotesCount`: Number of quote results
-  - `newsCount`: Number of news results
-- **Usage**: Used by `SearchService` class
-
-#### Search API parity with yfinance (implemented)
-
-- Search for tickers and quotes via `SearchAsync(query, quotesCount, newsCount)`
-- Separate methods for quotes-only search: `SearchQuotesAsync(query, quotesCount)`
-- Separate methods for news-only search: `SearchNewsAsync(query, newsCount)`
-- Returns structured results with multiple result types: quotes, news, research, nav
-
-Example (comprehensive search):
-
-```csharp
-var searchService = new SearchService(httpClient);
-var results = await searchService.SearchAsync("Apple", quotesCount: 10, newsCount: 5);
-
-foreach (var quote in results?.Quotes ?? new List<SearchQuote>())
-{
-    Console.WriteLine($"{quote.Symbol}: {quote.LongName} ({quote.Exchange})");
-}
-```
-
-Example (quotes only):
-
-```csharp
-var quotes = await searchService.SearchQuotesAsync("Tesla", quotesCount: 5);
-```
-
-Example (news only):
-
-```csharp
-var news = await searchService.SearchNewsAsync("Microsoft", newsCount: 3);
 ```
 
 ### 6. **News API**

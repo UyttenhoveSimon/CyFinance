@@ -20,6 +20,11 @@ public record QuoteResult
     public CashflowStatementHistory? CashflowStatementHistory { get; init; }
     public Earnings? Earnings { get; init; }
     public CalendarEvents? CalendarEvents { get; init; }
+    public MajorHoldersBreakdown? MajorHoldersBreakdown { get; init; }
+    public OwnershipContainer? InstitutionOwnership { get; init; }
+    public OwnershipContainer? FundOwnership { get; init; }
+    public InsiderHolders? InsiderHolders { get; init; }
+    public InsiderTransactions? InsiderTransactions { get; init; }
 }
 
 // Base value types
@@ -219,3 +224,53 @@ public record CalendarEvents
 }
 
 public record EarningsCalendar(List<YahooLongValue> EarningsDate);
+
+public record MajorHoldersBreakdown
+{
+    public YahooValue? InsidersPercentHeld { get; init; }
+    public YahooValue? InstitutionsPercentHeld { get; init; }
+    public YahooValue? InstitutionsFloatPercentHeld { get; init; }
+    public YahooLongValue? InstitutionsCount { get; init; }
+}
+
+public record OwnershipContainer(List<OwnershipEntry> OwnershipList);
+
+public record OwnershipEntry
+{
+    public YahooLongValue? MaxAge { get; init; }
+    public YahooLongValue? ReportDate { get; init; }
+    public string? Organization { get; init; }
+    public YahooValue? PctHeld { get; init; }
+    public YahooLongValue? Position { get; init; }
+    public YahooLongValue? Value { get; init; }
+}
+
+public record InsiderHolders(List<InsiderHolderEntry> Holders);
+
+public record InsiderHolderEntry
+{
+    public YahooLongValue? MaxAge { get; init; }
+    public string? Name { get; init; }
+    public string? Relation { get; init; }
+    public string? Url { get; init; }
+    public string? TransactionDescription { get; init; }
+    public YahooLongValue? LatestTransDate { get; init; }
+    public YahooLongValue? PositionDirect { get; init; }
+    public YahooLongValue? PositionIndirect { get; init; }
+}
+
+public record InsiderTransactions(List<InsiderTransactionEntry> Transactions);
+
+public record InsiderTransactionEntry
+{
+    public YahooLongValue? MaxAge { get; init; }
+    public string? FilerName { get; init; }
+    public string? FilerRelation { get; init; }
+    public string? FilerUrl { get; init; }
+    public string? MoneyText { get; init; }
+    public string? TransactionText { get; init; }
+    public YahooLongValue? StartDate { get; init; }
+    public YahooLongValue? Shares { get; init; }
+    public YahooValue? Value { get; init; }
+    public string? Ownership { get; init; }
+}
