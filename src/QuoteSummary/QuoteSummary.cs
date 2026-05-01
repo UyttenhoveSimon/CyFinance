@@ -25,6 +25,9 @@ public record QuoteResult
     public OwnershipContainer? FundOwnership { get; init; }
     public InsiderHolders? InsiderHolders { get; init; }
     public InsiderTransactions? InsiderTransactions { get; init; }
+    public TopHoldingsData? TopHoldings { get; init; }
+    public FundProfileData? FundProfile { get; init; }
+    public FundPerformanceData? FundPerformance { get; init; }
 }
 
 // Base value types
@@ -273,4 +276,101 @@ public record InsiderTransactionEntry
     public YahooLongValue? Shares { get; init; }
     public YahooValue? Value { get; init; }
     public string? Ownership { get; init; }
+}
+
+// ── Fund / ETF models ────────────────────────────────────────────────────────
+
+public record TopHoldingsData
+{
+    public int? MaxAge { get; init; }
+    public YahooValue? StockPosition { get; init; }
+    public YahooValue? BondPosition { get; init; }
+    public YahooValue? CashPosition { get; init; }
+    public YahooValue? OtherPosition { get; init; }
+    public YahooValue? PreferredPosition { get; init; }
+    public YahooValue? ConvertiblePosition { get; init; }
+    public List<FundHolding>? Holdings { get; init; }
+    public EquityHoldingStats? EquityHoldings { get; init; }
+    public List<Dictionary<string, YahooValue>>? SectorWeightings { get; init; }
+}
+
+public record FundHolding
+{
+    public string? Symbol { get; init; }
+    public string? HoldingName { get; init; }
+    public YahooValue? HoldingPercent { get; init; }
+}
+
+public record EquityHoldingStats
+{
+    public YahooValue? PriceToEarnings { get; init; }
+    public YahooValue? PriceToBook { get; init; }
+    public YahooValue? PriceToSales { get; init; }
+    public YahooValue? PriceToCashflow { get; init; }
+    public YahooValue? MedianMarketCap { get; init; }
+    public YahooValue? ThreeYearEarningsGrowth { get; init; }
+}
+
+public record FundProfileData
+{
+    public int? MaxAge { get; init; }
+    public string? StyleBoxUrl { get; init; }
+    public string? Family { get; init; }
+    public string? CategoryName { get; init; }
+    public string? LegalType { get; init; }
+    public FundFeesExpenses? FeesExpensesInvestment { get; init; }
+    public FundManagementInfo? ManagementInfo { get; init; }
+}
+
+public record FundFeesExpenses
+{
+    public YahooValue? AnnualReportExpenseRatio { get; init; }
+    public YahooValue? NetExpRatio { get; init; }
+    public YahooValue? GrossExpRatio { get; init; }
+    public YahooValue? FrontEndSalesLoad { get; init; }
+    public YahooValue? DeferredSalesLoad { get; init; }
+    public YahooValue? TwelveBOne { get; init; }
+}
+
+public record FundManagementInfo
+{
+    public string? ManagerName { get; init; }
+    public string? ManagerBio { get; init; }
+}
+
+public record FundPerformanceData
+{
+    public int? MaxAge { get; init; }
+    public FundPerformanceOverview? PerformanceOverview { get; init; }
+    public FundAnnualReturns? AnnualTotalReturns { get; init; }
+    public FundTrailingReturns? TrailingReturns { get; init; }
+}
+
+public record FundPerformanceOverview
+{
+    public YahooLongValue? AsOfDate { get; init; }
+    public YahooValue? YtdReturnPct { get; init; }
+    public YahooValue? OneYearTotalReturn { get; init; }
+    public YahooValue? ThreeYearTotalReturn { get; init; }
+    public YahooValue? FiveYrAvgReturnPct { get; init; }
+}
+
+public record FundAnnualReturns(List<FundAnnualReturn>? Returns);
+
+public record FundAnnualReturn
+{
+    public string? Year { get; init; }
+    public YahooValue? AnnualValue { get; init; }
+}
+
+public record FundTrailingReturns
+{
+    public YahooLongValue? AsOfDate { get; init; }
+    public YahooValue? OneMonth { get; init; }
+    public YahooValue? ThreeMonth { get; init; }
+    public YahooValue? Ytd { get; init; }
+    public YahooValue? OneYear { get; init; }
+    public YahooValue? ThreeYear { get; init; }
+    public YahooValue? FiveYear { get; init; }
+    public YahooValue? TenYear { get; init; }
 }

@@ -24,13 +24,13 @@ The table below outlines the current feature parity between `yfinance` and this 
 | **Stock Screening (Screener API)** | ✅ | ✅ | [Screener API](#5-screener-api) |
 | Multi-Ticker Data Download | ✅ | ❌ | [Quote API (Real-time)](#12-quote-api-real-time) |
 | **Market Status & Summary** | ✅ | ❌ | [Market Summary API](#8-market-summary-api) |
-| **Sector Domain Data** | ✅ | ❌ | [Sector/Industry APIs](#10-sectorindustry-apis) |
-| **Industry Domain Data** | ✅ | ❌ | [Sector/Industry APIs](#10-sectorindustry-apis) |
+| **Sector Domain Data** | ✅ | ✅ | [Sector/Industry APIs](#10-sectorindustry-apis) |
+| **Industry Domain Data** | ✅ | ✅ | [Sector/Industry APIs](#10-sectorindustry-apis) |
 | **Global Calendars (Earnings, IPO, Splits, Economic Events)** | ✅ | ❌ | — |
 | **Live Streaming (WebSocket)** | ✅ | ❌ | [WebSocket Streaming API](#11-websocket-streaming-api) |
-| **Mutual Fund / ETF Data** | ✅ | ❌ | [Mutual Fund/ETF Data API](#15-mutual-fundetf-data-api) |
-| **Currency / Forex Data** | ✅ | ❌ | [Currency/Forex API](#16-currencyforex-api) |
-| **Cryptocurrency Data** | ✅ | ❌ | [Cryptocurrency API](#17-cryptocurrency-api) |
+| **Mutual Fund / ETF Data** | ✅ | ✅ | [Mutual Fund/ETF Data API](#15-mutual-fundetf-data-api) |
+| **Currency / Forex Data** | ✅ | ✅ | [Currency/Forex API](#16-currencyforex-api) |
+| **Cryptocurrency Data** | ✅ | ✅ | [Cryptocurrency API](#17-cryptocurrency-api) |
 
 ##  Which internal APIs are used by yfinance ?
 
@@ -424,7 +424,33 @@ var result = await screenerService.ScreenAsync(
 - **Endpoint**: `https://query2.finance.yahoo.com/v1/finance/sector/{sector_id}`
 - **Endpoint**: `https://query2.finance.yahoo.com/v1/finance/industry/{industry_id}`
 - **Purpose**: Sector and industry performance data
-- **Usage**: Used by `Sector` and `Industry` classes
+- **Usage**: Simplified sector and industry lookup/screening via `SectorIndustryService`
+
+#### Sector/Industry API
+
+- Sector and industry classification for a ticker via `GetSectorInfoAsync(ticker)`
+- Sector screener via `GetStocksInSectorAsync(sector, size)`
+- Industry screener via `GetStocksInIndustryAsync(industry, size)`
+
+Example (get sector + industry for ticker):
+
+```csharp
+var sectorIndustryService = new SectorIndustryService(quoteSummaryService, stockScreeningService);
+var info = await sectorIndustryService.GetSectorInfoAsync("AAPL");
+
+Console.WriteLine($"Sector: {info?.Sector}");
+Console.WriteLine($"Industry: {info?.Industry}");
+```
+
+Example (screen top stocks in sector):
+
+```csharp
+var stocks = await sectorIndustryService.GetStocksInSectorAsync("Technology", size: 10);
+foreach (var stock in stocks)
+{
+  Console.WriteLine($"{stock.Symbol} {stock.Name} - {stock.Price}");
+}
+```
 
 ## Real-time Data APIs
 
@@ -468,18 +494,92 @@ var result = await screenerService.ScreenAsync(
   - `equityHoldings`: Equity fund holdings
   - `bondRatings`: Bond ratings distribution
   - `sectorWeightings`: Sector allocation
+- **Usage**: Simplified fund/ETF access via `FundDataService`
+
+#### Mutual Fund/ETF API
+
+- Fund summary via `GetFundSummaryAsync(ticker)`
+- Fund profile via `GetFundProfileAsync(ticker)`
+- Top holdings via `GetTopHoldingsAsync(ticker)`
+- Sector weightings via `GetSectorWeightingsAsync(ticker)`
+- Trailing returns via `GetTrailingReturnsAsync(ticker)`
+- Annual returns via `GetAnnualReturnsAsync(ticker)`
+
+Example (get fund summary):
+
+```csharp
+var fundService = new FundDataService(quoteSummaryService);
+var summary = await fundService.GetFundSummaryAsync("VOO");
+
+Console.WriteLine($"{summary?.Ticker}: {summary?.Name}");
+Console.WriteLine($"Family: {summary?.FundFamily}, Category: {summary?.Category}");
+Console.WriteLine($"Expense Ratio: {summary?.ExpenseRatio}");
+```
+
+Example (get top holdings):
+
+```csharp
+var holdings = await fundService.GetTopHoldingsAsync("SPY");
+foreach (var h in holdings ?? new List<FundTopHolding>())
+{
+    Console.WriteLine($"{h.Symbol}: {h.Percent}");
+}
+```
 
 ### 16. **Currency/Forex API**
 
 - **Endpoint**: `https://query2.finance.yahoo.com/v8/finance/chart/{currency_pair}`
 - **Purpose**: Foreign exchange rates and historical data
-- **Usage**: Used for currency pairs (e.g., "EURUSD=X")
+- **Usage**: Used by `CurrencyService` for currency pairs (e.g., "EURUSD=X")
+
+#### Currency/Forex API
+
+- Current exchange rate via `GetExchangeRateAsync(baseCurrency, quoteCurrency)`
+- Historical FX rates via `GetHistoricalRatesAsync(baseCurrency, quoteCurrency, startDate, endDate, interval)`
+- Amount conversion helper via `ConvertAsync(amount, baseCurrency, quoteCurrency)`
+
+Example (get EUR/USD current rate):
+
+```csharp
+var currencyService = new CurrencyService(httpClient);
+var quote = await currencyService.GetExchangeRateAsync("EUR", "USD");
+
+Console.WriteLine($"{quote?.BaseCurrency}/{quote?.QuoteCurrency}: {quote?.Rate}");
+```
+
+Example (convert amount):
+
+```csharp
+var converted = await currencyService.ConvertAsync(100, "EUR", "USD");
+Console.WriteLine($"100 EUR = {converted} USD");
+```
 
 ### 17. **Cryptocurrency API**
 
 - **Endpoint**: `https://query2.finance.yahoo.com/v8/finance/chart/{crypto_symbol}`
 - **Purpose**: Cryptocurrency price data
-- **Usage**: Used for crypto symbols (e.g., "BTC-USD")
+- **Usage**: Used by `CryptoService` for crypto symbols (e.g., "BTC-USD")
+
+#### Cryptocurrency API
+
+- Current crypto quote via `GetCryptoQuoteAsync(cryptoSymbol, quoteCurrency)`
+- Historical crypto candles via `GetHistoricalPricesAsync(cryptoSymbol, quoteCurrency, startDate, endDate, interval)`
+
+Example (get BTC quote):
+
+```csharp
+var cryptoService = new CryptoService(httpClient);
+var btc = await cryptoService.GetCryptoQuoteAsync("BTC", "USD");
+
+Console.WriteLine($"{btc?.Symbol}: {btc?.Price}");
+```
+
+Example (get ETH history):
+
+```csharp
+var history = await cryptoService.GetHistoricalPricesAsync("ETH", "USD", interval: ChartInterval.OneDay);
+Console.WriteLine($"Candles: {history.Count}");
+```
 
 ## Base URLs and Domains
 
