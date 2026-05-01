@@ -3,9 +3,9 @@
 This is a **C# client library** designed to interact with the **Yahoo Finance API**.
 
 The project was originally a fork of [dougdellolio/YahooFinanceAPI](https://github.com/dougdellolio/YahooFinanceAPI). However, due to significant changes in Yahoo’s API, the library has been **rebuilt from scratch** with the goal of providing a **C# implementation** that closely mirrors the popular Python library [`yfinance`](https://github.com/ranaroussi/yfinance).
-## Native AOT Support
 
-CyFinance is configured for **Native AOT compilation** via `PublishAot=true` in the project file. This enables the library to be compiled into native code ahead-of-time for improved performance and reduced memory footprint. Currently, the library compiles successfully with warnings about JSON serialization that can be addressed by implementing `JsonSerializerContext` for full Native AOT compatibility.
+## Features Parity 
+
 The table below outlines the current feature parity between `yfinance` and this C# library (**CyFinance**):
 
 | Feature | yfinance (Python) | CyFinance (C#) |
@@ -18,7 +18,7 @@ The table below outlines the current feature parity between `yfinance` and this 
 | **Analyst Recommendations** | ✅ | ✅ |
 | Shareholder Information (Major, Institutional) | ✅ | ❌ |
 | Earnings Calendar | ✅ | ❌ |
-| Option Chains | ✅ | ❌ |
+| Option Chains | ✅ | ✅ |
 | Company News | ✅ | ❌ |
 | **Quote Search** | ✅ | ✅ |
 | **Stock Screening (Screener API)** | ✅ | ✅ |
@@ -163,6 +163,38 @@ foreach (var change in history ?? new List<RatingChange>())
 - **Parameters**:
   - `date`: Expiration date (Unix timestamp)
 - **Usage**: Used by `.option_chain()` method
+
+#### Options chain parity with yfinance (implemented)
+
+- Full option chain retrieval via `GetOptionsChainAsync(ticker, date)`
+- Available expiration dates via `GetExpirationDatesAsync(ticker)`
+- Expiration-specific chain via `GetOptionsForExpirationAsync(ticker, expirationDate)`
+- Calls-only helper via `GetCallsAsync(ticker, date)`
+- Puts-only helper via `GetPutsAsync(ticker, date)`
+
+Example (list available expirations):
+
+```csharp
+var optionsService = new OptionsDataService(httpClient);
+var expirations = await optionsService.GetExpirationDatesAsync("AAPL");
+
+foreach (var expiry in expirations)
+{
+    var date = optionsService.UnixTimeStampToDateTime(expiry);
+    Console.WriteLine($"Expiration: {date:yyyy-MM-dd} ({expiry})");
+}
+```
+
+Example (calls and puts for an expiration):
+
+```csharp
+var expiration = expirations.First();
+
+var calls = await optionsService.GetCallsAsync("AAPL", expiration);
+var puts = await optionsService.GetPutsAsync("AAPL", expiration);
+
+Console.WriteLine($"Calls: {calls.Count}, Puts: {puts.Count}");
+```
 
 ### 4. **Screener API**
 
@@ -346,7 +378,6 @@ var news = await searchService.SearchNewsAsync("Microsoft", newsCount: 3);
 - **Fallback Domain**: `query1.finance.yahoo.com` (backup/alternative)
 - **Streaming Domain**: `streamer.finance.yahoo.com` (WebSocket streaming)
 
-## How to Install?
+## Native AOT Support
 
-
-## What is Provided?
+CyFinance is configured for **Native AOT compilation** via `PublishAot=true` in the project file. This enables the library to be compiled into native code ahead-of-time for improved performance and reduced memory footprint. Currently, the library compiles successfully with warnings about JSON serialization that can be addressed by implementing `JsonSerializerContext` for full Native AOT compatibility.

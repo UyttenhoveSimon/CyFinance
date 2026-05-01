@@ -75,6 +75,30 @@ namespace CyFinance.Services.OptionsData
         }
 
         /// <summary>
+        /// Get call contracts for a ticker and optional expiration date
+        /// </summary>
+        /// <param name="ticker">Stock ticker symbol</param>
+        /// <param name="date">Optional expiration date (Unix timestamp)</param>
+        /// <returns>List of call option contracts</returns>
+        public async Task<List<OptionContract>> GetCallsAsync(string ticker, long? date = null)
+        {
+            var data = await GetOptionsChainAsync(ticker, date);
+            return data?.OptionChain?.Result?[0]?.Options?[0]?.Calls ?? new List<OptionContract>();
+        }
+
+        /// <summary>
+        /// Get put contracts for a ticker and optional expiration date
+        /// </summary>
+        /// <param name="ticker">Stock ticker symbol</param>
+        /// <param name="date">Optional expiration date (Unix timestamp)</param>
+        /// <returns>List of put option contracts</returns>
+        public async Task<List<OptionContract>> GetPutsAsync(string ticker, long? date = null)
+        {
+            var data = await GetOptionsChainAsync(ticker, date);
+            return data?.OptionChain?.Result?[0]?.Options?[0]?.Puts ?? new List<OptionContract>();
+        }
+
+        /// <summary>
         /// Convert Unix timestamp to DateTime
         /// </summary>
         public DateTime UnixTimeStampToDateTime(long unixTimeStamp)

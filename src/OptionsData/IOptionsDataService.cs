@@ -9,6 +9,8 @@ namespace CyFinance.Services.OptionsData
         Task<OptionsDataResponse> GetOptionsChainAsync(string ticker, long? date = null);
         Task<List<long>> GetExpirationDatesAsync(string ticker);
         Task<OptionsChainData> GetOptionsForExpirationAsync(string ticker, long expirationDate);
+        Task<List<OptionContract>> GetCallsAsync(string ticker, long? date = null);
+        Task<List<OptionContract>> GetPutsAsync(string ticker, long? date = null);
         long DateTimeToUnixTimeStamp(DateTime dateTime);
         DateTime UnixTimeStampToDateTime(long unixTimeStamp);
     }

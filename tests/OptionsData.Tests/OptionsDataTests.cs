@@ -131,5 +131,199 @@ namespace CyFinance.Tests.OptionsData
             // await Assert.That(result.OptionChain).IsNotNull();
             // await Assert.That(result.OptionChain.Result).IsNotEmpty();
         }
+
+        [Test]
+        public async Task GetOptionsForExpirationAsync_ShouldReturnChainForSpecificDate()
+        {
+            // Arrange
+            var sampleJson = @"
+            {
+              ""optionChain"": {
+                ""result"": [
+                  {
+                    ""underlyingSymbol"": ""AAPL"",
+                    ""expirationDates"": [1622505600],
+                    ""options"": [
+                      {
+                        ""expirationDate"": 1622505600,
+                        ""calls"": [
+                          {
+                            ""contractSymbol"": ""AAPL210625C00125000"",
+                            ""strike"": 125.0,
+                            ""currency"": ""USD"",
+                            ""lastPrice"": 2.5,
+                            ""change"": 0.1,
+                            ""percentChange"": 4.1,
+                            ""volume"": 10,
+                            ""openInterest"": 100,
+                            ""bid"": 2.4,
+                            ""ask"": 2.6,
+                            ""contractSize"": ""REGULAR"",
+                            ""expiration"": 1622505600,
+                            ""lastTradeDate"": 1622400000,
+                            ""impliedVolatility"": 0.25,
+                            ""inTheMoney"": false
+                          }
+                        ],
+                        ""puts"": [
+                          {
+                            ""contractSymbol"": ""AAPL210625P00125000"",
+                            ""strike"": 125.0,
+                            ""currency"": ""USD"",
+                            ""lastPrice"": 1.5,
+                            ""change"": -0.1,
+                            ""percentChange"": -2.1,
+                            ""volume"": 8,
+                            ""openInterest"": 80,
+                            ""bid"": 1.4,
+                            ""ask"": 1.6,
+                            ""contractSize"": ""REGULAR"",
+                            ""expiration"": 1622505600,
+                            ""lastTradeDate"": 1622400000,
+                            ""impliedVolatility"": 0.27,
+                            ""inTheMoney"": false
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                ""error"": null
+              }
+            }";
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(sampleJson, Encoding.UTF8, "application/json")
+            };
+            var client = CreateMockHttpClient(response);
+            var service = new OptionsDataService(client);
+
+            // Act
+            var chain = await service.GetOptionsForExpirationAsync("AAPL", 1622505600);
+
+            // Assert
+            await Assert.That(chain).IsNotNull();
+            await Assert.That(chain?.Calls).IsNotEmpty();
+            await Assert.That(chain?.Puts).IsNotEmpty();
+        }
+
+        [Test]
+        public async Task GetCallsAsync_ShouldReturnCalls()
+        {
+            // Arrange
+            var sampleJson = @"
+            {
+              ""optionChain"": {
+                ""result"": [
+                  {
+                    ""underlyingSymbol"": ""AAPL"",
+                    ""expirationDates"": [1622505600],
+                    ""options"": [
+                      {
+                        ""expirationDate"": 1622505600,
+                        ""calls"": [
+                          {
+                            ""contractSymbol"": ""AAPL210625C00125000"",
+                            ""strike"": 125.0,
+                            ""currency"": ""USD"",
+                            ""lastPrice"": 2.5,
+                            ""change"": 0.1,
+                            ""percentChange"": 4.1,
+                            ""volume"": 10,
+                            ""openInterest"": 100,
+                            ""bid"": 2.4,
+                            ""ask"": 2.6,
+                            ""contractSize"": ""REGULAR"",
+                            ""expiration"": 1622505600,
+                            ""lastTradeDate"": 1622400000,
+                            ""impliedVolatility"": 0.25,
+                            ""inTheMoney"": false
+                          }
+                        ],
+                        ""puts"": []
+                      }
+                    ]
+                  }
+                ],
+                ""error"": null
+              }
+            }";
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(sampleJson, Encoding.UTF8, "application/json")
+            };
+            var client = CreateMockHttpClient(response);
+            var service = new OptionsDataService(client);
+
+            // Act
+            var calls = await service.GetCallsAsync("AAPL");
+
+            // Assert
+            await Assert.That(calls).IsNotNull();
+            await Assert.That(calls).IsNotEmpty();
+            await Assert.That(calls.Count).IsEqualTo(1);
+            await Assert.That(calls[0].ContractSymbol).IsEqualTo("AAPL210625C00125000");
+        }
+
+        [Test]
+        public async Task GetPutsAsync_ShouldReturnPuts()
+        {
+            // Arrange
+            var sampleJson = @"
+            {
+              ""optionChain"": {
+                ""result"": [
+                  {
+                    ""underlyingSymbol"": ""AAPL"",
+                    ""expirationDates"": [1622505600],
+                    ""options"": [
+                      {
+                        ""expirationDate"": 1622505600,
+                        ""calls"": [],
+                        ""puts"": [
+                          {
+                            ""contractSymbol"": ""AAPL210625P00125000"",
+                            ""strike"": 125.0,
+                            ""currency"": ""USD"",
+                            ""lastPrice"": 1.5,
+                            ""change"": -0.1,
+                            ""percentChange"": -2.1,
+                            ""volume"": 8,
+                            ""openInterest"": 80,
+                            ""bid"": 1.4,
+                            ""ask"": 1.6,
+                            ""contractSize"": ""REGULAR"",
+                            ""expiration"": 1622505600,
+                            ""lastTradeDate"": 1622400000,
+                            ""impliedVolatility"": 0.27,
+                            ""inTheMoney"": false
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                ""error"": null
+              }
+            }";
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(sampleJson, Encoding.UTF8, "application/json")
+            };
+            var client = CreateMockHttpClient(response);
+            var service = new OptionsDataService(client);
+
+            // Act
+            var puts = await service.GetPutsAsync("AAPL");
+
+            // Assert
+            await Assert.That(puts).IsNotNull();
+            await Assert.That(puts).IsNotEmpty();
+            await Assert.That(puts.Count).IsEqualTo(1);
+            await Assert.That(puts[0].ContractSymbol).IsEqualTo("AAPL210625P00125000");
+        }
     }
 }
