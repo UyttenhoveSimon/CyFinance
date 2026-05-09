@@ -4,6 +4,7 @@ using ModularPipelines.Context;
 using ModularPipelines.DotNet.Extensions;
 using ModularPipelines.DotNet.Options;
 using ModularPipelines.Extensions;
+using ModularPipelines.Git.Extensions;
 using ModularPipelines.Models;
 using ModularPipelines.Modules;
 using ModularPipelines.Options;
@@ -20,24 +21,24 @@ await builder.Build().RunAsync();
 
 public class ResolvePackageVersionModule : Module<string>
 {
-	protected override Task<string?> ExecuteAsync(IModuleContext context, CancellationToken cancellationToken)
+	protected override async Task<string?> ExecuteAsync(IModuleContext context, CancellationToken cancellationToken)
 	{
 		var inputVersion = Environment.GetEnvironmentVariable("INPUT_PACKAGE_VERSION");
 
 		if (!string.IsNullOrWhiteSpace(inputVersion))
 		{
-			return Task.FromResult<string?>(inputVersion.Trim());
+			return inputVersion.Trim();
 		}
 
-		var refType = Environment.GetEnvironmentVariable("GITHUB_REF_TYPE");
-		var refName = Environment.GetEnvironmentVariable("GITHUB_REF_NAME");
+		var gitVersionInformation = await context.Git().Versioning.GetGitVersioningInformation();
+		var gitVersionNuGet = gitVersionInformation.FullSemVer;
 
-		if (string.Equals(refType, "tag", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(refName))
+		if (!string.IsNullOrWhiteSpace(gitVersionNuGet))
 		{
-			return Task.FromResult<string?>(refName.TrimStart('v'));
+			return gitVersionNuGet.Trim();
 		}
 
-		throw new InvalidOperationException("No package version provided. Use workflow input 'package_version' or run from a tag like v1.2.3.");
+		throw new InvalidOperationException("No package version could be resolved from GitVersion. Ensure GitVersion.yml exists at the repository root.");
 	}
 }
 
