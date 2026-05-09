@@ -21,8 +21,8 @@ public class CryptoService : BaseService, ICryptoService
         }
     }
 
-    [RequiresUnreferencedCode()]
-    [RequiresDynamicCode()]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
+    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
     public async Task<CryptoQuote?> GetCryptoQuoteAsync(string cryptoSymbol, string quoteCurrency = "USD")
     {
         var normalizedBase = NormalizeAssetCode(cryptoSymbol, nameof(cryptoSymbol));
@@ -60,8 +60,8 @@ public class CryptoService : BaseService, ICryptoService
         };
     }
 
-    [RequiresUnreferencedCode()]
-    [RequiresDynamicCode()]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
+    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
     public async Task<List<CryptoHistoricalPoint>> GetHistoricalPricesAsync(
         string cryptoSymbol,
         string quoteCurrency = "USD",

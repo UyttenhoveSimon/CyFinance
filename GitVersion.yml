@@ -1,14 +1,14 @@
-mode: ContinuousDelivery
+mode: ContinuousDeployment
 tag-prefix: '[vV]'
 
+strategies:
+  - Mainline
+
 branches:
-  main:
-    regex: ^main$
-    increment: Patch
-    is-main-branch: true
 
   master:
     regex: ^master$
+    label: 'beta'
     increment: Patch
     is-main-branch: true
 

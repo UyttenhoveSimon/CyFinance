@@ -31,7 +31,7 @@ public class ResolvePackageVersionModule : Module<string>
 		}
 
 		var gitVersionInformation = await context.Git().Versioning.GetGitVersioningInformation();
-		var gitVersionNuGet = gitVersionInformation.FullSemVer;
+		var gitVersionNuGet = gitVersionInformation.SemVer ?? gitVersionInformation.FullSemVer;
 
 		if (!string.IsNullOrWhiteSpace(gitVersionNuGet))
 		{
@@ -78,6 +78,12 @@ public class PublishNuGetModule : Module
 		{
 			Project = "tests/CyFinance.Tests.csproj",
 		}, null, cancellationToken);
+
+		var artifactsDirectory = Path.GetFullPath("./artifacts");
+		if (Directory.Exists(artifactsDirectory))
+		{
+			Directory.Delete(artifactsDirectory, true);
+		}
 
 		await context.DotNet().Pack(new DotNetPackOptions
 		{

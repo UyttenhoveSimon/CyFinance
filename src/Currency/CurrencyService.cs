@@ -21,8 +21,8 @@ public class CurrencyService : BaseService, ICurrencyService
         }
     }
 
-    [RequiresUnreferencedCode()]
-    [RequiresDynamicCode()]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
+    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
     public async Task<CurrencyQuote?> GetExchangeRateAsync(string baseCurrency, string quoteCurrency)
     {
         var normalizedBase = NormalizeCurrencyCode(baseCurrency, nameof(baseCurrency));
@@ -61,8 +61,8 @@ public class CurrencyService : BaseService, ICurrencyService
         };
     }
 
-    [RequiresUnreferencedCode()]
-    [RequiresDynamicCode()]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
+    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
     public async Task<List<CurrencyHistoricalPoint>> GetHistoricalRatesAsync(
         string baseCurrency,
         string quoteCurrency,

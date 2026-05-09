@@ -25,8 +25,8 @@ public class SearchService : BaseService, ISearchService
     /// Search for tickers, news, and other financial data
     /// Equivalent to yfinance.Ticker.search(query)
     /// </summary>
-    [RequiresDynamicCode()]
-    [RequiresUnreferencedCode()]
+    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
     public async Task<SearchResponse?> SearchAsync(string query, int quotesCount = 8, int newsCount = 4)
     {
         if (string.IsNullOrWhiteSpace(query))

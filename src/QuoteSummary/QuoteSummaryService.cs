@@ -20,8 +20,8 @@ public class QuoteSummaryService : BaseService, IQuoteSummaryService
     /// <summary>
     /// Fetches quote summary data from Yahoo Finance for a given ticker and modules
     /// </summary>
-    [RequiresDynamicCode()]
-    [RequiresUnreferencedCode()]
+    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
     public async Task<QuoteResponse?> GetQuoteSummaryAsync(
         string ticker, params string[] modules)
     {

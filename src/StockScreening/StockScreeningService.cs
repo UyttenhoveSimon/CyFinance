@@ -24,8 +24,8 @@ public class StockScreeningService : BaseService, IStockScreeningService
     /// <summary>
     /// Executes a custom screener query (equivalent to yfinance screen(query=...)).
     /// </summary>
-    [RequiresDynamicCode()]
-    [RequiresUnreferencedCode()]
+    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
     public async Task<ScreenerResult?> ScreenAsync(ScreenerRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -99,8 +99,8 @@ public class StockScreeningService : BaseService, IStockScreeningService
     /// <summary>
     /// Executes a predefined screener query by id (equivalent to yfinance screen("day_gainers")).
     /// </summary>
-    [RequiresUnreferencedCode()]
-    [RequiresDynamicCode()]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
+    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
     public async Task<ScreenerResult?> ScreenPredefinedAsync(
         string screenId,
         int? offset = null,

@@ -24,8 +24,8 @@ public class CompanyNewsService : BaseService, ICompanyNewsService
     /// <summary>
     /// Get ticker-specific company news.
     /// </summary>
-    [RequiresDynamicCode()]
-    [RequiresUnreferencedCode()]
+    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
     public async Task<List<CompanyNewsItem>?> GetCompanyNewsAsync(string ticker, int newsCount = 10)
     {
         if (string.IsNullOrWhiteSpace(ticker))

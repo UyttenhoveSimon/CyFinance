@@ -22,8 +22,8 @@ public class OptionsDataService : BaseService, IOptionsDataService
     /// <param name="ticker">Stock ticker symbol</param>
     /// <param name="date">Optional expiration date (Unix timestamp)</param>
     /// <returns>Options data</returns>
-    [RequiresDynamicCode()]
-    [RequiresUnreferencedCode()]
+    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
     public async Task<OptionsDataResponse> GetOptionsChainAsync(string ticker, long? date = null)
     {
         if (string.IsNullOrWhiteSpace(ticker))

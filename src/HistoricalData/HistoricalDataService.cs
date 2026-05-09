@@ -16,8 +16,8 @@ public class HistoricalDataService : BaseService, IHistoricalDataService
     }
     private const string BASE_URL = "https://query2.finance.yahoo.com";
 
-    [RequiresDynamicCode()]
-    [RequiresUnreferencedCode()]
+    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
     public async Task<ChartResponse> GetHistoricalDataAsync(
         string ticker,
         DateTime? startDate = null,
