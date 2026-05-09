@@ -1,5 +1,3 @@
-using CyFinance.Models.CompanyNews;
-using CyFinance.Services.CompanyNews;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -7,6 +5,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CyFinance.Models.CompanyNews;
+using CyFinance.Services.CompanyNews;
 using TUnit.Assertions;
 using TUnit.Assertions.Extensions;
 

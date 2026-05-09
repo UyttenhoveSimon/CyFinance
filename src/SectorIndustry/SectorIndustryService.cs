@@ -26,17 +26,24 @@ public class SectorIndustryService : ISectorIndustryService
     public async Task<SectorIndustryInfo?> GetSectorInfoAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
+        {
             throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
+        }
 
         try
         {
             var response = await _quoteSummaryService.GetQuoteSummaryAsync(ticker, "assetProfile");
 
             if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
+            {
                 return null;
+            }
 
             var profile = response.QuoteSummary.Result[0].AssetProfile;
-            if (profile is null) return null;
+            if (profile is null)
+            {
+                return null;
+            }
 
             return new SectorIndustryInfo
             {
@@ -59,7 +66,9 @@ public class SectorIndustryService : ISectorIndustryService
     public async Task<List<SectorScreenerEntry>> GetStocksInSectorAsync(string sector, int size = 25)
     {
         if (string.IsNullOrWhiteSpace(sector))
+        {
             throw new ArgumentException("Sector cannot be empty", nameof(sector));
+        }
 
         try
         {
@@ -84,7 +93,9 @@ public class SectorIndustryService : ISectorIndustryService
     public async Task<List<SectorScreenerEntry>> GetStocksInIndustryAsync(string industry, int size = 25)
     {
         if (string.IsNullOrWhiteSpace(industry))
+        {
             throw new ArgumentException("Industry cannot be empty", nameof(industry));
+        }
 
         try
         {
@@ -110,7 +121,10 @@ public class SectorIndustryService : ISectorIndustryService
 
     private static List<SectorScreenerEntry> MapQuotes(ScreenerResult? result)
     {
-        if (result?.Quotes is null) return new List<SectorScreenerEntry>();
+        if (result?.Quotes is null)
+        {
+            return new List<SectorScreenerEntry>();
+        }
 
         return result.Quotes
             .Select(q => new SectorScreenerEntry

@@ -126,7 +126,7 @@ public class SectorIndustryServiceTests
     public async Task GetStocksInSectorAsync_NullScreenerResult_ShouldReturnEmptyList()
     {
         _mockScreeningService.ScreenAsync(Arg.Any<ScreenerRequest>())
-            .Returns((ScreenerResult?)null);
+            .Returns((ScreenerResult?) null);
 
         var result = await _service.GetStocksInSectorAsync("Financials");
 

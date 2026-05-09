@@ -1,11 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using CyFinance.Models.QuoteSummary;
 using CyFinance.Models.ShareholderInformation;
 using CyFinance.Services.QuoteSummary;
 using CyFinance.Services.ShareholderInformation;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TUnit.Assertions;
 using TUnit.Assertions.Extensions;
 

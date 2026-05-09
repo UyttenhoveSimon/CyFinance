@@ -1,7 +1,7 @@
-using CyFinance.Models.HistoricalData;
-using CyFinance.Services.Currency;
 using System.Net;
 using System.Text;
+using CyFinance.Models.HistoricalData;
+using CyFinance.Services.Currency;
 using TUnit;
 using TUnit.Assertions;
 using TUnit.Assertions.Extensions;

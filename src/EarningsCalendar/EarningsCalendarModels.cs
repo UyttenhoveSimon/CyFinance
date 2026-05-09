@@ -88,14 +88,18 @@ public class EarningsCalendarSummary
     public double GetAverageEarningsSurprise()
     {
         if (HistoricalEarnings == null || HistoricalEarnings.Count == 0)
+        {
             return 0;
+        }
 
         var validEarnings = HistoricalEarnings
             .Where(e => e.Actual?.Raw.HasValue == true && e.Estimate?.Raw.HasValue == true && e.Estimate.Raw > 0)
             .ToList();
 
         if (validEarnings.Count == 0)
+        {
             return 0;
+        }
 
         var surprises = validEarnings.Select(e =>
             ((e.Actual!.Raw!.Value - e.Estimate!.Raw!.Value) / e.Estimate.Raw.Value) * 100
@@ -111,16 +115,20 @@ public class EarningsCalendarSummary
     public double GetEarningsBeatRate()
     {
         if (HistoricalEarnings == null || HistoricalEarnings.Count == 0)
+        {
             return 0;
+        }
 
         var validEarnings = HistoricalEarnings
             .Where(e => e.Actual?.Raw.HasValue == true && e.Estimate?.Raw.HasValue == true)
             .ToList();
 
         if (validEarnings.Count == 0)
+        {
             return 0;
+        }
 
         var beats = validEarnings.Count(e => e.Actual!.Raw > e.Estimate!.Raw);
-        return (beats / (double)validEarnings.Count) * 100;
+        return (beats / (double) validEarnings.Count) * 100;
     }
 }

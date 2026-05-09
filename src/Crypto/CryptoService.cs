@@ -1,6 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Json;
 using CyFinance.Models.Crypto;
 using CyFinance.Models.HistoricalData;
-using System.Net.Http.Json;
 
 namespace CyFinance.Services.Crypto;
 
@@ -20,6 +21,8 @@ public class CryptoService : BaseService, ICryptoService
         }
     }
 
+    [RequiresUnreferencedCode()]
+    [RequiresDynamicCode()]
     public async Task<CryptoQuote?> GetCryptoQuoteAsync(string cryptoSymbol, string quoteCurrency = "USD")
     {
         var normalizedBase = NormalizeAssetCode(cryptoSymbol, nameof(cryptoSymbol));
@@ -57,6 +60,8 @@ public class CryptoService : BaseService, ICryptoService
         };
     }
 
+    [RequiresUnreferencedCode()]
+    [RequiresDynamicCode()]
     public async Task<List<CryptoHistoricalPoint>> GetHistoricalPricesAsync(
         string cryptoSymbol,
         string quoteCurrency = "USD",
@@ -94,6 +99,8 @@ public class CryptoService : BaseService, ICryptoService
         return points.OrderBy(p => p.Date).ToList();
     }
 
+    [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
     private async Task<ChartResponse?> GetQuoteChartAsync(string symbol)
     {
         await EnsureAuthenticatedAsync(symbol);
@@ -101,6 +108,8 @@ public class CryptoService : BaseService, ICryptoService
         return await Client.GetFromJsonAsync<ChartResponse>(url, _jsonOptions);
     }
 
+    [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
     private async Task<ChartResponse?> GetHistoricalChartAsync(
         string symbol,
         DateTime? startDate,
@@ -109,8 +118,8 @@ public class CryptoService : BaseService, ICryptoService
     {
         await EnsureAuthenticatedAsync(symbol);
 
-        var period1 = ((DateTimeOffset)(startDate ?? DateTime.UtcNow.AddYears(-1))).ToUnixTimeSeconds();
-        var period2 = ((DateTimeOffset)(endDate ?? DateTime.UtcNow)).ToUnixTimeSeconds();
+        var period1 = ((DateTimeOffset) (startDate ?? DateTime.UtcNow.AddYears(-1))).ToUnixTimeSeconds();
+        var period2 = ((DateTimeOffset) (endDate ?? DateTime.UtcNow)).ToUnixTimeSeconds();
 
         var url =
             $"{BaseUrl}/v8/finance/chart/{Uri.EscapeDataString(symbol)}" +

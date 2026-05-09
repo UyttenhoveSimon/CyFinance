@@ -22,20 +22,26 @@ public class EarningsCalendarService : IEarningsCalendarService
     public async Task<UpcomingEarnings?> GetUpcomingEarningsAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
+        {
             throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
+        }
 
         try
         {
             var response = await _quoteSummaryService.GetQuoteSummaryAsync(ticker, "calendarEvents");
 
             if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
+            {
                 return null;
+            }
 
             var result = response.QuoteSummary.Result[0];
             var earningsCalendar = result.CalendarEvents?.Earnings;
 
             if (earningsCalendar?.EarningsDate == null || earningsCalendar.EarningsDate.Count == 0)
+            {
                 return null;
+            }
 
             return new UpcomingEarnings
             {
@@ -55,20 +61,26 @@ public class EarningsCalendarService : IEarningsCalendarService
     public async Task<HistoricalEarnings?> GetHistoricalEarningsAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
+        {
             throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
+        }
 
         try
         {
             var response = await _quoteSummaryService.GetQuoteSummaryAsync(ticker, "earnings");
 
             if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
+            {
                 return null;
+            }
 
             var result = response.QuoteSummary.Result[0];
             var earnings = result.Earnings?.EarningsChart?.Quarterly;
 
             if (earnings == null || earnings.Count == 0)
+            {
                 return null;
+            }
 
             return new HistoricalEarnings
             {
@@ -88,7 +100,9 @@ public class EarningsCalendarService : IEarningsCalendarService
     public async Task<EarningsCalendarSummary?> GetEarningsCalendarAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
+        {
             throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
+        }
 
         try
         {
@@ -96,7 +110,9 @@ public class EarningsCalendarService : IEarningsCalendarService
                 "calendarEvents", "earnings");
 
             if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
+            {
                 return null;
+            }
 
             var result = response.QuoteSummary.Result[0];
 

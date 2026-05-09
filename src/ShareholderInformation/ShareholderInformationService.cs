@@ -19,7 +19,9 @@ public class ShareholderInformationService : IShareholderInformationService
     public async Task<ShareholderInformationSummary?> GetShareholderInformationAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
+        {
             throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
+        }
 
         try
         {
@@ -31,7 +33,9 @@ public class ShareholderInformationService : IShareholderInformationService
                 "insiderTransactions");
 
             if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
+            {
                 return null;
+            }
 
             var result = response.QuoteSummary.Result[0];
 

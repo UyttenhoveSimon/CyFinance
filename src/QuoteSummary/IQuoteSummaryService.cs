@@ -1,11 +1,10 @@
-using CyFinance.Models.QuoteSummary;
 using System.Threading.Tasks;
+using CyFinance.Models.QuoteSummary;
 
-namespace CyFinance.Services.QuoteSummary
+namespace CyFinance.Services.QuoteSummary;
+
+
+public interface IQuoteSummaryService
 {
-
-    public interface IQuoteSummaryService
-    {
-        Task<QuoteResponse?> GetQuoteSummaryAsync(string ticker, params string[] modules);
-    }
+    Task<QuoteResponse?> GetQuoteSummaryAsync(string ticker, params string[] modules);
 }

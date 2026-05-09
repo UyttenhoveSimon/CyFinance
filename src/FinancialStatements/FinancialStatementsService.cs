@@ -3,171 +3,190 @@ using CyFinance.Models.FinancialStatements;
 using CyFinance.Models.QuoteSummary;
 using CyFinance.Services.QuoteSummary;
 
-namespace CyFinance.Services.FinancialStatements
+namespace CyFinance.Services.FinancialStatements;
+
+/// <summary>
+/// Financial Statements Service for Yahoo Finance
+/// Retrieves income statements, balance sheets, and cash flow statements
+/// </summary>
+public class FinancialStatementsService : IFinancialStatementsService
 {
-    /// <summary>
-    /// Financial Statements Service for Yahoo Finance
-    /// Retrieves income statements, balance sheets, and cash flow statements
-    /// </summary>
-    public class FinancialStatementsService : IFinancialStatementsService
+    private readonly IQuoteSummaryService _quoteSummaryService;
+
+    public FinancialStatementsService(IQuoteSummaryService quoteSummaryService)
     {
-        private readonly IQuoteSummaryService _quoteSummaryService;
+        _quoteSummaryService = quoteSummaryService ?? throw new ArgumentNullException(nameof(quoteSummaryService));
+    }
 
-        public FinancialStatementsService(IQuoteSummaryService quoteSummaryService)
+    /// <summary>
+    /// Get income statement for a ticker
+    /// </summary>
+    public async Task<IncomeStatement?> GetIncomeStatementAsync(string ticker)
+    {
+        if (string.IsNullOrWhiteSpace(ticker))
         {
-            _quoteSummaryService = quoteSummaryService ?? throw new ArgumentNullException(nameof(quoteSummaryService));
+            throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
         }
 
-        /// <summary>
-        /// Get income statement for a ticker
-        /// </summary>
-        public async Task<IncomeStatement?> GetIncomeStatementAsync(string ticker)
+        try
         {
-            if (string.IsNullOrWhiteSpace(ticker))
-                throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
+            var response = await _quoteSummaryService.GetQuoteSummaryAsync(ticker,
+                "incomeStatementHistory", "incomeStatementHistoryQuarterly");
 
-            try
+            if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
             {
-                var response = await _quoteSummaryService.GetQuoteSummaryAsync(ticker,
-                    "incomeStatementHistory", "incomeStatementHistoryQuarterly");
-
-                if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
-                    return null;
-
-                var result = response.QuoteSummary.Result[0];
-                
-                return new IncomeStatement
-                {
-                    Ticker = ticker,
-                    AnnualStatements = result.IncomeStatementHistory?.IncomeStatementStatements
-                        ?? result.IncomeStatementHistoryQuarterly?.IncomeStatementStatements,
-                    QuarterlyStatements = result.IncomeStatementHistoryQuarterly?.IncomeStatementStatements
-                        ?? result.IncomeStatementHistory?.IncomeStatementStatements
-                };
+                return null;
             }
-            catch (Exception ex)
+
+            var result = response.QuoteSummary.Result[0];
+
+            return new IncomeStatement
             {
-                throw new Exception($"Failed to get income statement for {ticker}: {ex.Message}", ex);
-            }
+                Ticker = ticker,
+                AnnualStatements = result.IncomeStatementHistory?.IncomeStatementStatements
+                    ?? result.IncomeStatementHistoryQuarterly?.IncomeStatementStatements,
+                QuarterlyStatements = result.IncomeStatementHistoryQuarterly?.IncomeStatementStatements
+                    ?? result.IncomeStatementHistory?.IncomeStatementStatements
+            };
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to get income statement for {ticker}: {ex.Message}", ex);
+        }
+    }
+
+    /// <summary>
+    /// Get balance sheet for a ticker
+    /// </summary>
+    public async Task<BalanceSheet?> GetBalanceSheetAsync(string ticker)
+    {
+        if (string.IsNullOrWhiteSpace(ticker))
+        {
+            throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
         }
 
-        /// <summary>
-        /// Get balance sheet for a ticker
-        /// </summary>
-        public async Task<BalanceSheet?> GetBalanceSheetAsync(string ticker)
+        try
         {
-            if (string.IsNullOrWhiteSpace(ticker))
-                throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
+            var response = await _quoteSummaryService.GetQuoteSummaryAsync(ticker,
+                "balanceSheetHistory", "balanceSheetHistoryQuarterly");
 
-            try
+            if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
             {
-                var response = await _quoteSummaryService.GetQuoteSummaryAsync(ticker,
-                    "balanceSheetHistory", "balanceSheetHistoryQuarterly");
-
-                if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
-                    return null;
-
-                var result = response.QuoteSummary.Result[0];
-                
-                return new BalanceSheet
-                {
-                    Ticker = ticker,
-                    AnnualStatements = result.BalanceSheetHistory?.BalanceSheetStatements
-                        ?? result.BalanceSheetHistoryQuarterly?.BalanceSheetStatements,
-                    QuarterlyStatements = result.BalanceSheetHistoryQuarterly?.BalanceSheetStatements
-                        ?? result.BalanceSheetHistory?.BalanceSheetStatements
-                };
+                return null;
             }
-            catch (Exception ex)
+
+            var result = response.QuoteSummary.Result[0];
+
+            return new BalanceSheet
             {
-                throw new Exception($"Failed to get balance sheet for {ticker}: {ex.Message}", ex);
-            }
+                Ticker = ticker,
+                AnnualStatements = result.BalanceSheetHistory?.BalanceSheetStatements
+                    ?? result.BalanceSheetHistoryQuarterly?.BalanceSheetStatements,
+                QuarterlyStatements = result.BalanceSheetHistoryQuarterly?.BalanceSheetStatements
+                    ?? result.BalanceSheetHistory?.BalanceSheetStatements
+            };
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to get balance sheet for {ticker}: {ex.Message}", ex);
+        }
+    }
+
+    /// <summary>
+    /// Get cash flow statement for a ticker
+    /// </summary>
+    public async Task<CashFlowStatement?> GetCashFlowStatementAsync(string ticker)
+    {
+        if (string.IsNullOrWhiteSpace(ticker))
+        {
+            throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
         }
 
-        /// <summary>
-        /// Get cash flow statement for a ticker
-        /// </summary>
-        public async Task<CashFlowStatement?> GetCashFlowStatementAsync(string ticker)
+        try
         {
-            if (string.IsNullOrWhiteSpace(ticker))
-                throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
+            var response = await _quoteSummaryService.GetQuoteSummaryAsync(ticker,
+                "cashflowStatementHistory", "cashflowStatementHistoryQuarterly");
 
-            try
+            if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
             {
-                var response = await _quoteSummaryService.GetQuoteSummaryAsync(ticker,
-                    "cashflowStatementHistory", "cashflowStatementHistoryQuarterly");
-
-                if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
-                    return null;
-
-                var result = response.QuoteSummary.Result[0];
-                
-                return new CashFlowStatement
-                {
-                    Ticker = ticker,
-                    AnnualStatements = result.CashflowStatementHistory?.CashflowStatements
-                        ?? result.CashflowStatementHistoryQuarterly?.CashflowStatements,
-                    QuarterlyStatements = result.CashflowStatementHistoryQuarterly?.CashflowStatements
-                        ?? result.CashflowStatementHistory?.CashflowStatements
-                };
+                return null;
             }
-            catch (Exception ex)
+
+            var result = response.QuoteSummary.Result[0];
+
+            return new CashFlowStatement
             {
-                throw new Exception($"Failed to get cash flow statement for {ticker}: {ex.Message}", ex);
-            }
+                Ticker = ticker,
+                AnnualStatements = result.CashflowStatementHistory?.CashflowStatements
+                    ?? result.CashflowStatementHistoryQuarterly?.CashflowStatements,
+                QuarterlyStatements = result.CashflowStatementHistoryQuarterly?.CashflowStatements
+                    ?? result.CashflowStatementHistory?.CashflowStatements
+            };
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to get cash flow statement for {ticker}: {ex.Message}", ex);
+        }
+    }
+
+    /// <summary>
+    /// Get all financial statements for a ticker
+    /// </summary>
+    public async Task<FinancialStatementsResponse?> GetAllStatementsAsync(string ticker)
+    {
+        if (string.IsNullOrWhiteSpace(ticker))
+        {
+            throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
         }
 
-        /// <summary>
-        /// Get all financial statements for a ticker
-        /// </summary>
-        public async Task<FinancialStatementsResponse?> GetAllStatementsAsync(string ticker)
-        {
-            if (string.IsNullOrWhiteSpace(ticker))
-                throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
+        return await GetStatementsAsync(ticker,
+            "incomeStatementHistory",
+            "incomeStatementHistoryQuarterly",
+            "balanceSheetHistory",
+            "balanceSheetHistoryQuarterly",
+            "cashflowStatementHistory",
+            "cashflowStatementHistoryQuarterly");
+    }
 
-            return await GetStatementsAsync(ticker,
-                "incomeStatementHistory",
-                "incomeStatementHistoryQuarterly",
-                "balanceSheetHistory",
-                "balanceSheetHistoryQuarterly",
-                "cashflowStatementHistory",
-                "cashflowStatementHistoryQuarterly");
+    /// <summary>
+    /// Get specific financial statements by module names
+    /// </summary>
+    public async Task<FinancialStatementsResponse?> GetStatementsAsync(string ticker, params string[] modules)
+    {
+        if (string.IsNullOrWhiteSpace(ticker))
+        {
+            throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
         }
 
-        /// <summary>
-        /// Get specific financial statements by module names
-        /// </summary>
-        public async Task<FinancialStatementsResponse?> GetStatementsAsync(string ticker, params string[] modules)
+        if (modules == null || modules.Length == 0)
         {
-            if (string.IsNullOrWhiteSpace(ticker))
-                throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
+            throw new ArgumentException("At least one module must be specified", nameof(modules));
+        }
 
-            if (modules == null || modules.Length == 0)
-                throw new ArgumentException("At least one module must be specified", nameof(modules));
+        try
+        {
+            var response = await _quoteSummaryService.GetQuoteSummaryAsync(ticker, modules);
 
-            try
+            if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
             {
-                var response = await _quoteSummaryService.GetQuoteSummaryAsync(ticker, modules);
-
-                if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
-                    return null;
-
-                var result = response.QuoteSummary.Result[0];
-                
-                return new FinancialStatementsResponse
-                {
-                    IncomeStatementHistory = result.IncomeStatementHistory,
-                    IncomeStatementHistoryQuarterly = result.IncomeStatementHistoryQuarterly,
-                    BalanceSheetHistory = result.BalanceSheetHistory,
-                    BalanceSheetHistoryQuarterly = result.BalanceSheetHistoryQuarterly,
-                    CashflowStatementHistory = result.CashflowStatementHistory,
-                    CashflowStatementHistoryQuarterly = result.CashflowStatementHistoryQuarterly
-                };
+                return null;
             }
-            catch (Exception ex)
+
+            var result = response.QuoteSummary.Result[0];
+
+            return new FinancialStatementsResponse
             {
-                throw new Exception($"Failed to get financial statements for {ticker}: {ex.Message}", ex);
-            }
+                IncomeStatementHistory = result.IncomeStatementHistory,
+                IncomeStatementHistoryQuarterly = result.IncomeStatementHistoryQuarterly,
+                BalanceSheetHistory = result.BalanceSheetHistory,
+                BalanceSheetHistoryQuarterly = result.BalanceSheetHistoryQuarterly,
+                CashflowStatementHistory = result.CashflowStatementHistory,
+                CashflowStatementHistoryQuarterly = result.CashflowStatementHistoryQuarterly
+            };
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to get financial statements for {ticker}: {ex.Message}", ex);
         }
     }
 }

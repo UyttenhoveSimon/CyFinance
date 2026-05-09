@@ -1,6 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Json;
 using CyFinance.Models.Currency;
 using CyFinance.Models.HistoricalData;
-using System.Net.Http.Json;
 
 namespace CyFinance.Services.Currency;
 
@@ -20,6 +21,8 @@ public class CurrencyService : BaseService, ICurrencyService
         }
     }
 
+    [RequiresUnreferencedCode()]
+    [RequiresDynamicCode()]
     public async Task<CurrencyQuote?> GetExchangeRateAsync(string baseCurrency, string quoteCurrency)
     {
         var normalizedBase = NormalizeCurrencyCode(baseCurrency, nameof(baseCurrency));
@@ -58,6 +61,8 @@ public class CurrencyService : BaseService, ICurrencyService
         };
     }
 
+    [RequiresUnreferencedCode()]
+    [RequiresDynamicCode()]
     public async Task<List<CurrencyHistoricalPoint>> GetHistoricalRatesAsync(
         string baseCurrency,
         string quoteCurrency,
@@ -101,6 +106,8 @@ public class CurrencyService : BaseService, ICurrencyService
         return quote?.Rate.HasValue == true ? amount * quote.Rate.Value : null;
     }
 
+    [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
     private async Task<ChartResponse?> GetQuoteChartAsync(string symbol)
     {
         await EnsureAuthenticatedAsync(symbol);
@@ -108,6 +115,8 @@ public class CurrencyService : BaseService, ICurrencyService
         return await Client.GetFromJsonAsync<ChartResponse>(url, _jsonOptions);
     }
 
+    [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
+    [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
     private async Task<ChartResponse?> GetHistoricalChartAsync(
         string symbol,
         DateTime? startDate,
@@ -116,8 +125,8 @@ public class CurrencyService : BaseService, ICurrencyService
     {
         await EnsureAuthenticatedAsync(symbol);
 
-        var period1 = ((DateTimeOffset)(startDate ?? DateTime.UtcNow.AddYears(-1))).ToUnixTimeSeconds();
-        var period2 = ((DateTimeOffset)(endDate ?? DateTime.UtcNow)).ToUnixTimeSeconds();
+        var period1 = ((DateTimeOffset) (startDate ?? DateTime.UtcNow.AddYears(-1))).ToUnixTimeSeconds();
+        var period2 = ((DateTimeOffset) (endDate ?? DateTime.UtcNow)).ToUnixTimeSeconds();
 
         var url =
             $"{BaseUrl}/v8/finance/chart/{Uri.EscapeDataString(symbol)}" +

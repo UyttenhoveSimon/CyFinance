@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using CyFinance.Models.CompanyNews;
 
@@ -23,13 +24,19 @@ public class CompanyNewsService : BaseService, ICompanyNewsService
     /// <summary>
     /// Get ticker-specific company news.
     /// </summary>
+    [RequiresDynamicCode()]
+    [RequiresUnreferencedCode()]
     public async Task<List<CompanyNewsItem>?> GetCompanyNewsAsync(string ticker, int newsCount = 10)
     {
         if (string.IsNullOrWhiteSpace(ticker))
+        {
             throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
+        }
 
         if (newsCount < 0)
+        {
             throw new ArgumentException("newsCount must be non-negative", nameof(newsCount));
+        }
 
         try
         {
@@ -37,7 +44,9 @@ public class CompanyNewsService : BaseService, ICompanyNewsService
             var response = await Client.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
-                throw new Exception($"Yahoo API returned {(int)response.StatusCode}");
+            {
+                throw new Exception($"Yahoo API returned {(int) response.StatusCode}");
+            }
 
             var content = await response.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<CompanyNewsResponse>(content, _jsonOptions);
@@ -64,7 +73,9 @@ public class CompanyNewsService : BaseService, ICompanyNewsService
     public async Task<List<CompanyNewsItem>?> GetCompanyNewsSinceAsync(string ticker, long sinceUnixTime, int newsCount = 25)
     {
         if (sinceUnixTime < 0)
+        {
             throw new ArgumentException("sinceUnixTime must be non-negative", nameof(sinceUnixTime));
+        }
 
         var news = await GetCompanyNewsAsync(ticker, newsCount);
         return news?

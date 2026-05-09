@@ -1,7 +1,3 @@
-using CyFinance.Models.HistoricalData;
-using CyFinance.Services.HistoricalData;
-using CyFinance.Services.QuoteSummary;
-using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,82 +5,85 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using CyFinance.Models.HistoricalData;
+using CyFinance.Services.HistoricalData;
+using CyFinance.Services.QuoteSummary;
+using NSubstitute;
 using TUnit.Assertions;
 using TUnit.Assertions.Extensions;
 using TUnit.Core;
 
-namespace CyFinance.Tests.Integration
+namespace CyFinance.Tests.Integration;
+
+public class IntegrationTests
 {
-    public class IntegrationTests
+    private readonly HttpClient _httpClient;
+    private readonly IQuoteSummaryService _qsService;
+    private readonly IHistoricalDataService _hdService;
+
+    public IntegrationTests()
     {
-        private readonly HttpClient _httpClient;
-        private readonly IQuoteSummaryService _qsService;
-        private readonly IHistoricalDataService _hdService;
-
-        public IntegrationTests()
+        _httpClient = new HttpClient(new HttpClientHandler
         {
-            _httpClient = new HttpClient(new HttpClientHandler
-            {
-                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate,
-                AllowAutoRedirect = true,
-                UseCookies = true,
-                CookieContainer = new CookieContainer()
-            });
+            AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate,
+            AllowAutoRedirect = true,
+            UseCookies = true,
+            CookieContainer = new CookieContainer()
+        });
 
-            _qsService = new QuoteSummaryService(_httpClient);
-            _hdService = new HistoricalDataService(_httpClient);
-        }
+        _qsService = new QuoteSummaryService(_httpClient);
+        _hdService = new HistoricalDataService(_httpClient);
+    }
 
-        [Test]
-        public async Task GetQuoteSummaryAsync_ValidTicker_ReturnsQuoteResponse()
-        {
-            // Arrange
-            var ticker = "AAPL";
+    [Test]
+    public async Task GetQuoteSummaryAsync_ValidTicker_ReturnsQuoteResponse()
+    {
+        // Arrange
+        var ticker = "AAPL";
 
-            // Act
-            var result = await _qsService.GetQuoteSummaryAsync(ticker);
+        // Act
+        var result = await _qsService.GetQuoteSummaryAsync(ticker);
 
-            // Assert
-            await Assert.That(result).IsNotNull();
-            await Assert.That(result?.QuoteSummary).IsNotNull();
-            await Assert.That(result?.QuoteSummary?.Result).IsNotNull();
-            await Assert.That(result?.QuoteSummary?.Result).IsNotEmpty();
-            await Assert.That(ticker).IsEqualTo(result?.QuoteSummary?.Result?.FirstOrDefault().Price?.Symbol);
-        }
+        // Assert
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result?.QuoteSummary).IsNotNull();
+        await Assert.That(result?.QuoteSummary?.Result).IsNotNull();
+        await Assert.That(result?.QuoteSummary?.Result).IsNotEmpty();
+        await Assert.That(ticker).IsEqualTo(result?.QuoteSummary?.Result?.FirstOrDefault().Price?.Symbol);
+    }
 
-        [Test]
-        public async Task GetHistoryDataAsync_ValidTicker_ReturnsHistoricalDataResponse()
-        {
-            // Arrange
-            var ticker = "AMZN";
+    [Test]
+    public async Task GetHistoryDataAsync_ValidTicker_ReturnsHistoricalDataResponse()
+    {
+        // Arrange
+        var ticker = "AMZN";
 
-            // Act
-            var result = await _hdService.GetHistoricalDataAsync(ticker, DateTime.UtcNow.AddMonths(-1), DateTime.Now, ChartInterval.OneDay);
+        // Act
+        var result = await _hdService.GetHistoricalDataAsync(ticker, DateTime.UtcNow.AddMonths(-1), DateTime.Now, ChartInterval.OneDay);
 
-            // Assert
-            await Assert.That(result).IsNotNull();
-            await Assert.That(result?.Chart).IsNotNull();
-            await Assert.That(result?.Chart?.Result).IsNotNull();
-            await Assert.That(result?.Chart?.Result).IsNotEmpty();
-            await Assert.That(ticker).IsEqualTo(result?.Chart?.Result?.FirstOrDefault().Meta?.Symbol);
-        }
+        // Assert
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result?.Chart).IsNotNull();
+        await Assert.That(result?.Chart?.Result).IsNotNull();
+        await Assert.That(result?.Chart?.Result).IsNotEmpty();
+        await Assert.That(ticker).IsEqualTo(result?.Chart?.Result?.FirstOrDefault().Meta?.Symbol);
+    }
 
-        [Test]
-        public async Task GetOptionsDataAsync_ValidTicker_ReturnsOptionsData()
-        {
-            // Arrange
-            var ticker = "MSFT";
+    [Test]
+    public async Task GetOptionsDataAsync_ValidTicker_ReturnsOptionsData()
+    {
+        // Arrange
+        var ticker = "MSFT";
 
-            // Act
-            var optionsDataService = new CyFinance.Services.OptionsData.OptionsDataService(_httpClient);
-            var result = await optionsDataService.GetOptionsChainAsync(ticker);
+        // Act
+        var optionsDataService = new CyFinance.Services.OptionsData.OptionsDataService(_httpClient);
+        var result = await optionsDataService.GetOptionsChainAsync(ticker);
 
-            // Assert
-            await Assert.That(result).IsNotNull();
-            await Assert.That(result?.OptionChain).IsNotNull();
-            await Assert.That(result?.OptionChain?.Result).IsNotNull();
-            await Assert.That(result?.OptionChain?.Result).IsNotEmpty();
-            await Assert.That(ticker).IsEqualTo(result?.OptionChain?.Result?.FirstOrDefault()?.UnderlyingSymbol);
-        }
+        // Assert
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result?.OptionChain).IsNotNull();
+        await Assert.That(result?.OptionChain?.Result).IsNotNull();
+        await Assert.That(result?.OptionChain?.Result).IsNotEmpty();
+        await Assert.That(ticker).IsEqualTo(result?.OptionChain?.Result?.FirstOrDefault()?.UnderlyingSymbol);
     }
 }

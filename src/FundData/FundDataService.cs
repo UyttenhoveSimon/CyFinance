@@ -28,7 +28,10 @@ public class FundDataService : IFundDataService
                 ticker, "price", "topHoldings", "fundProfile", "fundPerformance");
 
             var result = GetResult(response);
-            if (result is null) return null;
+            if (result is null)
+            {
+                return null;
+            }
 
             return new FundSummary
             {
@@ -62,7 +65,10 @@ public class FundDataService : IFundDataService
                 ticker, "fundProfile");
 
             var result = GetResult(response);
-            if (result?.FundProfile is null) return null;
+            if (result?.FundProfile is null)
+            {
+                return null;
+            }
 
             var fp = result.FundProfile;
             return new FundProfile
@@ -148,7 +154,10 @@ public class FundDataService : IFundDataService
 
             var result = GetResult(response);
             var returns = result?.FundPerformance?.AnnualTotalReturns?.Returns;
-            if (returns is null) return null;
+            if (returns is null)
+            {
+                return null;
+            }
 
             return returns
                 .Select(r => new FundAnnualReturnEntry
@@ -169,19 +178,28 @@ public class FundDataService : IFundDataService
     private static void ValidateTicker(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
+        {
             throw new ArgumentException("Ticker cannot be empty", nameof(ticker));
+        }
     }
 
     private static QuoteResult? GetResult(QuoteResponse? response)
     {
         if (response?.QuoteSummary?.Result == null || response.QuoteSummary.Result.Count == 0)
+        {
             return null;
+        }
+
         return response.QuoteSummary.Result[0];
     }
 
     private static List<FundTopHolding>? MapHoldings(TopHoldingsData? data)
     {
-        if (data?.Holdings is null) return null;
+        if (data?.Holdings is null)
+        {
+            return null;
+        }
+
         return data.Holdings
             .Select(h => new FundTopHolding
             {
@@ -194,7 +212,10 @@ public class FundDataService : IFundDataService
 
     private static List<FundSectorWeighting>? MapSectorWeightings(TopHoldingsData? data)
     {
-        if (data?.SectorWeightings is null) return null;
+        if (data?.SectorWeightings is null)
+        {
+            return null;
+        }
 
         var list = new List<FundSectorWeighting>();
         foreach (var dict in data.SectorWeightings)
@@ -215,7 +236,10 @@ public class FundDataService : IFundDataService
     private static FundTrailingSummary? MapTrailingReturns(FundPerformanceData? data)
     {
         var tr = data?.TrailingReturns;
-        if (tr is null) return null;
+        if (tr is null)
+        {
+            return null;
+        }
 
         return new FundTrailingSummary
         {

@@ -53,7 +53,9 @@ public static class PredefinedScreeners
     public static bool IsKnown(string screenId)
     {
         if (string.IsNullOrWhiteSpace(screenId))
+        {
             return false;
+        }
 
         return All.Contains(screenId);
     }
@@ -88,7 +90,7 @@ public abstract class QueryBase
             Operands = Operands.Select(operand =>
             {
                 return operand is QueryBase queryOperand
-                    ? (object)queryOperand.ToNode()
+                    ? (object) queryOperand.ToNode()
                     : operand;
             }).ToList()
         };
@@ -96,17 +98,24 @@ public abstract class QueryBase
     private static void Validate(string @operator, IReadOnlyList<object> operands)
     {
         if (!AllowedOperators.Contains(@operator))
+        {
             throw new ArgumentException($"Invalid operator '{@operator}'", nameof(@operator));
+        }
 
         if (operands.Count == 0)
+        {
             throw new ArgumentException("Operands cannot be empty", nameof(operands));
+        }
 
         switch (@operator)
         {
             case "AND":
             case "OR":
                 if (operands.Count < 2 || operands.Any(o => o is not QueryBase))
+                {
                     throw new ArgumentException("AND/OR require at least two nested query operands", nameof(operands));
+                }
+
                 break;
             case "EQ":
             case "GT":
@@ -114,15 +123,24 @@ public abstract class QueryBase
             case "GTE":
             case "LTE":
                 if (operands.Count != 2)
+                {
                     throw new ArgumentException($"{@operator} requires exactly 2 operands", nameof(operands));
+                }
+
                 break;
             case "BTWN":
                 if (operands.Count != 3)
+                {
                     throw new ArgumentException("BTWN requires exactly 3 operands", nameof(operands));
+                }
+
                 break;
             case "IS-IN":
                 if (operands.Count < 2)
+                {
                     throw new ArgumentException("IS-IN requires at least 2 operands", nameof(operands));
+                }
+
                 break;
         }
     }
@@ -140,7 +158,7 @@ public sealed class EquityQuery(string @operator, params object[] operands) : Qu
     public static EquityQuery And(params EquityQuery[] queries) => new("AND", queries.Cast<object>().ToArray());
     public static EquityQuery Or(params EquityQuery[] queries) => new("OR", queries.Cast<object>().ToArray());
 
-    private static object[] PrependField(string field, object[] values) => [field, ..values];
+    private static object[] PrependField(string field, object[] values) => [field, .. values];
 }
 
 public sealed class FundQuery(string @operator, params object[] operands) : QueryBase(@operator, operands)
@@ -155,7 +173,7 @@ public sealed class FundQuery(string @operator, params object[] operands) : Quer
     public static FundQuery And(params FundQuery[] queries) => new("AND", queries.Cast<object>().ToArray());
     public static FundQuery Or(params FundQuery[] queries) => new("OR", queries.Cast<object>().ToArray());
 
-    private static object[] PrependField(string field, object[] values) => [field, ..values];
+    private static object[] PrependField(string field, object[] values) => [field, .. values];
 }
 
 public sealed class ETFQuery(string @operator, params object[] operands) : QueryBase(@operator, operands)
@@ -170,5 +188,5 @@ public sealed class ETFQuery(string @operator, params object[] operands) : Query
     public static ETFQuery And(params ETFQuery[] queries) => new("AND", queries.Cast<object>().ToArray());
     public static ETFQuery Or(params ETFQuery[] queries) => new("OR", queries.Cast<object>().ToArray());
 
-    private static object[] PrependField(string field, object[] values) => [field, ..values];
+    private static object[] PrependField(string field, object[] values) => [field, .. values];
 }

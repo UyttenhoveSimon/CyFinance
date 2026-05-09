@@ -55,7 +55,7 @@ public static class ScreenerQuery
         new() { Operator = "EQ", Operands = new List<object> { field, value } };
 
     public static ScreenerQueryNode IsIn(string field, params object[] values) =>
-        new() { Operator = "IS-IN", Operands = new List<object>(new[] { (object)field }.Concat(values)) };
+        new() { Operator = "IS-IN", Operands = new List<object>(new[] { (object) field }.Concat(values)) };
 
     public static ScreenerQueryNode Btwn(string field, object lower, object upper) =>
         new() { Operator = "BTWN", Operands = new List<object> { field, lower, upper } };

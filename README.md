@@ -590,3 +590,7 @@ Console.WriteLine($"Candles: {history.Count}");
 ## Native AOT Support
 
 CyFinance is configured for **Native AOT compilation** via `PublishAot=true` in the project file. This enables the library to be compiled into native code ahead-of-time for improved performance and reduced memory footprint. Currently, the library compiles successfully with warnings about JSON serialization that can be addressed by implementing `JsonSerializerContext` for full Native AOT compatibility.
+
+## NuGet Publishing (ModularPipelines)
+
+Publishing is implemented with [ModularPipelines](https://github.com/thomhurst/ModularPipelines) in [pipelines/CyFinance.Pipelines/Program.cs](pipelines/CyFinance.Pipelines/Program.cs), and executed by [.github/workflows/publish-nuget.yml](.github/workflows/publish-nuget.yml).
