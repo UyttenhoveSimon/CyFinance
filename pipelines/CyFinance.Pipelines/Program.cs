@@ -97,6 +97,8 @@ public class PublishNuGetModule : Module
 				new KeyValue("PackageVersion", packageVersion),
 				new KeyValue("Authors", "Simon Uyttenhove"),
 				new KeyValue("Description", "C# Client Library used to interact with the Yahoo Finance API"),
+				new KeyValue("PackageReadmeFile", "README.md"),
+				new KeyValue("PackageLicenseFile", "LICENCE.txt"),
 				new KeyValue("PackageProjectUrl", "https://github.com/UyttenhoveSimon/CyFinance"),
 				new KeyValue("RepositoryUrl", "https://github.com/UyttenhoveSimon/CyFinance"),
 				new KeyValue("RepositoryType", "git"),

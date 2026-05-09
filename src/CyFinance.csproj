@@ -1,23 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
     <OutputType>Library</OutputType>
     <StartupObject />
     <AssemblyTitle>C# Yahoo Finance Client</AssemblyTitle>
     <Product>C# Yahoo Finance Client</Product>
     <description>C# Client Library used to interact with the Yahoo Finance API</description>
-    <Copyright>Copyright</Copyright>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <PublishAot>true</PublishAot>
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Build|AnyCPU'">
     <OutputPath>bin\Build\</OutputPath>
   </PropertyGroup>
-  <ItemGroup>
-  </ItemGroup>
 
 </Project>
