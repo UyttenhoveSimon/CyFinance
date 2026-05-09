@@ -27,6 +27,7 @@ namespace CyFinance.Services.StockScreening
         {
             ArgumentNullException.ThrowIfNull(request);
             ValidateRange(request.Size, nameof(request.Size));
+            await EnsureAuthenticatedAsync("AAPL");
 
             var payload = JsonSerializer.Serialize(request, _jsonOptions);
             var url = BuildScreenerUrl();
@@ -42,6 +43,7 @@ namespace CyFinance.Services.StockScreening
                     Console.WriteLine("Crumb expired or invalid, refreshing...");
                     _crumb = null;
                     await RefreshAuthTokenAsync("AAPL");
+                    url = BuildScreenerUrl();
 
                     response = await Client.PostAsync(url, new StringContent(payload, Encoding.UTF8, "application/json"));
                     responseBody = await response.Content.ReadAsStringAsync();
@@ -118,6 +120,13 @@ namespace CyFinance.Services.StockScreening
                 $"scrIds={Uri.EscapeDataString(screenId)}"
             };
 
+            await EnsureAuthenticatedAsync("AAPL");
+
+            if (!string.IsNullOrWhiteSpace(_crumb))
+            {
+                query.Add($"crumb={Uri.EscapeDataString(_crumb)}");
+            }
+
             if (offset.HasValue) query.Add($"offset={offset.Value}");
             if (count.HasValue) query.Add($"count={count.Value}");
             if (!string.IsNullOrWhiteSpace(sortField)) query.Add($"sortField={Uri.EscapeDataString(sortField)}");
@@ -138,6 +147,14 @@ namespace CyFinance.Services.StockScreening
                     Console.WriteLine("Crumb expired or invalid, refreshing...");
                     _crumb = null;
                     await RefreshAuthTokenAsync("AAPL");
+
+                    if (!string.IsNullOrWhiteSpace(_crumb))
+                    {
+                        query.RemoveAll(static q => q.StartsWith("crumb=", StringComparison.Ordinal));
+                        query.Add($"crumb={Uri.EscapeDataString(_crumb)}");
+                    }
+
+                    url = $"{PredefinedUrl}?{string.Join("&", query)}";
 
                     response = await Client.GetAsync(url);
                     responseBody = await response.Content.ReadAsStringAsync();
@@ -196,7 +213,14 @@ namespace CyFinance.Services.StockScreening
 
         private string BuildScreenerUrl()
         {
-            return $"{ScreenerUrl}?corsDomain=finance.yahoo.com&formatted=false&lang=en-US&region=US";
+            var baseUrl = $"{ScreenerUrl}?corsDomain=finance.yahoo.com&formatted=false&lang=en-US&region=US";
+
+            if (string.IsNullOrWhiteSpace(_crumb))
+            {
+                return baseUrl;
+            }
+
+            return $"{baseUrl}&crumb={Uri.EscapeDataString(_crumb)}";
         }
 
         private static void ValidateRange(int value, string parameterName)

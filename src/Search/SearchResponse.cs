@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CyFinance.Models.Search
@@ -80,6 +81,7 @@ namespace CyFinance.Models.Search
         public string? Source { get; set; }
 
         [JsonPropertyName("thumbnail")]
+        [JsonConverter(typeof(StringOrObjectToStringConverter))]
         public string? Thumbnail { get; set; }
 
         [JsonPropertyName("relatedTickers")]
@@ -107,6 +109,7 @@ namespace CyFinance.Models.Search
         public string? Source { get; set; }
 
         [JsonPropertyName("thumbnail")]
+        [JsonConverter(typeof(StringOrObjectToStringConverter))]
         public string? Thumbnail { get; set; }
     }
 
@@ -132,5 +135,59 @@ namespace CyFinance.Models.Search
 
         [JsonPropertyName("score")]
         public double Score { get; set; }
+    }
+
+    internal sealed class StringOrObjectToStringConverter : JsonConverter<string?>
+    {
+        public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Null)
+            {
+                return null;
+            }
+
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                return reader.GetString();
+            }
+
+            if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                using var doc = JsonDocument.ParseValue(ref reader);
+                var root = doc.RootElement;
+
+                if (root.TryGetProperty("url", out var url) && url.ValueKind == JsonValueKind.String)
+                {
+                    return url.GetString();
+                }
+
+                if (root.TryGetProperty("resolutions", out var resolutions) && resolutions.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var resolution in resolutions.EnumerateArray())
+                    {
+                        if (resolution.TryGetProperty("url", out var resolutionUrl) &&
+                            resolutionUrl.ValueKind == JsonValueKind.String)
+                        {
+                            return resolutionUrl.GetString();
+                        }
+                    }
+                }
+
+                return root.GetRawText();
+            }
+
+            return reader.GetString();
+        }
+
+        public override void Write(Utf8JsonWriter writer, string? value, JsonSerializerOptions options)
+        {
+            if (value is null)
+            {
+                writer.WriteNullValue();
+                return;
+            }
+
+            writer.WriteStringValue(value);
+        }
     }
 }

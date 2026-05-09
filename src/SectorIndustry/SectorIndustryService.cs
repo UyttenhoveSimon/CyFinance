@@ -66,7 +66,7 @@ public class SectorIndustryService : ISectorIndustryService
             var request = new ScreenerRequest
             {
                 Size = size,
-                SortField = "marketcap",
+                SortField = "ticker",
                 SortType = "DESC",
                 QuoteType = "EQUITY",
                 Query = ScreenerQuery.Eq("sector", sector)
@@ -91,7 +91,7 @@ public class SectorIndustryService : ISectorIndustryService
             var request = new ScreenerRequest
             {
                 Size = size,
-                SortField = "marketcap",
+                SortField = "ticker",
                 SortType = "DESC",
                 QuoteType = "EQUITY",
                 Query = ScreenerQuery.Eq("industry", industry)

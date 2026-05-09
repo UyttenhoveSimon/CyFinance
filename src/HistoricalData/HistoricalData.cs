@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CyFinance.Models.HistoricalData
@@ -101,8 +102,8 @@ namespace CyFinance.Models.HistoricalData
 
     public record Split(
         long Date,
-        int Numerator,
-        int Denominator,
+        [property: JsonConverter(typeof(FlexibleIntJsonConverter))] int Numerator,
+        [property: JsonConverter(typeof(FlexibleIntJsonConverter))] int Denominator,
         string SplitRatio
     );
 
@@ -149,6 +150,48 @@ namespace CyFinance.Models.HistoricalData
         public override string ToString()
         {
             return $"{Date:yyyy-MM-dd}: {SplitRatio} (Factor: {SplitFactor:F2})";
+        }
+    }
+
+    internal sealed class FlexibleIntJsonConverter : JsonConverter<int>
+    {
+        public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Number)
+            {
+                return reader.GetInt32();
+            }
+
+            if (reader.TokenType == JsonTokenType.String && int.TryParse(reader.GetString(), out var parsed))
+            {
+                return parsed;
+            }
+
+            if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                using var doc = JsonDocument.ParseValue(ref reader);
+                var root = doc.RootElement;
+
+                if (root.TryGetProperty("raw", out var raw))
+                {
+                    if (raw.ValueKind == JsonValueKind.Number)
+                    {
+                        return raw.GetInt32();
+                    }
+
+                    if (raw.ValueKind == JsonValueKind.String && int.TryParse(raw.GetString(), out var rawParsed))
+                    {
+                        return rawParsed;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
+        public override void Write(Utf8JsonWriter writer, int value, JsonSerializerOptions options)
+        {
+            writer.WriteNumberValue(value);
         }
     }
 }

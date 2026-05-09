@@ -39,8 +39,10 @@ namespace CyFinance.Services.FinancialStatements
                 return new IncomeStatement
                 {
                     Ticker = ticker,
-                    AnnualStatements = result.IncomeStatementHistory?.IncomeStatementStatements,
-                    QuarterlyStatements = result.IncomeStatementHistory?.IncomeStatementStatements // Note: API doesn't separate annual/quarterly in records
+                    AnnualStatements = result.IncomeStatementHistory?.IncomeStatementStatements
+                        ?? result.IncomeStatementHistoryQuarterly?.IncomeStatementStatements,
+                    QuarterlyStatements = result.IncomeStatementHistoryQuarterly?.IncomeStatementStatements
+                        ?? result.IncomeStatementHistory?.IncomeStatementStatements
                 };
             }
             catch (Exception ex)
@@ -70,8 +72,10 @@ namespace CyFinance.Services.FinancialStatements
                 return new BalanceSheet
                 {
                     Ticker = ticker,
-                    AnnualStatements = result.BalanceSheetHistory?.BalanceSheetStatements,
-                    QuarterlyStatements = result.BalanceSheetHistory?.BalanceSheetStatements
+                    AnnualStatements = result.BalanceSheetHistory?.BalanceSheetStatements
+                        ?? result.BalanceSheetHistoryQuarterly?.BalanceSheetStatements,
+                    QuarterlyStatements = result.BalanceSheetHistoryQuarterly?.BalanceSheetStatements
+                        ?? result.BalanceSheetHistory?.BalanceSheetStatements
                 };
             }
             catch (Exception ex)
@@ -101,8 +105,10 @@ namespace CyFinance.Services.FinancialStatements
                 return new CashFlowStatement
                 {
                     Ticker = ticker,
-                    AnnualStatements = result.CashflowStatementHistory?.CashflowStatements,
-                    QuarterlyStatements = result.CashflowStatementHistory?.CashflowStatements
+                    AnnualStatements = result.CashflowStatementHistory?.CashflowStatements
+                        ?? result.CashflowStatementHistoryQuarterly?.CashflowStatements,
+                    QuarterlyStatements = result.CashflowStatementHistoryQuarterly?.CashflowStatements
+                        ?? result.CashflowStatementHistory?.CashflowStatements
                 };
             }
             catch (Exception ex)
@@ -151,8 +157,11 @@ namespace CyFinance.Services.FinancialStatements
                 return new FinancialStatementsResponse
                 {
                     IncomeStatementHistory = result.IncomeStatementHistory,
+                    IncomeStatementHistoryQuarterly = result.IncomeStatementHistoryQuarterly,
                     BalanceSheetHistory = result.BalanceSheetHistory,
-                    CashflowStatementHistory = result.CashflowStatementHistory
+                    BalanceSheetHistoryQuarterly = result.BalanceSheetHistoryQuarterly,
+                    CashflowStatementHistory = result.CashflowStatementHistory,
+                    CashflowStatementHistoryQuarterly = result.CashflowStatementHistoryQuarterly
                 };
             }
             catch (Exception ex)

@@ -1,4 +1,7 @@
+using System.Globalization;
+using System.Text.Json;
 using System.Text.Json.Serialization; // Required for JsonPropertyName
+using CyFinance.Models.AnalystRecommendations;
 
 namespace CyFinance.Models.QuoteSummary;
 
@@ -16,8 +19,14 @@ public record QuoteResult
     public FinancialData? FinancialData { get; init; }
     public KeyStatistics? DefaultKeyStatistics { get; init; }
     public IncomeStatementHistory? IncomeStatementHistory { get; init; }
+    [JsonPropertyName("incomeStatementHistoryQuarterly")]
+    public IncomeStatementHistory? IncomeStatementHistoryQuarterly { get; init; }
     public BalanceSheetHistory? BalanceSheetHistory { get; init; }
+    [JsonPropertyName("balanceSheetHistoryQuarterly")]
+    public BalanceSheetHistory? BalanceSheetHistoryQuarterly { get; init; }
     public CashflowStatementHistory? CashflowStatementHistory { get; init; }
+    [JsonPropertyName("cashflowStatementHistoryQuarterly")]
+    public CashflowStatementHistory? CashflowStatementHistoryQuarterly { get; init; }
     public Earnings? Earnings { get; init; }
     public CalendarEvents? CalendarEvents { get; init; }
     public MajorHoldersBreakdown? MajorHoldersBreakdown { get; init; }
@@ -28,10 +37,17 @@ public record QuoteResult
     public TopHoldingsData? TopHoldings { get; init; }
     public FundProfileData? FundProfile { get; init; }
     public FundPerformanceData? FundPerformance { get; init; }
+    [JsonPropertyName("recommendationTrend")]
+    public RecommendationTrend? RecommendationTrend { get; init; }
+    [JsonPropertyName("upgradeDowngradeHistory")]
+    public UpgradeDowngradeHistory? UpgradeDowngradeHistory { get; init; }
 }
 
 // Base value types
+[JsonConverter(typeof(YahooValueJsonConverter))]
 public record YahooValue(double? Raw, string? Fmt);
+
+[JsonConverter(typeof(YahooLongValueJsonConverter))]
 public record YahooLongValue(long? Raw, string? Fmt, string? LongFmt);
 
 public record PriceData
@@ -373,4 +389,184 @@ public record FundTrailingReturns
     public YahooValue? ThreeYear { get; init; }
     public YahooValue? FiveYear { get; init; }
     public YahooValue? TenYear { get; init; }
+}
+
+internal sealed class YahooValueJsonConverter : JsonConverter<YahooValue>
+{
+    public override YahooValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.Null)
+        {
+            return new YahooValue(null, null);
+        }
+
+        if (reader.TokenType == JsonTokenType.Number)
+        {
+            var raw = reader.GetDouble();
+            return new YahooValue(raw, raw.ToString(CultureInfo.InvariantCulture));
+        }
+
+        if (reader.TokenType == JsonTokenType.String)
+        {
+            var value = reader.GetString();
+            if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed))
+            {
+                return new YahooValue(parsed, value);
+            }
+
+            return new YahooValue(null, value);
+        }
+
+        if (reader.TokenType == JsonTokenType.StartObject)
+        {
+            using var doc = JsonDocument.ParseValue(ref reader);
+            var root = doc.RootElement;
+
+            double? rawValue = null;
+            if (root.TryGetProperty("raw", out var raw))
+            {
+                if (raw.ValueKind == JsonValueKind.Number)
+                {
+                    rawValue = raw.GetDouble();
+                }
+                else if (raw.ValueKind == JsonValueKind.String &&
+                         double.TryParse(raw.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedRaw))
+                {
+                    rawValue = parsedRaw;
+                }
+            }
+
+            string? fmt = null;
+            if (root.TryGetProperty("fmt", out var fmtElement) && fmtElement.ValueKind == JsonValueKind.String)
+            {
+                fmt = fmtElement.GetString();
+            }
+
+            return new YahooValue(rawValue, fmt);
+        }
+
+        throw new JsonException($"Unexpected token {reader.TokenType} while parsing YahooValue.");
+    }
+
+    public override void Write(Utf8JsonWriter writer, YahooValue value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        if (value.Raw.HasValue)
+        {
+            writer.WriteNumber("raw", value.Raw.Value);
+        }
+        else
+        {
+            writer.WriteNull("raw");
+        }
+
+        if (value.Fmt is not null)
+        {
+            writer.WriteString("fmt", value.Fmt);
+        }
+        else
+        {
+            writer.WriteNull("fmt");
+        }
+
+        writer.WriteEndObject();
+    }
+}
+
+internal sealed class YahooLongValueJsonConverter : JsonConverter<YahooLongValue>
+{
+    public override YahooLongValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.Null)
+        {
+            return new YahooLongValue(null, null, null);
+        }
+
+        if (reader.TokenType == JsonTokenType.Number)
+        {
+            var raw = reader.GetInt64();
+            var fmt = raw.ToString(CultureInfo.InvariantCulture);
+            return new YahooLongValue(raw, fmt, fmt);
+        }
+
+        if (reader.TokenType == JsonTokenType.String)
+        {
+            var value = reader.GetString();
+            if (long.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed))
+            {
+                return new YahooLongValue(parsed, value, value);
+            }
+
+            return new YahooLongValue(null, value, value);
+        }
+
+        if (reader.TokenType == JsonTokenType.StartObject)
+        {
+            using var doc = JsonDocument.ParseValue(ref reader);
+            var root = doc.RootElement;
+
+            long? rawValue = null;
+            if (root.TryGetProperty("raw", out var raw))
+            {
+                if (raw.ValueKind == JsonValueKind.Number)
+                {
+                    rawValue = raw.GetInt64();
+                }
+                else if (raw.ValueKind == JsonValueKind.String &&
+                         long.TryParse(raw.GetString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedRaw))
+                {
+                    rawValue = parsedRaw;
+                }
+            }
+
+            string? fmt = null;
+            if (root.TryGetProperty("fmt", out var fmtElement) && fmtElement.ValueKind == JsonValueKind.String)
+            {
+                fmt = fmtElement.GetString();
+            }
+
+            string? longFmt = null;
+            if (root.TryGetProperty("longFmt", out var longFmtElement) && longFmtElement.ValueKind == JsonValueKind.String)
+            {
+                longFmt = longFmtElement.GetString();
+            }
+
+            return new YahooLongValue(rawValue, fmt, longFmt);
+        }
+
+        throw new JsonException($"Unexpected token {reader.TokenType} while parsing YahooLongValue.");
+    }
+
+    public override void Write(Utf8JsonWriter writer, YahooLongValue value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        if (value.Raw.HasValue)
+        {
+            writer.WriteNumber("raw", value.Raw.Value);
+        }
+        else
+        {
+            writer.WriteNull("raw");
+        }
+
+        if (value.Fmt is not null)
+        {
+            writer.WriteString("fmt", value.Fmt);
+        }
+        else
+        {
+            writer.WriteNull("fmt");
+        }
+
+        if (value.LongFmt is not null)
+        {
+            writer.WriteString("longFmt", value.LongFmt);
+        }
+        else
+        {
+            writer.WriteNull("longFmt");
+        }
+
+        writer.WriteEndObject();
+    }
 }

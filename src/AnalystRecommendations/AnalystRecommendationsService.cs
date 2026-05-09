@@ -37,7 +37,9 @@ namespace CyFinance.Services.AnalystRecommendations
                 // Extract recommendation data from the QuoteResult
                 var summary = new AnalystRecommendationsSummary
                 {
-                    Ticker = ticker
+                    Ticker = ticker,
+                    RecommendationTrend = result.RecommendationTrend?.Trend,
+                    RatingChangeHistory = result.UpgradeDowngradeHistory?.History
                 };
 
                 // The QuoteResult doesn't directly have recommendation fields,
