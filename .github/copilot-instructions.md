@@ -18,6 +18,9 @@ CyFinance is a C# client library for the Yahoo Finance API. It targets .NET 10 w
 - Register every new service in `src/DependencyInjection/CyFinanceServiceCollectionExtensions.cs`.
 - Use `System.Text.Json` for deserialization. AOT-safe: avoid `dynamic`, `object`, and unbound generics in model classes.
 - All public types added to model files must be AOT-compatible (no reflection-based serialization).
+- Use Conventional Commits for all commit messages and PR titles.
+	- Format: `type(scope): subject`
+	- Common types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `build`
 
 ## Testing Requirements
 
@@ -36,4 +39,4 @@ The pipeline runs via `dotnet run --project pipelines/CyFinance.Pipelines/CyFina
 
 - Never log or expose API keys or secrets.
 - Validate all external input at the HTTP boundary.
-- Keep dependencies up to date — Renovate is configured to auto-merge patch/minor updates.
+- Keep dependencies up to date with dependabot.
