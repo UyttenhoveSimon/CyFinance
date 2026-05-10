@@ -7,7 +7,7 @@ This is a **C# client library** designed to interact with the **Yahoo Finance AP
 
 ## Documentation
 
-Static documentation is published to GitHub Pages from the release workflow. The first release includes the API reference plus a few short guides.
+Static documentation is published to GitHub Pages by the `.github/workflows/publish-nuget.yml` workflow. The first release includes the API reference plus a few short guides.
 
 To generate the site locally:
 
