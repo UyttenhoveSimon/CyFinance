@@ -35,6 +35,159 @@ The table below outlines the current feature parity between `yfinance` and this 
 | **Currency / Forex Data** | ✅ | ✅ | [Currency/Forex API](#16-currencyforex-api) |
 | **Cryptocurrency Data** | ✅ | ✅ | [Cryptocurrency API](#17-cryptocurrency-api) |
 
+## Facade API (CyFinanceClient)
+
+CyFinance exposes a facade client (`CyFinanceClient`) so you can access all service APIs from a single DI-resolved entry point.
+
+### Setup
+
+```csharp
+using CyFinance;
+using CyFinance.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+
+var services = new ServiceCollection();
+services.AddCyFinance();
+
+await using var provider = services.BuildServiceProvider();
+var client = provider.GetRequiredService<CyFinanceClient>();
+```
+
+### Facade API map
+
+| Facade Property | Service Interface |
+| :--- | :--- |
+| `client.QuoteSummary` | `IQuoteSummaryService` |
+| `client.HistoricalData` | `IHistoricalDataService` |
+| `client.OptionsData` | `IOptionsDataService` |
+| `client.Search` | `ISearchService` |
+| `client.StockScreening` | `IStockScreeningService` |
+| `client.Market` | `IMarketSummaryService` |
+| `client.Calendars` | `IGlobalCalendarsService` |
+| `client.EarningsCalendar` | `IEarningsCalendarService` |
+| `client.FinancialStatements` | `IFinancialStatementsService` |
+| `client.AnalystRecommendations` | `IAnalystRecommendationsService` |
+| `client.ShareholderInformation` | `IShareholderInformationService` |
+| `client.CompanyNews` | `ICompanyNewsService` |
+| `client.FundData` | `IFundDataService` |
+| `client.SectorIndustry` | `ISectorIndustryService` |
+| `client.Currency` | `ICurrencyService` |
+| `client.Crypto` | `ICryptoService` |
+
+### Facade examples (each API)
+
+1. Quote Summary API
+
+```csharp
+var quote = await client.QuoteSummary.GetQuoteSummaryAsync("AAPL", "price", "summaryDetail");
+Console.WriteLine(quote?.QuoteSummary?.Result?[0]?.Price?.LongName);
+```
+
+2. Historical Data API
+
+```csharp
+var prices = await client.HistoricalData.GetHistoricalPricesAsync("MSFT");
+Console.WriteLine($"Historical points: {prices.Count}");
+```
+
+3. Options Data API
+
+```csharp
+var expirations = await client.OptionsData.GetExpirationDatesAsync("AAPL");
+Console.WriteLine($"Option expirations: {expirations.Count}");
+```
+
+4. Search API
+
+```csharp
+var search = await client.Search.SearchAsync("NVIDIA", quotesCount: 5, newsCount: 2);
+Console.WriteLine($"Quotes returned: {search?.Quotes?.Count ?? 0}");
+```
+
+5. Stock Screening API
+
+```csharp
+var gainers = await client.StockScreening.ScreenPredefinedAsync(PredefinedScreenersCatalogItem.DayGainers);
+Console.WriteLine(gainers is not null ? "Screener request complete" : "No screener data returned");
+```
+
+6. Market Summary API
+
+```csharp
+var snapshot = await client.Market.GetMarketSnapshotAsync("US");
+Console.WriteLine($"Market open time: {snapshot?.Status?.Open}");
+```
+
+7. Global Calendars API
+
+```csharp
+var earnings = await client.Calendars.GetEarningsCalendarAsync(limit: 10);
+Console.WriteLine($"Upcoming earnings events: {earnings.Count}");
+```
+
+8. Earnings Calendar API
+
+```csharp
+var earningsCalendar = await client.EarningsCalendar.GetEarningsCalendarAsync("AAPL");
+Console.WriteLine($"Next earnings unix date: {earningsCalendar?.GetNextEarningsDate()}");
+```
+
+9. Financial Statements API
+
+```csharp
+var statements = await client.FinancialStatements.GetAllStatementsAsync("AAPL");
+Console.WriteLine(statements is not null ? "Statements loaded" : "No statements returned");
+```
+
+10. Analyst Recommendations API
+
+```csharp
+var recommendations = await client.AnalystRecommendations.GetRecommendationsAsync("AAPL");
+Console.WriteLine($"Consensus rating: {recommendations?.GetConsensusRating()}");
+```
+
+11. Shareholder Information API
+
+```csharp
+var holders = await client.ShareholderInformation.GetShareholderInformationAsync("AAPL");
+Console.WriteLine($"Institutional ownership: {holders?.GetInstitutionalOwnershipPercent():F2}%");
+```
+
+12. Company News API
+
+```csharp
+var latestNews = await client.CompanyNews.GetLatestCompanyNewsAsync("AAPL");
+Console.WriteLine(latestNews?.Title);
+```
+
+13. Fund Data API
+
+```csharp
+var fund = await client.FundData.GetFundSummaryAsync("VOO");
+Console.WriteLine($"Fund name: {fund?.Name}");
+```
+
+14. Sector/Industry API
+
+```csharp
+var sectorInfo = await client.SectorIndustry.GetSectorInfoAsync("AAPL");
+Console.WriteLine($"{sectorInfo?.Sector} / {sectorInfo?.Industry}");
+```
+
+15. Currency API
+
+```csharp
+var eurUsd = await client.Currency.GetExchangeRateAsync("EUR", "USD");
+Console.WriteLine($"EUR/USD: {eurUsd?.Rate}");
+```
+
+16. Crypto API
+
+```csharp
+var btc = await client.Crypto.GetCryptoQuoteAsync("BTC", "USD");
+Console.WriteLine($"BTC/USD: {btc?.Price}");
+```
+
 ##  Which internal APIs are used by yfinance ?
 
 Info from Claude, based on analysis of the yfinance library source code and documentation.
@@ -101,28 +254,23 @@ Info from Claude, based on analysis of the yfinance library source code and docu
 - All statements via `GetAllStatementsAsync(ticker)` - Returns all three statement types
 - Custom module selection via `GetStatementsAsync(ticker, params string[] modules)`
 
-Example (get income statement):
+Facade example (showcase all methods):
 
 ```csharp
-var financialStatementsService = new FinancialStatementsService(quoteSummaryService);
-var incomeStatement = await financialStatementsService.GetIncomeStatementAsync("AAPL");
+var incomeStatement = await client.FinancialStatements.GetIncomeStatementAsync("AAPL");
+var balanceSheet = await client.FinancialStatements.GetBalanceSheetAsync("AAPL");
+var cashFlow = await client.FinancialStatements.GetCashFlowStatementAsync("AAPL");
+var allStatements = await client.FinancialStatements.GetAllStatementsAsync("AAPL");
+var customStatements = await client.FinancialStatements.GetStatementsAsync(
+  "AAPL",
+  "incomeStatementHistory",
+  "balanceSheetHistory");
 
-foreach (var statement in incomeStatement?.AnnualStatements ?? new List<FinancialStatement>())
-{
-    Console.WriteLine($"Total Revenue: {statement.TotalRevenue?.Fmt}");
-    Console.WriteLine($"Net Income: {statement.NetIncome?.Fmt}");
-}
-```
-
-Example (get all financial statements):
-
-```csharp
-var allStatements = await financialStatementsService.GetAllStatementsAsync("MSFT");
-
-// Access each statement type
-var incomeStatements = allStatements?.IncomeStatementHistory?.IncomeStatementStatements;
-var balanceSheets = allStatements?.BalanceSheetHistory?.BalanceSheetStatements;
-var cashFlows = allStatements?.CashflowStatementHistory?.CashflowStatements;
+Console.WriteLine(incomeStatement is not null ? "Income statement loaded" : "No income statement");
+Console.WriteLine(balanceSheet is not null ? "Balance sheet loaded" : "No balance sheet");
+Console.WriteLine(cashFlow is not null ? "Cash flow loaded" : "No cash flow");
+Console.WriteLine(allStatements is not null ? "All statements loaded" : "No full statement payload");
+Console.WriteLine(customStatements is not null ? "Custom statement modules loaded" : "No custom module payload");
 ```
 
 ### 2.6 **Analyst Recommendations**
@@ -142,29 +290,21 @@ var cashFlows = allStatements?.CashflowStatementHistory?.CashflowStatements;
 - `GetConsensusRating()` - Calculates consensus rating (Strong Buy, Buy, Hold, Sell, Strong Sell)
 - `GetRecommendationPercentages()` - Returns percentage breakdown of recommendations
 
-Example (get consensus rating):
+Facade example (showcase all methods):
 
 ```csharp
-var recommendationsService = new AnalystRecommendationsService(quoteSummaryService);
-var recommendations = await recommendationsService.GetRecommendationsAsync("AAPL");
+var recommendations = await client.AnalystRecommendations.GetRecommendationsAsync("AAPL");
+var trend = await client.AnalystRecommendations.GetRecommendationTrendAsync("AAPL");
+var history = await client.AnalystRecommendations.GetRatingChangeHistoryAsync("AAPL");
 
 Console.WriteLine($"Consensus: {recommendations?.GetConsensusRating()}");
+Console.WriteLine($"Trend points: {trend?.Count ?? 0}");
+Console.WriteLine($"Rating changes: {history?.Count ?? 0}");
 
 var breakdown = recommendations?.GetRecommendationPercentages();
 foreach (var (rating, percentage) in breakdown ?? new Dictionary<string, double>())
 {
-    Console.WriteLine($"{rating}: {percentage:F1}%");
-}
-```
-
-Example (get rating change history):
-
-```csharp
-var history = await recommendationsService.GetRatingChangeHistoryAsync("MSFT");
-
-foreach (var change in history ?? new List<RatingChange>())
-{
-    Console.WriteLine($"{change.Firm}: {change.FromGrade} → {change.ToGrade} ({change.Action})");
+  Console.WriteLine($"{rating}: {percentage:F1}%");
 }
 ```
 
@@ -189,26 +329,22 @@ foreach (var change in history ?? new List<RatingChange>())
 - `GetInsiderOwnershipPercent()`
 - `GetLargestInstitutionalHolder()`
 
-Example (full shareholder information):
+Facade example (showcase all methods):
 
 ```csharp
-var shareholderService = new ShareholderInformationService(quoteSummaryService);
-var shareholders = await shareholderService.GetShareholderInformationAsync("AAPL");
+var shareholders = await client.ShareholderInformation.GetShareholderInformationAsync("AAPL");
+var major = await client.ShareholderInformation.GetMajorHoldersBreakdownAsync("AAPL");
+var institutions = await client.ShareholderInformation.GetInstitutionalOwnershipAsync("AAPL");
+var funds = await client.ShareholderInformation.GetFundOwnershipAsync("AAPL");
+var insiders = await client.ShareholderInformation.GetInsiderHoldersAsync("AAPL");
+var insiderTransactions = await client.ShareholderInformation.GetInsiderTransactionsAsync("AAPL");
 
 Console.WriteLine($"Institutional Ownership: {shareholders?.GetInstitutionalOwnershipPercent():F2}%");
 Console.WriteLine($"Insider Ownership: {shareholders?.GetInsiderOwnershipPercent():F2}%");
 Console.WriteLine($"Largest Holder: {shareholders?.GetLargestInstitutionalHolder()?.Organization}");
-```
-
-Example (institutional ownership details):
-
-```csharp
-var institutions = await shareholderService.GetInstitutionalOwnershipAsync("MSFT");
-
-foreach (var owner in institutions ?? new List<OwnershipEntry>())
-{
-  Console.WriteLine($"{owner.Organization}: {owner.PctHeld?.Fmt} ({owner.Position?.Fmt} shares)");
-}
+Console.WriteLine($"Major holders payload: {(major is not null ? "yes" : "no")}");
+Console.WriteLine($"Institutions: {institutions?.Count ?? 0}, Funds: {funds?.Count ?? 0}");
+Console.WriteLine($"Insider holders: {insiders?.Count ?? 0}, Insider transactions: {insiderTransactions?.Count ?? 0}");
 ```
 
 ### 2.8 Earnings Calendar
@@ -223,12 +359,15 @@ foreach (var owner in institutions ?? new List<OwnershipEntry>())
 - Historical quarterly earnings via `GetHistoricalEarningsAsync(ticker)`
 - Combined earnings snapshot via `GetEarningsCalendarAsync(ticker)`
 
-Example (get upcoming and historical earnings):
+Facade example (showcase all methods):
 
 ```csharp
-var earningsService = new EarningsCalendarService(quoteSummaryService);
-var earnings = await earningsService.GetEarningsCalendarAsync("AAPL");
+var upcoming = await client.EarningsCalendar.GetUpcomingEarningsAsync("AAPL");
+var historical = await client.EarningsCalendar.GetHistoricalEarningsAsync("AAPL");
+var earnings = await client.EarningsCalendar.GetEarningsCalendarAsync("AAPL");
 
+Console.WriteLine($"Upcoming entries: {upcoming?.EarningsDates?.Count ?? 0}");
+Console.WriteLine($"Historical entries: {historical?.Quarterly?.Count ?? 0}");
 Console.WriteLine($"Next Earnings Date (unix): {earnings?.GetNextEarningsDate()}");
 Console.WriteLine($"Most Recent Earnings Date: {earnings?.GetMostRecentEarningsDate()}");
 Console.WriteLine($"Beat Rate: {earnings?.GetEarningsBeatRate():F1}%");
@@ -246,26 +385,17 @@ Console.WriteLine($"Beat Rate: {earnings?.GetEarningsBeatRate():F1}%");
 - Latest company headline via `GetLatestCompanyNewsAsync(ticker)`
 - Filtered recent company news via `GetCompanyNewsSinceAsync(ticker, sinceUnixTime, newsCount)`
 
-Example (fetch latest company news):
+Facade example (showcase all methods):
 
 ```csharp
-var companyNewsService = new CompanyNewsService(httpClient);
-var latest = await companyNewsService.GetLatestCompanyNewsAsync("AAPL");
-
-Console.WriteLine($"{latest?.Publisher}: {latest?.Title}");
-Console.WriteLine(latest?.Link);
-```
-
-Example (fetch recent company news since a timestamp):
-
-```csharp
+var allNews = await client.CompanyNews.GetCompanyNewsAsync("AAPL", newsCount: 10);
+var latest = await client.CompanyNews.GetLatestCompanyNewsAsync("AAPL");
 var oneDayAgo = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
-var recentNews = await companyNewsService.GetCompanyNewsSinceAsync("MSFT", oneDayAgo, newsCount: 20);
+var recentNews = await client.CompanyNews.GetCompanyNewsSinceAsync("AAPL", oneDayAgo, newsCount: 20);
 
-foreach (var item in recentNews ?? new List<CompanyNewsItem>())
-{
-    Console.WriteLine($"{item.ProviderPublishTime}: {item.Title}");
-}
+Console.WriteLine($"News count: {allNews?.Count ?? 0}");
+Console.WriteLine($"Latest: {latest?.Title}");
+Console.WriteLine($"Recent since yesterday: {recentNews?.Count ?? 0}");
 ```
 
 ### 3. **Options Data API**
@@ -284,28 +414,25 @@ foreach (var item in recentNews ?? new List<CompanyNewsItem>())
 - Calls-only helper via `GetCallsAsync(ticker, date)`
 - Puts-only helper via `GetPutsAsync(ticker, date)`
 
-Example (list available expirations):
+Facade example (showcase all methods):
 
 ```csharp
-var optionsService = new OptionsDataService(httpClient);
-var expirations = await optionsService.GetExpirationDatesAsync("AAPL");
+var chain = await client.OptionsData.GetOptionsChainAsync("AAPL");
+var expirations = await client.OptionsData.GetExpirationDatesAsync("AAPL");
+var expiration = expirations.FirstOrDefault();
 
-foreach (var expiry in expirations)
+if (expiration != 0)
 {
-    var date = optionsService.UnixTimeStampToDateTime(expiry);
-    Console.WriteLine($"Expiration: {date:yyyy-MM-dd} ({expiry})");
+  var byExpiration = await client.OptionsData.GetOptionsForExpirationAsync("AAPL", expiration);
+  var calls = await client.OptionsData.GetCallsAsync("AAPL", expiration);
+  var puts = await client.OptionsData.GetPutsAsync("AAPL", expiration);
+
+  Console.WriteLine($"Expiration {expiration}: calls={calls.Count}, puts={puts.Count}");
+  Console.WriteLine(byExpiration is not null ? "Expiration chain loaded" : "No expiration data");
 }
-```
 
-Example (calls and puts for an expiration):
-
-```csharp
-var expiration = expirations.First();
-
-var calls = await optionsService.GetCallsAsync("AAPL", expiration);
-var puts = await optionsService.GetPutsAsync("AAPL", expiration);
-
-Console.WriteLine($"Calls: {calls.Count}, Puts: {puts.Count}");
+Console.WriteLine(chain is not null ? "Full chain loaded" : "No options chain");
+Console.WriteLine($"Available expirations: {expirations.Count}");
 ```
 
 ### 4. **Search API**
@@ -325,28 +452,16 @@ Console.WriteLine($"Calls: {calls.Count}, Puts: {puts.Count}");
 - Separate methods for news-only search: `SearchNewsAsync(query, newsCount)`
 - Returns structured results with multiple result types: quotes, news, research, nav
 
-Example (comprehensive search):
+Facade example (showcase all methods):
 
 ```csharp
-var searchService = new SearchService(httpClient);
-var results = await searchService.SearchAsync("Apple", quotesCount: 10, newsCount: 5);
+var results = await client.Search.SearchAsync("Apple", quotesCount: 10, newsCount: 5);
+var quotes = await client.Search.SearchQuotesAsync("Tesla", quotesCount: 5);
+var news = await client.Search.SearchNewsAsync("Microsoft", newsCount: 3);
 
-foreach (var quote in results?.Quotes ?? new List<SearchQuote>())
-{
-    Console.WriteLine($"{quote.Symbol}: {quote.LongName} ({quote.Exchange})");
-}
-```
-
-Example (quotes only):
-
-```csharp
-var quotes = await searchService.SearchQuotesAsync("Tesla", quotesCount: 5);
-```
-
-Example (news only):
-
-```csharp
-var news = await searchService.SearchNewsAsync("Microsoft", newsCount: 3);
+Console.WriteLine($"All search quotes: {results?.Quotes?.Count ?? 0}");
+Console.WriteLine($"Quotes-only count: {quotes?.Count ?? 0}");
+Console.WriteLine($"News-only count: {news?.Count ?? 0}");
 ```
 
 ### 5. **Screener API**
@@ -372,25 +487,36 @@ var news = await searchService.SearchNewsAsync("Microsoft", newsCount: 3);
   - `FundQuery`
   - `ETFQuery`
 
-Example (predefined):
-
-```csharp
-var result = await screenerService.ScreenPredefinedAsync(PredefinedScreenersCatalogItem.DayGainers);
-```
-
-Example (typed custom query):
+Facade example (showcase all methods):
 
 ```csharp
 var query = EquityQuery.And(
-    EquityQuery.Eq("region", "us"),
-    EquityQuery.Gte("intradaymarketcap", 2_000_000_000),
-    EquityQuery.Gt("dayvolume", 15_000));
+  EquityQuery.Eq("region", "us"),
+  EquityQuery.Gte("intradaymarketcap", 2_000_000_000),
+  EquityQuery.Gt("dayvolume", 15_000));
 
-var result = await screenerService.ScreenAsync(
-    query,
-    size: 25,
-    sortField: "percentchange",
-    sortAsc: false);
+var typedResult = await client.StockScreening.ScreenAsync(
+  query,
+  size: 25,
+  sortField: "percentchange",
+  sortAsc: false);
+
+var request = new ScreenerRequest
+{
+  Size = 25,
+  SortField = "percentchange",
+  Query = query.ToNode()
+};
+
+var requestResult = await client.StockScreening.ScreenAsync(request);
+
+var predefinedByEnum = await client.StockScreening.ScreenPredefinedAsync(PredefinedScreenersCatalogItem.DayGainers);
+var predefinedByString = await client.StockScreening.ScreenPredefinedAsync("day_gainers");
+
+Console.WriteLine(typedResult is not null ? "Typed screener loaded" : "No typed screener result");
+Console.WriteLine(requestResult is not null ? "Request-based screener loaded" : "No request-based screener result");
+Console.WriteLine(predefinedByEnum is not null ? "Predefined enum screener loaded" : "No predefined enum screener result");
+Console.WriteLine(predefinedByString is not null ? "Predefined string screener loaded" : "No predefined string screener result");
 ```
 
 ### 6. **News API**
@@ -424,19 +550,16 @@ var result = await screenerService.ScreenAsync(
 - Combined snapshot via `GetMarketSnapshotAsync(market)`
 - Yahoo market codes mirrored from yfinance usage include: `US`, `GB`, `ASIA`, `EUROPE`, `RATES`, `COMMODITIES`, `CURRENCIES`, `CRYPTOCURRENCIES`
 
-Example (get US market snapshot):
+Facade example (showcase all methods):
 
 ```csharp
-var marketService = new MarketSummaryService(httpClient);
-var snapshot = await marketService.GetMarketSnapshotAsync("US");
+var summary = await client.Market.GetMarketSummaryAsync("US");
+var status = await client.Market.GetMarketStatusAsync("US");
+var snapshot = await client.Market.GetMarketSnapshotAsync("US");
 
-Console.WriteLine($"Market opens: {snapshot?.Status?.Open}");
-Console.WriteLine($"Market closes: {snapshot?.Status?.Close}");
-
-foreach (var (exchange, summary) in snapshot?.SummaryByExchange ?? new Dictionary<string, MarketSummaryItem>())
-{
-  Console.WriteLine($"{exchange}: {summary.ShortName} {summary.RegularMarketPrice} ({summary.RegularMarketChangePercent}%)");
-}
+Console.WriteLine($"Summary exchanges: {summary?.Count ?? 0}");
+Console.WriteLine($"Open: {status?.Open}, Close: {status?.Close}");
+Console.WriteLine($"Snapshot exchanges: {snapshot?.SummaryByExchange?.Count ?? 0}");
 ```
 
 ### 9. **Trending Tickers API**
@@ -458,24 +581,15 @@ foreach (var (exchange, summary) in snapshot?.SummaryByExchange ?? new Dictionar
 - Sector screener via `GetStocksInSectorAsync(sector, size)`
 - Industry screener via `GetStocksInIndustryAsync(industry, size)`
 
-Example (get sector + industry for ticker):
+Facade example (showcase all methods):
 
 ```csharp
-var sectorIndustryService = new SectorIndustryService(quoteSummaryService, stockScreeningService);
-var info = await sectorIndustryService.GetSectorInfoAsync("AAPL");
+var info = await client.SectorIndustry.GetSectorInfoAsync("AAPL");
+var sectorStocks = await client.SectorIndustry.GetStocksInSectorAsync("Technology", size: 10);
+var industryStocks = await client.SectorIndustry.GetStocksInIndustryAsync("Consumer Electronics", size: 10);
 
-Console.WriteLine($"Sector: {info?.Sector}");
-Console.WriteLine($"Industry: {info?.Industry}");
-```
-
-Example (screen top stocks in sector):
-
-```csharp
-var stocks = await sectorIndustryService.GetStocksInSectorAsync("Technology", size: 10);
-foreach (var stock in stocks)
-{
-  Console.WriteLine($"{stock.Symbol} {stock.Name} - {stock.Price}");
-}
+Console.WriteLine($"Sector: {info?.Sector}, Industry: {info?.Industry}");
+Console.WriteLine($"Sector stocks: {sectorStocks.Count}, Industry stocks: {industryStocks.Count}");
 ```
 
 ## Real-time Data APIs
@@ -531,25 +645,21 @@ foreach (var stock in stocks)
 - Trailing returns via `GetTrailingReturnsAsync(ticker)`
 - Annual returns via `GetAnnualReturnsAsync(ticker)`
 
-Example (get fund summary):
+Facade example (showcase all methods):
 
 ```csharp
-var fundService = new FundDataService(quoteSummaryService);
-var summary = await fundService.GetFundSummaryAsync("VOO");
+var summary = await client.FundData.GetFundSummaryAsync("VOO");
+var profile = await client.FundData.GetFundProfileAsync("VOO");
+var holdings = await client.FundData.GetTopHoldingsAsync("VOO");
+var sectors = await client.FundData.GetSectorWeightingsAsync("VOO");
+var trailing = await client.FundData.GetTrailingReturnsAsync("VOO");
+var annual = await client.FundData.GetAnnualReturnsAsync("VOO");
 
-Console.WriteLine($"{summary?.Ticker}: {summary?.Name}");
-Console.WriteLine($"Family: {summary?.FundFamily}, Category: {summary?.Category}");
-Console.WriteLine($"Expense Ratio: {summary?.ExpenseRatio}");
-```
-
-Example (get top holdings):
-
-```csharp
-var holdings = await fundService.GetTopHoldingsAsync("SPY");
-foreach (var h in holdings ?? new List<FundTopHolding>())
-{
-    Console.WriteLine($"{h.Symbol}: {h.Percent}");
-}
+Console.WriteLine($"Fund: {summary?.Name}");
+Console.WriteLine(profile is not null ? "Profile loaded" : "No profile data");
+Console.WriteLine($"Holdings: {holdings?.Count ?? 0}, Sector weights: {sectors?.Count ?? 0}");
+Console.WriteLine(trailing is not null ? "Trailing returns loaded" : "No trailing return data");
+Console.WriteLine($"Annual return records: {annual?.Count ?? 0}");
 ```
 
 ### 16. **Currency/Forex API**
@@ -564,19 +674,20 @@ foreach (var h in holdings ?? new List<FundTopHolding>())
 - Historical FX rates via `GetHistoricalRatesAsync(baseCurrency, quoteCurrency, startDate, endDate, interval)`
 - Amount conversion helper via `ConvertAsync(amount, baseCurrency, quoteCurrency)`
 
-Example (get EUR/USD current rate):
+Facade example (showcase all methods):
 
 ```csharp
-var currencyService = new CurrencyService(httpClient);
-var quote = await currencyService.GetExchangeRateAsync("EUR", "USD");
+var quote = await client.Currency.GetExchangeRateAsync("EUR", "USD");
+var history = await client.Currency.GetHistoricalRatesAsync(
+  "EUR",
+  "USD",
+  startDate: DateTime.UtcNow.AddDays(-7),
+  endDate: DateTime.UtcNow,
+  interval: ChartInterval.OneDay);
+var converted = await client.Currency.ConvertAsync(100, "EUR", "USD");
 
 Console.WriteLine($"{quote?.BaseCurrency}/{quote?.QuoteCurrency}: {quote?.Rate}");
-```
-
-Example (convert amount):
-
-```csharp
-var converted = await currencyService.ConvertAsync(100, "EUR", "USD");
+Console.WriteLine($"Historical points: {history.Count}");
 Console.WriteLine($"100 EUR = {converted} USD");
 ```
 
@@ -591,19 +702,13 @@ Console.WriteLine($"100 EUR = {converted} USD");
 - Current crypto quote via `GetCryptoQuoteAsync(cryptoSymbol, quoteCurrency)`
 - Historical crypto candles via `GetHistoricalPricesAsync(cryptoSymbol, quoteCurrency, startDate, endDate, interval)`
 
-Example (get BTC quote):
+Facade example (showcase all methods):
 
 ```csharp
-var cryptoService = new CryptoService(httpClient);
-var btc = await cryptoService.GetCryptoQuoteAsync("BTC", "USD");
+var btc = await client.Crypto.GetCryptoQuoteAsync("BTC", "USD");
+var history = await client.Crypto.GetHistoricalPricesAsync("ETH", "USD", interval: ChartInterval.OneDay);
 
 Console.WriteLine($"{btc?.Symbol}: {btc?.Price}");
-```
-
-Example (get ETH history):
-
-```csharp
-var history = await cryptoService.GetHistoricalPricesAsync("ETH", "USD", interval: ChartInterval.OneDay);
 Console.WriteLine($"Candles: {history.Count}");
 ```
 
@@ -621,30 +726,22 @@ Console.WriteLine($"Candles: {history.Count}");
 - Economic events calendar via `GetEconomicEventsCalendarAsync(start, end, limit, offset)`
 - Earnings calendar mirrors yfinance’s `Calendars.get_earnings_calendar()` behavior, including the optional `marketCap` filter and the default most-active ticker filter when `offset == 0`
 
-Example (earnings + IPO calendar):
+Facade example (showcase all methods):
 
 ```csharp
-var screenerService = new StockScreeningService(httpClient);
-var calendarsService = new GlobalCalendarsService(httpClient, screenerService);
+var earnings = await client.Calendars.GetEarningsCalendarAsync(
+    start: DateTime.UtcNow.Date,
+    end: DateTime.UtcNow.Date.AddDays(7),
+    limit: 10,
+    marketCap: 1_000_000_000,
+    filterMostActive: true);
 
-var earnings = await calendarsService.GetEarningsCalendarAsync(
-  start: DateTime.UtcNow.Date,
-  end: DateTime.UtcNow.Date.AddDays(7),
-  limit: 10,
-  marketCap: 1_000_000_000,
-  filterMostActive: true);
+var ipos = await client.Calendars.GetIpoCalendarAsync(limit: 10);
+var splits = await client.Calendars.GetSplitsCalendarAsync(limit: 10);
+var economics = await client.Calendars.GetEconomicEventsCalendarAsync(limit: 10);
 
-var ipos = await calendarsService.GetIpoCalendarAsync(limit: 10);
-
-foreach (var item in earnings)
-{
-  Console.WriteLine($"{item.Symbol}: {item.EventStartDate:d} {item.Timing} EPS est {item.EpsEstimate}");
-}
-
-foreach (var ipo in ipos)
-{
-  Console.WriteLine($"{ipo.Symbol}: {ipo.Date:d} {ipo.Exchange} {ipo.PriceFrom}-{ipo.PriceTo} {ipo.Currency}");
-}
+Console.WriteLine($"Earnings: {earnings.Count}, IPOs: {ipos.Count}");
+Console.WriteLine($"Splits: {splits.Count}, Economic events: {economics.Count}");
 ```
 
 ## Base URLs and Domains
