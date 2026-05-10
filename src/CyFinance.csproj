@@ -5,6 +5,8 @@
     <AssemblyTitle>C# Yahoo Finance Client</AssemblyTitle>
     <Product>C# Yahoo Finance Client</Product>
     <description>C# Client Library used to interact with the Yahoo Finance API</description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/CyFinance.xml</DocumentationFile>
     <PublishAot>true</PublishAot>
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
   </PropertyGroup>
