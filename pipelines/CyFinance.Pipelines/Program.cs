@@ -14,11 +14,20 @@ var builder = Pipeline.CreateBuilder(args);
 
 builder.Services.RegisterDotNetContext();
 
-builder.Services
-	.AddModule<ResolvePackageVersionModule>()
-	.AddModule<BuildAndTestModule>()
-	.AddModule<GenerateDocsModule>()
-	.AddModule<PublishNuGetModule>();
+var pipelineMode = Environment.GetEnvironmentVariable("PIPELINE_MODE")?.Trim().ToLowerInvariant() ?? "validate";
+
+if (pipelineMode == "publish")
+{
+	builder.Services.AddModule<PublishNuGetModule>();
+}
+else
+{
+	builder.Services
+		.AddModule<ResolvePackageVersionModule>()
+		.AddModule<BuildAndTestModule>()
+		.AddModule<GenerateDocsModule>()
+		.AddModule<CreateNuGetPackageModule>();
+}
 
 await builder.Build().RunAsync();
 
@@ -118,10 +127,7 @@ public class GenerateDocsModule : Module
 	}
 }
 
-[DependsOn<BuildAndTestModule>]
-[DependsOn<GenerateDocsModule>]
-[DependsOn<ResolvePackageVersionModule>]
-public class PublishNuGetModule : Module
+public class CreateNuGetPackageModule : Module
 {
 	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
 	{
@@ -131,14 +137,6 @@ public class PublishNuGetModule : Module
 		if (string.IsNullOrWhiteSpace(packageVersion))
 		{
 			throw new InvalidOperationException("Resolved package version is empty.");
-		}
-
-		var nugetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY");
-
-		if (string.IsNullOrWhiteSpace(nugetApiKey))
-		{
-			context.Logger.LogInformation("NUGET_API_KEY not set — skipping publish.");
-			return;
 		}
 
 		var nugetArtifactsDirectory = Path.GetFullPath("./artifacts/nuget");
@@ -168,6 +166,20 @@ public class PublishNuGetModule : Module
 				new KeyValue("RepositoryType", "git"),
 			],
 		}, null, cancellationToken);
+	}
+}
+
+public class PublishNuGetModule : Module
+{
+	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
+	{
+		var nugetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY");
+
+		if (string.IsNullOrWhiteSpace(nugetApiKey))
+		{
+			context.Logger.LogInformation("NUGET_API_KEY not set — skipping publish.");
+			return;
+		}
 
 		await PushPackagesAsync(context, nugetApiKey, cancellationToken);
 	}
