@@ -29,4 +29,5 @@ jobs:
       - name: Run ModularPipelines publish pipeline
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          RUN_LIVE_YAHOO_TESTS: '1'
         run: dotnet run --project pipelines/CyFinance.Pipelines/CyFinance.Pipelines.csproj --configuration Release

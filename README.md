@@ -26,10 +26,10 @@ The table below outlines the current feature parity between `yfinance` and this 
 | **Quote Search** | ✅ | ✅ | [Search API](#4-search-api) |
 | **Stock Screening (Screener API)** | ✅ | ✅ | [Screener API](#5-screener-api) |
 | Multi-Ticker Data Download | ✅ | ❌ | [Quote API (Real-time)](#12-quote-api-real-time) |
-| **Market Status & Summary** | ✅ | ❌ | [Market Summary API](#8-market-summary-api) |
+| **Market Status & Summary** | ✅ | ✅ | [Market Status and Summary API](#8-market-status-and-summary-api) |
 | **Sector Domain Data** | ✅ | ✅ | [Sector/Industry APIs](#10-sectorindustry-apis) |
 | **Industry Domain Data** | ✅ | ✅ | [Sector/Industry APIs](#10-sectorindustry-apis) |
-| **Global Calendars (Earnings, IPO, Splits, Economic Events)** | ✅ | ❌ | — |
+| **Global Calendars (Earnings, IPO, Splits, Economic Events)** | ✅ | ✅ | [Global Calendars API](#18-global-calendars-api) |
 | **Live Streaming (WebSocket)** | ✅ | ❌ | [WebSocket Streaming API](#11-websocket-streaming-api) |
 | **Mutual Fund / ETF Data** | ✅ | ✅ | [Mutual Fund/ETF Data API](#15-mutual-fundetf-data-api) |
 | **Currency / Forex Data** | ✅ | ✅ | [Currency/Forex API](#16-currencyforex-api) |
@@ -410,11 +410,34 @@ var result = await screenerService.ScreenAsync(
 
 ## Market Data APIs
 
-### 8. **Market Summary API**
+### 8. **Market Status and Summary API**
 
-- **Endpoint**: `https://query2.finance.yahoo.com/v6/finance/quote/marketSummary`
-- **Purpose**: Market indices and summary information
-- **Usage**: Used by `Market` class
+- **Summary Endpoint**: `https://query1.finance.yahoo.com/v6/finance/quote/marketSummary`
+- **Status Endpoint**: `https://query1.finance.yahoo.com/v6/finance/markettime`
+- **Purpose**: Market indices, summary moves, trading session windows, and timezone information
+- **Usage**: Used by `MarketSummaryService` class
+
+#### Market Status and Summary API
+
+- Market summary by Yahoo market code via `GetMarketSummaryAsync(market)`
+- Market status/time window via `GetMarketStatusAsync(market)`
+- Combined snapshot via `GetMarketSnapshotAsync(market)`
+- Yahoo market codes mirrored from yfinance usage include: `US`, `GB`, `ASIA`, `EUROPE`, `RATES`, `COMMODITIES`, `CURRENCIES`, `CRYPTOCURRENCIES`
+
+Example (get US market snapshot):
+
+```csharp
+var marketService = new MarketSummaryService(httpClient);
+var snapshot = await marketService.GetMarketSnapshotAsync("US");
+
+Console.WriteLine($"Market opens: {snapshot?.Status?.Open}");
+Console.WriteLine($"Market closes: {snapshot?.Status?.Close}");
+
+foreach (var (exchange, summary) in snapshot?.SummaryByExchange ?? new Dictionary<string, MarketSummaryItem>())
+{
+  Console.WriteLine($"{exchange}: {summary.ShortName} {summary.RegularMarketPrice} ({summary.RegularMarketChangePercent}%)");
+}
+```
 
 ### 9. **Trending Tickers API**
 
@@ -582,6 +605,46 @@ Example (get ETH history):
 ```csharp
 var history = await cryptoService.GetHistoricalPricesAsync("ETH", "USD", interval: ChartInterval.OneDay);
 Console.WriteLine($"Candles: {history.Count}");
+```
+
+### 18. **Global Calendars API**
+
+- **Endpoint**: `https://query1.finance.yahoo.com/v1/finance/visualization`
+- **Purpose**: Global event calendars for earnings, IPOs, stock splits, and economic releases
+- **Usage**: Used by `GlobalCalendarsService` class
+
+#### Global Calendars API
+
+- Earnings calendar via `GetEarningsCalendarAsync(start, end, limit, offset, marketCap, filterMostActive)`
+- IPO calendar via `GetIpoCalendarAsync(start, end, limit, offset)`
+- Splits calendar via `GetSplitsCalendarAsync(start, end, limit, offset)`
+- Economic events calendar via `GetEconomicEventsCalendarAsync(start, end, limit, offset)`
+- Earnings calendar mirrors yfinance’s `Calendars.get_earnings_calendar()` behavior, including the optional `marketCap` filter and the default most-active ticker filter when `offset == 0`
+
+Example (earnings + IPO calendar):
+
+```csharp
+var screenerService = new StockScreeningService(httpClient);
+var calendarsService = new GlobalCalendarsService(httpClient, screenerService);
+
+var earnings = await calendarsService.GetEarningsCalendarAsync(
+  start: DateTime.UtcNow.Date,
+  end: DateTime.UtcNow.Date.AddDays(7),
+  limit: 10,
+  marketCap: 1_000_000_000,
+  filterMostActive: true);
+
+var ipos = await calendarsService.GetIpoCalendarAsync(limit: 10);
+
+foreach (var item in earnings)
+{
+  Console.WriteLine($"{item.Symbol}: {item.EventStartDate:d} {item.Timing} EPS est {item.EpsEstimate}");
+}
+
+foreach (var ipo in ipos)
+{
+  Console.WriteLine($"{ipo.Symbol}: {ipo.Date:d} {ipo.Exchange} {ipo.PriceFrom}-{ipo.PriceTo} {ipo.Currency}");
+}
 ```
 
 ## Base URLs and Domains

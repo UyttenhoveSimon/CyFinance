@@ -74,10 +74,20 @@ public class PublishNuGetModule : Module
 			NoRestore = true,
 		}, null, cancellationToken);
 
-		await context.DotNet().Run(new DotNetRunOptions
+		var previousRunLiveYahooTests = Environment.GetEnvironmentVariable("RUN_LIVE_YAHOO_TESTS");
+		Environment.SetEnvironmentVariable("RUN_LIVE_YAHOO_TESTS", "1");
+
+		try
 		{
-			Project = "tests/CyFinance.Tests.csproj",
-		}, null, cancellationToken);
+			await context.DotNet().Run(new DotNetRunOptions
+			{
+				Project = "tests/CyFinance.Tests.csproj",
+			}, null, cancellationToken);
+		}
+		finally
+		{
+			Environment.SetEnvironmentVariable("RUN_LIVE_YAHOO_TESTS", previousRunLiveYahooTests);
+		}
 
 		var artifactsDirectory = Path.GetFullPath("./artifacts");
 		if (Directory.Exists(artifactsDirectory))

@@ -10,7 +10,9 @@ using CyFinance.Models.Currency;
 using CyFinance.Models.EarningsCalendar;
 using CyFinance.Models.FinancialStatements;
 using CyFinance.Models.FundData;
+using CyFinance.Models.GlobalCalendars;
 using CyFinance.Models.HistoricalData;
+using CyFinance.Models.MarketSummary;
 using CyFinance.Models.QuoteSummary;
 using CyFinance.Models.Search;
 using CyFinance.Models.SectorIndustry;
@@ -23,7 +25,9 @@ using CyFinance.Services.Currency;
 using CyFinance.Services.EarningsCalendar;
 using CyFinance.Services.FinancialStatements;
 using CyFinance.Services.FundData;
+using CyFinance.Services.GlobalCalendars;
 using CyFinance.Services.HistoricalData;
+using CyFinance.Services.MarketSummary;
 using CyFinance.Services.OptionsData;
 using CyFinance.Services.QuoteSummary;
 using CyFinance.Services.Search;
@@ -55,6 +59,8 @@ public class LiveYahooApiIntegrationTests
     private readonly IFinancialStatementsService _financialStatementsService;
     private readonly IFundDataService _fundDataService;
     private readonly ICompanyNewsService _companyNewsService;
+    private readonly IGlobalCalendarsService _globalCalendarsService;
+    private readonly IMarketSummaryService _marketSummaryService;
     private readonly ISectorIndustryService _sectorIndustryService;
     private readonly IShareholderInformationService _shareholderInformationService;
     private readonly IStockScreeningService _stockScreeningService;
@@ -69,6 +75,8 @@ public class LiveYahooApiIntegrationTests
         _optionsDataService = new OptionsDataService(SharedHttpClient);
         _companyNewsService = new CompanyNewsService(SharedHttpClient);
         _stockScreeningService = new StockScreeningService(SharedHttpClient);
+        _marketSummaryService = new MarketSummaryService(SharedHttpClient);
+        _globalCalendarsService = new GlobalCalendarsService(SharedHttpClient, _stockScreeningService);
 
         _analystRecommendationsService = new AnalystRecommendationsService(_quoteSummaryService);
         _financialStatementsService = new FinancialStatementsService(_quoteSummaryService);
@@ -408,6 +416,45 @@ public class LiveYahooApiIntegrationTests
         await Assert.That(sectorStocks).IsNotEmpty();
         await Assert.That(industryStocks).IsNotNull();
         await Assert.That(industryStocks).IsNotEmpty();
+    }
+
+    [Test]
+    public async Task MarketSummaryService_EndToEndMethods_WorkAgainstYahoo()
+    {
+        if (!RunLiveYahooTests)
+        {
+            return;
+        }
+
+        var summary = await _marketSummaryService.GetMarketSummaryAsync("US");
+        var status = await _marketSummaryService.GetMarketStatusAsync("US");
+        var snapshot = await _marketSummaryService.GetMarketSnapshotAsync("US");
+
+        await Assert.That(summary).IsNotNull();
+        await Assert.That(summary).IsNotEmpty();
+        await Assert.That(status).IsNotNull();
+        await Assert.That(snapshot).IsNotNull();
+        await Assert.That(snapshot?.SummaryByExchange).IsNotNull();
+        await Assert.That(snapshot?.Status).IsNotNull();
+    }
+
+    [Test]
+    public async Task GlobalCalendarsService_EndToEndMethods_WorkAgainstYahoo()
+    {
+        if (!RunLiveYahooTests)
+        {
+            return;
+        }
+
+        var earnings = await _globalCalendarsService.GetEarningsCalendarAsync(limit: 5, filterMostActive: false);
+        var ipos = await _globalCalendarsService.GetIpoCalendarAsync(limit: 5);
+        var economics = await _globalCalendarsService.GetEconomicEventsCalendarAsync(limit: 5);
+        var splits = await _globalCalendarsService.GetSplitsCalendarAsync(limit: 5);
+
+        await Assert.That(earnings).IsNotNull();
+        await Assert.That(ipos).IsNotNull();
+        await Assert.That(economics).IsNotNull();
+        await Assert.That(splits).IsNotNull();
     }
 
     [Test]
