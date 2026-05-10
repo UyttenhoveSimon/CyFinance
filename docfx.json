@@ -19,12 +19,13 @@
   "build": {
     "content": [
       {
+        "src": "docs",
         "files": [
-          "docs/index.md",
-          "docs/quick-start.md",
-          "docs/authentication.md",
-          "docs/common-patterns.md",
-          "docs/toc.yml"
+          "index.md",
+          "quick-start.md",
+          "authentication.md",
+          "common-patterns.md",
+          "toc.yml"
         ]
       },
       {
