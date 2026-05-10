@@ -14,23 +14,27 @@ var builder = Pipeline.CreateBuilder(args);
 
 builder.Services.RegisterDotNetContext();
 
+builder.Services
+	.AddModule<ResolvePackageVersionModule>()
+	.AddModule<BuildAndTestModule>()
+	.AddModule<GenerateDocsModule>()
+	.AddModule<CreateNuGetPackageModule>()
+	.AddModule<PublishNuGetModule>();
+
 var pipelineMode = Environment.GetEnvironmentVariable("PIPELINE_MODE")?.Trim().ToLowerInvariant() ?? "validate";
 
 if (pipelineMode == "publish")
 {
-	builder.Services.AddModule<PublishNuGetModule>();
+	builder.RunCategories("publish");
 }
 else
 {
-	builder.Services
-		.AddModule<ResolvePackageVersionModule>()
-		.AddModule<BuildAndTestModule>()
-		.AddModule<GenerateDocsModule>()
-		.AddModule<CreateNuGetPackageModule>();
+	builder.RunCategories("validate");
 }
 
 await builder.Build().RunAsync();
 
+[ModuleCategory("validate")]
 public class ResolvePackageVersionModule : Module<string>
 {
 	protected override async Task<string?> ExecuteAsync(IModuleContext context, CancellationToken cancellationToken)
@@ -54,6 +58,7 @@ public class ResolvePackageVersionModule : Module<string>
 	}
 }
 
+[ModuleCategory("validate")]
 public class BuildAndTestModule : Module
 {
 	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
@@ -87,6 +92,7 @@ public class BuildAndTestModule : Module
 	}
 }
 
+[ModuleCategory("validate")]
 [DependsOn<BuildAndTestModule>]
 public class GenerateDocsModule : Module
 {
@@ -118,7 +124,6 @@ public class GenerateDocsModule : Module
 					"tool",
 					"run",
 					"docfx",
-					"build",
 					"docfx.json",
 				],
 			},
@@ -127,6 +132,7 @@ public class GenerateDocsModule : Module
 	}
 }
 
+[ModuleCategory("validate")]
 public class CreateNuGetPackageModule : Module
 {
 	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
@@ -169,6 +175,7 @@ public class CreateNuGetPackageModule : Module
 	}
 }
 
+[ModuleCategory("publish")]
 public class PublishNuGetModule : Module
 {
 	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)

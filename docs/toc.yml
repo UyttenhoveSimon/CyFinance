@@ -1,7 +1,7 @@
 - name: Overview
   href: index.md
 - name: API Reference
-  href: /api/index.md
+  href: ~/api/
 - name: Guides
   items:
     - name: Quick Start
