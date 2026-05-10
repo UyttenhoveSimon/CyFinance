@@ -4,34 +4,34 @@ using System.Text.Json.Serialization;
 public class OptionsDataResponse
 {
     [JsonPropertyName("optionChain")]
-    public OptionChain OptionChain { get; set; }
+    public OptionChain? OptionChain { get; set; }
 }
 
 public class OptionChain
 {
     [JsonPropertyName("result")]
-    public List<OptionsResult> Result { get; set; }
+    public List<OptionsResult>? Result { get; set; }
 }
 
 public class OptionsResult
 {
     [JsonPropertyName("underlyingSymbol")]
-    public string UnderlyingSymbol { get; set; }
+    public string? UnderlyingSymbol { get; set; }
 
     [JsonPropertyName("expirationDates")]
-    public List<long> ExpirationDates { get; set; }
+    public List<long>? ExpirationDates { get; set; }
 
     [JsonPropertyName("strikes")]
-    public List<double> Strikes { get; set; }
+    public List<double>? Strikes { get; set; }
 
     [JsonPropertyName("hasMiniOptions")]
     public bool HasMiniOptions { get; set; }
 
     [JsonPropertyName("quote")]
-    public Quote Quote { get; set; }
+    public Quote? Quote { get; set; }
 
     [JsonPropertyName("options")]
-    public List<OptionsChainData> Options { get; set; }
+    public List<OptionsChainData>? Options { get; set; }
 }
 
 // Represents a single option chain for a specific expiration date.
@@ -44,23 +44,23 @@ public class OptionsChainData
     public bool HasMiniOptions { get; set; }
 
     [JsonPropertyName("calls")]
-    public List<OptionContract> Calls { get; set; }
+    public List<OptionContract>? Calls { get; set; }
 
     [JsonPropertyName("puts")]
-    public List<OptionContract> Puts { get; set; }
+    public List<OptionContract>? Puts { get; set; }
 }
 
 // Represents a single call or put option contract.
 public class OptionContract
 {
     [JsonPropertyName("contractSymbol")]
-    public string ContractSymbol { get; set; }
+    public string? ContractSymbol { get; set; }
 
     [JsonPropertyName("strike")]
     public double Strike { get; set; }
 
     [JsonPropertyName("currency")]
-    public string Currency { get; set; }
+    public string? Currency { get; set; }
 
     [JsonPropertyName("lastPrice")]
     public double LastPrice { get; set; }
@@ -84,7 +84,7 @@ public class OptionContract
     public double Ask { get; set; }
 
     [JsonPropertyName("contractSize")]
-    public string ContractSize { get; set; }
+    public string? ContractSize { get; set; }
 
     [JsonPropertyName("expiration")]
     public long Expiration { get; set; }
@@ -103,16 +103,16 @@ public class OptionContract
 public class Quote
 {
     [JsonPropertyName("language")]
-    public string Language { get; set; }
+    public string? Language { get; set; }
 
     [JsonPropertyName("region")]
-    public string Region { get; set; }
+    public string? Region { get; set; }
 
     [JsonPropertyName("quoteType")]
-    public string QuoteType { get; set; }
+    public string? QuoteType { get; set; }
 
     [JsonPropertyName("currency")]
-    public string Currency { get; set; }
+    public string? Currency { get; set; }
 
     [JsonPropertyName("regularMarketDayLow")]
     public double RegularMarketDayLow { get; set; }
@@ -130,7 +130,7 @@ public class Quote
     public double Ask { get; set; }
 
     [JsonPropertyName("longName")]
-    public string LongName { get; set; }
+    public string? LongName { get; set; }
 
     [JsonPropertyName("fiftyTwoWeekLow")]
     public double FiftyTwoWeekLow { get; set; }
@@ -160,13 +160,13 @@ public class Quote
     public double RegularMarketPrice { get; set; }
 
     [JsonPropertyName("shortName")]
-    public string ShortName { get; set; }
+    public string? ShortName { get; set; }
 
     [JsonPropertyName("exchange")]
-    public string Exchange { get; set; }
+    public string? Exchange { get; set; }
 
     [JsonPropertyName("symbol")]
-    public string Symbol { get; set; }
+    public string? Symbol { get; set; }
 
     [JsonPropertyName("postMarketChangePercent")]
     public double PostMarketChangePercent { get; set; }
