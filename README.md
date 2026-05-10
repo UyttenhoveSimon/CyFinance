@@ -5,6 +5,19 @@
 
 This is a **C# client library** designed to interact with the **Yahoo Finance API**.
 
+## Documentation
+
+Static documentation is published to GitHub Pages by the `.github/workflows/publish-nuget.yml` workflow. The first release includes the API reference plus a few short guides.
+
+To generate the site locally:
+
+```bash
+dotnet tool restore
+dotnet run --project pipelines/CyFinance.Pipelines/CyFinance.Pipelines.csproj --configuration Release
+```
+
+The generated site is written to `artifacts/docs`.
+
 The project was originally a fork of [dougdellolio/YahooFinanceAPI](https://github.com/dougdellolio/YahooFinanceAPI). However, due to significant changes in Yahoo’s API, the library has been **rebuilt from scratch** with the goal of providing a **C# implementation** that closely mirrors the popular Python library [`yfinance`](https://github.com/ranaroussi/yfinance).
 
 ## Features Parity

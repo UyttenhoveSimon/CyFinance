@@ -1,0 +1,43 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": [
+            "src/CyFinance.csproj"
+          ],
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**"
+          ]
+        }
+      ],
+      "dest": "api"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "docs/index.md",
+          "docs/quick-start.md",
+          "docs/authentication.md",
+          "docs/common-patterns.md",
+          "docs/toc.yml"
+        ]
+      },
+      {
+        "files": [
+          "api/**.yml",
+          "api/**.md"
+        ]
+      }
+    ],
+    "globalMetadata": {
+      "_appTitle": "CyFinance Documentation",
+      "_appFooter": "CyFinance"
+    },
+    "dest": "artifacts/docs"
+  }
+}

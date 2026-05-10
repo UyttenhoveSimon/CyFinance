@@ -17,6 +17,7 @@ builder.Services.RegisterDotNetContext();
 builder.Services
 	.AddModule<ResolvePackageVersionModule>()
 	.AddModule<BuildAndTestModule>()
+	.AddModule<GenerateDocsModule>()
 	.AddModule<PublishNuGetModule>();
 
 await builder.Build().RunAsync();
@@ -78,6 +79,47 @@ public class BuildAndTestModule : Module
 }
 
 [DependsOn<BuildAndTestModule>]
+public class GenerateDocsModule : Module
+{
+	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
+	{
+		var docsOutputDirectory = Path.GetFullPath("./artifacts/docs");
+		if (Directory.Exists(docsOutputDirectory))
+		{
+			Directory.Delete(docsOutputDirectory, true);
+		}
+
+		await context.Shell.Command.ExecuteCommandLineTool(
+			new GenericCommandLineToolOptions("dotnet")
+			{
+				Arguments =
+				[
+					"tool",
+					"restore",
+				],
+			},
+			null,
+			cancellationToken);
+
+		await context.Shell.Command.ExecuteCommandLineTool(
+			new GenericCommandLineToolOptions("dotnet")
+			{
+				Arguments =
+				[
+					"tool",
+					"run",
+					"docfx",
+					"build",
+					"docfx.json",
+				],
+			},
+			null,
+			cancellationToken);
+	}
+}
+
+[DependsOn<BuildAndTestModule>]
+[DependsOn<GenerateDocsModule>]
 [DependsOn<ResolvePackageVersionModule>]
 public class PublishNuGetModule : Module
 {
@@ -99,18 +141,20 @@ public class PublishNuGetModule : Module
 			return;
 		}
 
-		var artifactsDirectory = Path.GetFullPath("./artifacts");
-		if (Directory.Exists(artifactsDirectory))
+		var nugetArtifactsDirectory = Path.GetFullPath("./artifacts/nuget");
+		if (Directory.Exists(nugetArtifactsDirectory))
 		{
-			Directory.Delete(artifactsDirectory, true);
+			Directory.Delete(nugetArtifactsDirectory, true);
 		}
+
+		Directory.CreateDirectory(nugetArtifactsDirectory);
 
 		await context.DotNet().Pack(new DotNetPackOptions
 		{
 			ProjectSolution = "src/CyFinance.csproj",
 			Configuration = "Release",
 			NoBuild = true,
-			Output = "./artifacts",
+			Output = "./artifacts/nuget",
 			Properties =
 			[
 				new KeyValue("PackageId", "CyFinance"),
@@ -130,7 +174,7 @@ public class PublishNuGetModule : Module
 
 	private static async Task PushPackagesAsync(IModuleContext context, string nugetApiKey, CancellationToken cancellationToken)
 	{
-		var artifactsDirectory = Path.GetFullPath("./artifacts");
+		var artifactsDirectory = Path.GetFullPath("./artifacts/nuget");
 		var packageFiles = Directory.Exists(artifactsDirectory)
 			? Directory.GetFiles(artifactsDirectory, "*.nupkg", SearchOption.TopDirectoryOnly)
 			: Array.Empty<string>();
