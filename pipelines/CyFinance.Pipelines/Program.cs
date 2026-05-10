@@ -1,4 +1,5 @@
-﻿using ModularPipelines;
+﻿using Microsoft.Extensions.Logging;
+using ModularPipelines;
 using ModularPipelines.Attributes;
 using ModularPipelines.Context;
 using ModularPipelines.DotNet.Extensions;
@@ -15,6 +16,7 @@ builder.Services.RegisterDotNetContext();
 
 builder.Services
 	.AddModule<ResolvePackageVersionModule>()
+	.AddModule<BuildAndTestModule>()
 	.AddModule<PublishNuGetModule>();
 
 await builder.Build().RunAsync();
@@ -42,26 +44,10 @@ public class ResolvePackageVersionModule : Module<string>
 	}
 }
 
-[DependsOn<ResolvePackageVersionModule>]
-public class PublishNuGetModule : Module
+public class BuildAndTestModule : Module
 {
 	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
 	{
-		var versionResult = await context.GetModule<ResolvePackageVersionModule>();
-		var packageVersion = versionResult.ValueOrDefault;
-
-		if (string.IsNullOrWhiteSpace(packageVersion))
-		{
-			throw new InvalidOperationException("Resolved package version is empty.");
-		}
-
-		var nugetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY");
-
-		if (string.IsNullOrWhiteSpace(nugetApiKey))
-		{
-			throw new InvalidOperationException("NUGET_API_KEY environment variable is required.");
-		}
-
 		await context.DotNet().Restore(new DotNetRestoreOptions
 		{
 			ProjectSolution = "CyFinance.sln",
@@ -87,6 +73,30 @@ public class PublishNuGetModule : Module
 		finally
 		{
 			Environment.SetEnvironmentVariable("RUN_LIVE_YAHOO_TESTS", previousRunLiveYahooTests);
+		}
+	}
+}
+
+[DependsOn<BuildAndTestModule>]
+[DependsOn<ResolvePackageVersionModule>]
+public class PublishNuGetModule : Module
+{
+	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
+	{
+		var versionResult = await context.GetModule<ResolvePackageVersionModule>();
+		var packageVersion = versionResult.ValueOrDefault;
+
+		if (string.IsNullOrWhiteSpace(packageVersion))
+		{
+			throw new InvalidOperationException("Resolved package version is empty.");
+		}
+
+		var nugetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY");
+
+		if (string.IsNullOrWhiteSpace(nugetApiKey))
+		{
+			context.Logger.LogInformation("NUGET_API_KEY not set — skipping publish.");
+			return;
 		}
 
 		var artifactsDirectory = Path.GetFullPath("./artifacts");
