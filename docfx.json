@@ -35,9 +35,24 @@
         ]
       }
     ],
+    "template": [
+      "modern"
+    ],
+    "resource": [
+      {
+        "src": "docs",
+        "files": [
+          "logo.svg"
+        ]
+      }
+    ],
     "globalMetadata": {
       "_appTitle": "CyFinance Documentation",
-      "_appFooter": "CyFinance"
+      "_appName": "CyFinance",
+      "_appFooter": "CyFinance",
+      "_enableSearch": true,
+      "_disableContribution": true,
+      "_appLogoPath": "logo.svg"
     },
     "dest": "artifacts/docs"
   }
