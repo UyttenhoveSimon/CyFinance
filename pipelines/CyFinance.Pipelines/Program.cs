@@ -21,6 +21,9 @@ builder.Services
 	.AddModule<CreateNuGetPackageModule>()
 	.AddModule<PublishNuGetModule>();
 
+builder.ConfigureModule<BuildAndTestModule>(options => options.Timeout = TimeSpan.FromSeconds(300));
+builder.ConfigureModule<GenerateDocsModule>(options => options.Timeout = TimeSpan.FromSeconds(120));
+
 var pipelineMode = Environment.GetEnvironmentVariable("PIPELINE_MODE")?.Trim().ToLowerInvariant() ?? "validate";
 
 if (pipelineMode == "publish")
