@@ -142,6 +142,7 @@ public class GenerateDocsModule : Module
 }
 
 [ModuleCategory("validate")]
+[DependsOn<BuildAndTestModule>]
 public class CreateNuGetPackageModule : Module
 {
 	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
