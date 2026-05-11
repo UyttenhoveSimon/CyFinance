@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using ModularPipelines;
 using ModularPipelines.Attributes;
+using ModularPipelines.Configuration;
 using ModularPipelines.Context;
 using ModularPipelines.DotNet.Extensions;
 using ModularPipelines.DotNet.Options;
@@ -20,9 +21,6 @@ builder.Services
 	.AddModule<GenerateDocsModule>()
 	.AddModule<CreateNuGetPackageModule>()
 	.AddModule<PublishNuGetModule>();
-
-builder.ConfigureModule<BuildAndTestModule>(options => options.Timeout = TimeSpan.FromSeconds(300));
-builder.ConfigureModule<GenerateDocsModule>(options => options.Timeout = TimeSpan.FromSeconds(120));
 
 var pipelineMode = Environment.GetEnvironmentVariable("PIPELINE_MODE")?.Trim().ToLowerInvariant() ?? "validate";
 
@@ -64,6 +62,10 @@ public class ResolvePackageVersionModule : Module<string>
 [ModuleCategory("validate")]
 public class BuildAndTestModule : Module
 {
+	protected override ModuleConfiguration Configure() => ModuleConfiguration.Create()
+		.WithTimeout(TimeSpan.FromSeconds(300))
+		.Build();
+
 	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
 	{
 		await context.DotNet().Restore(new DotNetRestoreOptions
@@ -99,6 +101,10 @@ public class BuildAndTestModule : Module
 [DependsOn<BuildAndTestModule>]
 public class GenerateDocsModule : Module
 {
+	protected override ModuleConfiguration Configure() => ModuleConfiguration.Create()
+		.WithTimeout(TimeSpan.FromSeconds(120))
+		.Build();
+
 	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
 	{
 		var docsOutputDirectory = Path.GetFullPath("./artifacts/docs");
