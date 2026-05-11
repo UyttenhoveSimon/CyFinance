@@ -16,6 +16,7 @@ public class ShareholderInformationService : IShareholderInformationService
         _quoteSummaryService = quoteSummaryService ?? throw new ArgumentNullException(nameof(quoteSummaryService));
     }
 
+    /// <inheritdoc />
     public async Task<ShareholderInformationSummary?> GetShareholderInformationAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
@@ -55,30 +56,35 @@ public class ShareholderInformationService : IShareholderInformationService
         }
     }
 
+    /// <inheritdoc />
     public async Task<CyFinance.Models.QuoteSummary.MajorHoldersBreakdown?> GetMajorHoldersBreakdownAsync(string ticker)
     {
         var summary = await GetShareholderInformationAsync(ticker);
         return summary?.MajorHoldersBreakdown;
     }
 
+    /// <inheritdoc />
     public async Task<List<CyFinance.Models.QuoteSummary.OwnershipEntry>?> GetInstitutionalOwnershipAsync(string ticker)
     {
         var summary = await GetShareholderInformationAsync(ticker);
         return summary?.InstitutionalOwnership;
     }
 
+    /// <inheritdoc />
     public async Task<List<CyFinance.Models.QuoteSummary.OwnershipEntry>?> GetFundOwnershipAsync(string ticker)
     {
         var summary = await GetShareholderInformationAsync(ticker);
         return summary?.FundOwnership;
     }
 
+    /// <inheritdoc />
     public async Task<List<CyFinance.Models.QuoteSummary.InsiderHolderEntry>?> GetInsiderHoldersAsync(string ticker)
     {
         var summary = await GetShareholderInformationAsync(ticker);
         return summary?.InsiderHolders;
     }
 
+    /// <inheritdoc />
     public async Task<List<CyFinance.Models.QuoteSummary.InsiderTransactionEntry>?> GetInsiderTransactionsAsync(string ticker)
     {
         var summary = await GetShareholderInformationAsync(ticker);

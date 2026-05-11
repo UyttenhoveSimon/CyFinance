@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -21,18 +20,14 @@ public class StockScreeningService : BaseService, IStockScreeningService
         }
     }
 
-    /// <summary>
-    /// Executes a custom screener query (equivalent to yfinance screen(query=...)).
-    /// </summary>
-    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
+    /// <inheritdoc />
     public async Task<ScreenerResult?> ScreenAsync(ScreenerRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
         ValidateRange(request.Size, nameof(request.Size));
         await EnsureAuthenticatedAsync("AAPL");
 
-        var payload = JsonSerializer.Serialize(request, _jsonOptions);
+        var payload = JsonSerializer.Serialize(request, StockScreeningJsonSerializerContext.Default.ScreenerRequest);
         var url = BuildScreenerUrl();
 
         try
@@ -57,7 +52,7 @@ public class StockScreeningService : BaseService, IStockScreeningService
                 throw new Exception($"Yahoo Screener API returned {(int) response.StatusCode}: {responseBody}");
             }
 
-            var parsed = JsonSerializer.Deserialize<ScreenerResponse>(responseBody, _jsonOptions);
+            var parsed = JsonSerializer.Deserialize(responseBody, StockScreeningJsonSerializerContext.Default.ScreenerResponse);
             return parsed?.Finance?.Result?.FirstOrDefault();
         }
         catch (HttpRequestException ex)
@@ -66,10 +61,7 @@ public class StockScreeningService : BaseService, IStockScreeningService
         }
     }
 
-    /// <summary>
-    /// Executes a custom screener query using typed yfinance-like query helpers.
-    /// Quote type is inferred from query type (EQUITY, MUTUALFUND, ETF).
-    /// </summary>
+    /// <inheritdoc />
     public Task<ScreenerResult?> ScreenAsync(
         QueryBase query,
         int size = 25,
@@ -96,11 +88,7 @@ public class StockScreeningService : BaseService, IStockScreeningService
         return ScreenAsync(request);
     }
 
-    /// <summary>
-    /// Executes a predefined screener query by id (equivalent to yfinance screen("day_gainers")).
-    /// </summary>
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
-    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
+    /// <inheritdoc />
     public async Task<ScreenerResult?> ScreenPredefinedAsync(
         string screenId,
         int? offset = null,
@@ -197,7 +185,7 @@ public class StockScreeningService : BaseService, IStockScreeningService
                 throw new Exception($"Yahoo Screener predefined API returned {(int) response.StatusCode}: {responseBody}");
             }
 
-            var parsed = JsonSerializer.Deserialize<ScreenerResponse>(responseBody, _jsonOptions);
+            var parsed = JsonSerializer.Deserialize(responseBody, StockScreeningJsonSerializerContext.Default.ScreenerResponse);
             return parsed?.Finance?.Result?.FirstOrDefault();
         }
         catch (HttpRequestException ex)
@@ -206,6 +194,7 @@ public class StockScreeningService : BaseService, IStockScreeningService
         }
     }
 
+    /// <inheritdoc />
     public Task<ScreenerResult?> ScreenPredefinedAsync(
         PredefinedScreenersCatalogItem screen,
         int? offset = null,

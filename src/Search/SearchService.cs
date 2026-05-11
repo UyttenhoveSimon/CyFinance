@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using CyFinance.Models.Search;
 
@@ -21,12 +20,7 @@ public class SearchService : BaseService, ISearchService
         }
     }
 
-    /// <summary>
-    /// Search for tickers, news, and other financial data
-    /// Equivalent to yfinance.Ticker.search(query)
-    /// </summary>
-    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
+    /// <inheritdoc />
     public async Task<SearchResponse?> SearchAsync(string query, int quotesCount = 8, int newsCount = 4)
     {
         if (string.IsNullOrWhiteSpace(query))
@@ -50,7 +44,7 @@ public class SearchService : BaseService, ISearchService
             }
 
             var content = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<SearchResponse>(content, _jsonOptions);
+            return JsonSerializer.Deserialize(content, SearchJsonSerializerContext.Default.SearchResponse);
         }
         catch (HttpRequestException ex)
         {
@@ -58,18 +52,14 @@ public class SearchService : BaseService, ISearchService
         }
     }
 
-    /// <summary>
-    /// Search for quotes/tickers only
-    /// </summary>
+    /// <inheritdoc />
     public async Task<List<SearchQuote>?> SearchQuotesAsync(string query, int quotesCount = 8)
     {
         var result = await SearchAsync(query, quotesCount, 0);
         return result?.Quotes;
     }
 
-    /// <summary>
-    /// Search for news only
-    /// </summary>
+    /// <inheritdoc />
     public async Task<List<SearchNews>?> SearchNewsAsync(string query, int newsCount = 4)
     {
         var result = await SearchAsync(query, 0, newsCount);

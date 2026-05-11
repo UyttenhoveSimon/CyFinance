@@ -23,6 +23,7 @@ public class SectorIndustryService : ISectorIndustryService
             ?? throw new ArgumentNullException(nameof(screeningService));
     }
 
+    /// <inheritdoc />
     public async Task<SectorIndustryInfo?> GetSectorInfoAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
@@ -63,6 +64,7 @@ public class SectorIndustryService : ISectorIndustryService
         }
     }
 
+    /// <inheritdoc />
     public async Task<List<SectorScreenerEntry>> GetStocksInSectorAsync(string sector, int size = 25)
     {
         if (string.IsNullOrWhiteSpace(sector))
@@ -90,6 +92,7 @@ public class SectorIndustryService : ISectorIndustryService
         }
     }
 
+    /// <inheritdoc />
     public async Task<List<SectorScreenerEntry>> GetStocksInIndustryAsync(string industry, int size = 25)
     {
         if (string.IsNullOrWhiteSpace(industry))

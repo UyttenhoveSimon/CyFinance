@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 using CyFinance.Models.QuoteSummary;
@@ -17,11 +16,7 @@ public class QuoteSummaryService : BaseService, IQuoteSummaryService
         }
     }
 
-    /// <summary>
-    /// Fetches quote summary data from Yahoo Finance for a given ticker and modules
-    /// </summary>
-    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
+    /// <inheritdoc />
     public async Task<QuoteResponse?> GetQuoteSummaryAsync(
         string ticker, params string[] modules)
     {
@@ -59,7 +54,7 @@ public class QuoteSummaryService : BaseService, IQuoteSummaryService
                 throw new Exception($"Yahoo API returned {(int) response.StatusCode}: {content}");
             }
 
-            return JsonSerializer.Deserialize<QuoteResponse>(content, _jsonOptions);
+            return JsonSerializer.Deserialize(content, QuoteSummaryJsonSerializerContext.Default.QuoteResponse);
         }
         catch (HttpRequestException ex)
         {

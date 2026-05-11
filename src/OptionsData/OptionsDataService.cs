@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace CyFinance.Services.OptionsData;
@@ -16,14 +15,7 @@ public class OptionsDataService : BaseService, IOptionsDataService
 
     private const string BaseUrl = "https://query1.finance.yahoo.com/v7/finance/options";
 
-    /// <summary>
-    /// Get options chain data for a ticker
-    /// </summary>
-    /// <param name="ticker">Stock ticker symbol</param>
-    /// <param name="date">Optional expiration date (Unix timestamp)</param>
-    /// <returns>Options data</returns>
-    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
+    /// <inheritdoc />
     public async Task<OptionsDataResponse> GetOptionsChainAsync(string ticker, long? date = null)
     {
         if (string.IsNullOrWhiteSpace(ticker))
@@ -48,72 +40,45 @@ public class OptionsDataService : BaseService, IOptionsDataService
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync();
-        var options = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        };
-
-        return JsonSerializer.Deserialize<OptionsDataResponse>(content, options);
+        return JsonSerializer.Deserialize(content, OptionsDataJsonSerializerContext.Default.OptionsDataResponse)
+            ?? new OptionsDataResponse();
     }
 
-    /// <summary>
-    /// Get all available expiration dates for a ticker
-    /// </summary>
-    /// <param name="ticker">Stock ticker symbol</param>
-    /// <returns>List of expiration dates as Unix timestamps</returns>
+    /// <inheritdoc />
     public async Task<List<long>> GetExpirationDatesAsync(string ticker)
     {
         var data = await GetOptionsChainAsync(ticker);
         return data?.OptionChain?.Result?[0]?.ExpirationDates ?? new List<long>();
     }
 
-    /// <summary>
-    /// Get options chain for a specific expiration date
-    /// </summary>
-    /// <param name="ticker">Stock ticker symbol</param>
-    /// <param name="expirationDate">Expiration date (Unix timestamp)</param>
-    /// <returns>Options chain data</returns>
-    public async Task<OptionsChainData> GetOptionsForExpirationAsync(string ticker, long expirationDate)
+    /// <inheritdoc />
+    public async Task<OptionsChainData?> GetOptionsForExpirationAsync(string ticker, long expirationDate)
     {
         var data = await GetOptionsChainAsync(ticker, expirationDate);
         return data?.OptionChain?.Result?[0]?.Options?[0];
     }
 
-    /// <summary>
-    /// Get call contracts for a ticker and optional expiration date
-    /// </summary>
-    /// <param name="ticker">Stock ticker symbol</param>
-    /// <param name="date">Optional expiration date (Unix timestamp)</param>
-    /// <returns>List of call option contracts</returns>
+    /// <inheritdoc />
     public async Task<List<OptionContract>> GetCallsAsync(string ticker, long? date = null)
     {
         var data = await GetOptionsChainAsync(ticker, date);
         return data?.OptionChain?.Result?[0]?.Options?[0]?.Calls ?? new List<OptionContract>();
     }
 
-    /// <summary>
-    /// Get put contracts for a ticker and optional expiration date
-    /// </summary>
-    /// <param name="ticker">Stock ticker symbol</param>
-    /// <param name="date">Optional expiration date (Unix timestamp)</param>
-    /// <returns>List of put option contracts</returns>
+    /// <inheritdoc />
     public async Task<List<OptionContract>> GetPutsAsync(string ticker, long? date = null)
     {
         var data = await GetOptionsChainAsync(ticker, date);
         return data?.OptionChain?.Result?[0]?.Options?[0]?.Puts ?? new List<OptionContract>();
     }
 
-    /// <summary>
-    /// Convert Unix timestamp to DateTime
-    /// </summary>
+    /// <inheritdoc />
     public DateTime UnixTimeStampToDateTime(long unixTimeStamp)
     {
         return DateTimeOffset.FromUnixTimeSeconds(unixTimeStamp).DateTime;
     }
 
-    /// <summary>
-    /// Convert DateTime to Unix timestamp
-    /// </summary>
+    /// <inheritdoc />
     public long DateTimeToUnixTimeStamp(DateTime dateTime)
     {
         return new DateTimeOffset(dateTime).ToUnixTimeSeconds();

@@ -18,9 +18,7 @@ public class FinancialStatementsService : IFinancialStatementsService
         _quoteSummaryService = quoteSummaryService ?? throw new ArgumentNullException(nameof(quoteSummaryService));
     }
 
-    /// <summary>
-    /// Get income statement for a ticker
-    /// </summary>
+    /// <inheritdoc />
     public async Task<IncomeStatement?> GetIncomeStatementAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
@@ -55,9 +53,7 @@ public class FinancialStatementsService : IFinancialStatementsService
         }
     }
 
-    /// <summary>
-    /// Get balance sheet for a ticker
-    /// </summary>
+    /// <inheritdoc />
     public async Task<BalanceSheet?> GetBalanceSheetAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
@@ -92,9 +88,7 @@ public class FinancialStatementsService : IFinancialStatementsService
         }
     }
 
-    /// <summary>
-    /// Get cash flow statement for a ticker
-    /// </summary>
+    /// <inheritdoc />
     public async Task<CashFlowStatement?> GetCashFlowStatementAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
@@ -129,9 +123,7 @@ public class FinancialStatementsService : IFinancialStatementsService
         }
     }
 
-    /// <summary>
-    /// Get all financial statements for a ticker
-    /// </summary>
+    /// <inheritdoc />
     public async Task<FinancialStatementsResponse?> GetAllStatementsAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
@@ -148,9 +140,7 @@ public class FinancialStatementsService : IFinancialStatementsService
             "cashflowStatementHistoryQuarterly");
     }
 
-    /// <summary>
-    /// Get specific financial statements by module names
-    /// </summary>
+    /// <inheritdoc />
     public async Task<FinancialStatementsResponse?> GetStatementsAsync(string ticker, params string[] modules)
     {
         if (string.IsNullOrWhiteSpace(ticker))

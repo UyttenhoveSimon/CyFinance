@@ -1,5 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Net.Http.Json;
+using System.Text.Json;
 using CyFinance.Models.HistoricalData;
 
 namespace CyFinance.Services.HistoricalData;
@@ -16,8 +15,7 @@ public class HistoricalDataService : BaseService, IHistoricalDataService
     }
     private const string BASE_URL = "https://query2.finance.yahoo.com";
 
-    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
+    /// <inheritdoc />
     public async Task<ChartResponse> GetHistoricalDataAsync(
         string ticker,
         DateTime? startDate = null,
@@ -30,13 +28,16 @@ public class HistoricalDataService : BaseService, IHistoricalDataService
         {
             await EnsureAuthenticatedAsync(ticker);
             var url = BuildChartUrl(ticker, startDate, endDate, interval, includeDividends, includeSplits);
-            return await Client.GetFromJsonAsync<ChartResponse>(url, _jsonOptions);
+            var content = await Client.GetStringAsync(url);
+            return JsonSerializer.Deserialize(content, HistoricalDataJsonSerializerContext.Default.ChartResponse)
+                ?? new ChartResponse(new Chart(new List<ChartResult>(), new object()));
         }
         catch (Exception ex)
         {
             throw new Exception($"Failed to retrieve chart data for {ticker}: {ex.Message}", ex);
         }
     }
+    /// <inheritdoc />
     public List<DividendInfo> GetDividends(ChartResponse chartResponse)
     {
         var dividends = chartResponse?.Chart?.Result?.FirstOrDefault()?.Events?.Dividends;
@@ -54,6 +55,7 @@ public class HistoricalDataService : BaseService, IHistoricalDataService
             })
             .ToList();
     }
+    /// <inheritdoc />
     public async Task<List<HistoricalPrice>> GetHistoricalPricesAsync(
         string ticker,
         DateTime? startDate = null,
@@ -66,11 +68,12 @@ public class HistoricalDataService : BaseService, IHistoricalDataService
         return ConvertToHistoricalPrices(chartData);
     }
 
-    public static StockMetaData GetMetadata(ChartResponse chartResponse)
+    public static StockMetaData? GetMetadata(ChartResponse chartResponse)
     {
         return chartResponse?.Chart?.Result?.FirstOrDefault()?.Meta;
     }
 
+    /// <inheritdoc />
     public List<SplitInfo> GetSplits(ChartResponse chartResponse)
     {
         var splits = chartResponse?.Chart?.Result?.FirstOrDefault()?.Events?.Splits;
@@ -211,7 +214,7 @@ public class HistoricalDataService : BaseService, IHistoricalDataService
         return list != null && index < list.Count ? list[index] : null;
     }
 
-    private static double? GetValueAtIndex(List<double?> list, int index)
+    private static double? GetValueAtIndex(List<double?>? list, int index)
     {
         return list != null && index < list.Count ? list[index] : null;
     }
