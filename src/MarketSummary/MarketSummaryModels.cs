@@ -1,7 +1,31 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using CyFinance.Models.QuoteSummary;
 
 namespace CyFinance.Models.MarketSummary;
+
+internal sealed class StringOrIntConverter : JsonConverter<int?>
+{
+    public override int? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.String)
+        {
+            var str = reader.GetString();
+            if (int.TryParse(str, out var result))
+                return result;
+            return null;
+        }
+        if (reader.TokenType == JsonTokenType.Null)
+            return null;
+        return reader.GetInt32();
+    }
+
+    public override void Write(Utf8JsonWriter writer, int? value, JsonSerializerOptions options)
+    {
+        if (value.HasValue) writer.WriteNumberValue(value.Value);
+        else writer.WriteNullValue();
+    }
+}
 
 public class MarketSnapshot
 {
@@ -101,5 +125,6 @@ internal sealed class MarketTimezone
     public string? Short { get; set; }
 
     [JsonPropertyName("gmtoffset")]
+    [JsonConverter(typeof(StringOrIntConverter))]
     public int? GmtOffset { get; set; }
 }
