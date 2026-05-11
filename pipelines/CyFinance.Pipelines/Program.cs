@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using ModularPipelines;
 using ModularPipelines.Attributes;
+using ModularPipelines.Configuration;
 using ModularPipelines.Context;
 using ModularPipelines.DotNet.Extensions;
 using ModularPipelines.DotNet.Options;
@@ -61,6 +62,10 @@ public class ResolvePackageVersionModule : Module<string>
 [ModuleCategory("validate")]
 public class BuildAndTestModule : Module
 {
+	protected override ModuleConfiguration Configure() => ModuleConfiguration.Create()
+		.WithTimeout(TimeSpan.FromSeconds(300))
+		.Build();
+
 	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
 	{
 		await context.DotNet().Restore(new DotNetRestoreOptions
@@ -96,6 +101,10 @@ public class BuildAndTestModule : Module
 [DependsOn<BuildAndTestModule>]
 public class GenerateDocsModule : Module
 {
+	protected override ModuleConfiguration Configure() => ModuleConfiguration.Create()
+		.WithTimeout(TimeSpan.FromSeconds(120))
+		.Build();
+
 	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
 	{
 		var docsOutputDirectory = Path.GetFullPath("./artifacts/docs");
@@ -133,6 +142,7 @@ public class GenerateDocsModule : Module
 }
 
 [ModuleCategory("validate")]
+[DependsOn<BuildAndTestModule>]
 public class CreateNuGetPackageModule : Module
 {
 	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
