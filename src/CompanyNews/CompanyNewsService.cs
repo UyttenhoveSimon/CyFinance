@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using CyFinance.Models.CompanyNews;
 
@@ -21,11 +20,7 @@ public class CompanyNewsService : BaseService, ICompanyNewsService
         }
     }
 
-    /// <summary>
-    /// Get ticker-specific company news.
-    /// </summary>
-    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
+    /// <inheritdoc />
     public async Task<List<CompanyNewsItem>?> GetCompanyNewsAsync(string ticker, int newsCount = 10)
     {
         if (string.IsNullOrWhiteSpace(ticker))
@@ -49,7 +44,7 @@ public class CompanyNewsService : BaseService, ICompanyNewsService
             }
 
             var content = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<CompanyNewsResponse>(content, _jsonOptions);
+            var result = JsonSerializer.Deserialize(content, CompanyNewsJsonSerializerContext.Default.CompanyNewsResponse);
             return result?.News;
         }
         catch (HttpRequestException ex)
@@ -58,18 +53,14 @@ public class CompanyNewsService : BaseService, ICompanyNewsService
         }
     }
 
-    /// <summary>
-    /// Get the latest news article for a ticker.
-    /// </summary>
+    /// <inheritdoc />
     public async Task<CompanyNewsItem?> GetLatestCompanyNewsAsync(string ticker)
     {
         var news = await GetCompanyNewsAsync(ticker, 1);
         return news?.FirstOrDefault();
     }
 
-    /// <summary>
-    /// Get news newer than a given Unix timestamp.
-    /// </summary>
+    /// <inheritdoc />
     public async Task<List<CompanyNewsItem>?> GetCompanyNewsSinceAsync(string ticker, long sinceUnixTime, int newsCount = 25)
     {
         if (sinceUnixTime < 0)

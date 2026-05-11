@@ -21,6 +21,7 @@ csharp_indent_case_contents = true
 csharp_prefer_braces = when_multiline:suggestion
 
 [*.cs]
+dotnet_diagnostic.CS1591.severity = none
 csharp_using_directive_placement = outside_namespace:error
 csharp_prefer_simple_using_statement = true:error
 csharp_prefer_braces = when_multiline:error

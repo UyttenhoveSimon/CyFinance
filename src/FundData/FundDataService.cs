@@ -18,6 +18,7 @@ public class FundDataService : IFundDataService
             ?? throw new ArgumentNullException(nameof(quoteSummaryService));
     }
 
+    /// <inheritdoc />
     public async Task<FundSummary?> GetFundSummaryAsync(string ticker)
     {
         ValidateTicker(ticker);
@@ -55,6 +56,7 @@ public class FundDataService : IFundDataService
         }
     }
 
+    /// <inheritdoc />
     public async Task<FundProfile?> GetFundProfileAsync(string ticker)
     {
         ValidateTicker(ticker);
@@ -89,6 +91,7 @@ public class FundDataService : IFundDataService
         }
     }
 
+    /// <inheritdoc />
     public async Task<List<FundTopHolding>?> GetTopHoldingsAsync(string ticker)
     {
         ValidateTicker(ticker);
@@ -107,6 +110,7 @@ public class FundDataService : IFundDataService
         }
     }
 
+    /// <inheritdoc />
     public async Task<List<FundSectorWeighting>?> GetSectorWeightingsAsync(string ticker)
     {
         ValidateTicker(ticker);
@@ -125,6 +129,7 @@ public class FundDataService : IFundDataService
         }
     }
 
+    /// <inheritdoc />
     public async Task<FundTrailingSummary?> GetTrailingReturnsAsync(string ticker)
     {
         ValidateTicker(ticker);
@@ -143,6 +148,7 @@ public class FundDataService : IFundDataService
         }
     }
 
+    /// <inheritdoc />
     public async Task<List<FundAnnualReturnEntry>?> GetAnnualReturnsAsync(string ticker)
     {
         ValidateTicker(ticker);

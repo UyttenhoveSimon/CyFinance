@@ -9,16 +9,16 @@ namespace CyFinance.Models.StockScreening;
 public class ScreenerResponse
 {
     [JsonPropertyName("finance")]
-    public FinanceResult Finance { get; set; }
+    public FinanceResult? Finance { get; set; }
 }
 
 public class FinanceResult
 {
     [JsonPropertyName("result")]
-    public List<ScreenerResult> Result { get; set; }
+    public List<ScreenerResult>? Result { get; set; }
 
     [JsonPropertyName("error")]
-    public object Error { get; set; }
+    public object? Error { get; set; }
 }
 
 /// <summary>
@@ -27,16 +27,16 @@ public class FinanceResult
 public class ScreenerResult
 {
     [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public string? Id { get; set; }
 
     [JsonPropertyName("title")]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     [JsonPropertyName("total")]
     public int Total { get; set; }
 
     [JsonPropertyName("quotes")]
-    public List<Quote> Quotes { get; set; }
+    public List<Quote>? Quotes { get; set; }
 }
 
 /// <summary>
@@ -46,16 +46,16 @@ public class ScreenerResult
 public class Quote
 {
     [JsonPropertyName("symbol")]
-    public string Symbol { get; set; }
+    public string? Symbol { get; set; }
 
     [JsonPropertyName("longName")]
-    public string LongName { get; set; }
+    public string? LongName { get; set; }
 
     [JsonPropertyName("quoteType")]
-    public string QuoteType { get; set; }
+    public string? QuoteType { get; set; }
 
     [JsonPropertyName("exchange")]
-    public string Exchange { get; set; }
+    public string? Exchange { get; set; }
 
     [JsonPropertyName("marketCap")]
     public long? MarketCap { get; set; }

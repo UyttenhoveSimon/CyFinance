@@ -16,9 +16,7 @@ public class EarningsCalendarService : IEarningsCalendarService
         _quoteSummaryService = quoteSummaryService ?? throw new ArgumentNullException(nameof(quoteSummaryService));
     }
 
-    /// <summary>
-    /// Get upcoming earnings dates for a ticker
-    /// </summary>
+    /// <inheritdoc />
     public async Task<UpcomingEarnings?> GetUpcomingEarningsAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
@@ -55,9 +53,7 @@ public class EarningsCalendarService : IEarningsCalendarService
         }
     }
 
-    /// <summary>
-    /// Get historical earnings data for a ticker
-    /// </summary>
+    /// <inheritdoc />
     public async Task<HistoricalEarnings?> GetHistoricalEarningsAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
@@ -94,9 +90,7 @@ public class EarningsCalendarService : IEarningsCalendarService
         }
     }
 
-    /// <summary>
-    /// Get complete earnings calendar (upcoming dates and historical earnings)
-    /// </summary>
+    /// <inheritdoc />
     public async Task<EarningsCalendarSummary?> GetEarningsCalendarAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))

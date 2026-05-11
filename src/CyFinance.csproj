@@ -7,8 +7,8 @@
     <description>C# Client Library used to interact with the Yahoo Finance API</description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/CyFinance.xml</DocumentationFile>
-    <PublishAot>true</PublishAot>
-    <IlcOptimizationPreference>Size</IlcOptimizationPreference>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Build|AnyCPU'">
     <OutputPath>bin\Build\</OutputPath>

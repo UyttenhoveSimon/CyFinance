@@ -16,9 +16,7 @@ public class AnalystRecommendationsService : IAnalystRecommendationsService
         _quoteSummaryService = quoteSummaryService ?? throw new ArgumentNullException(nameof(quoteSummaryService));
     }
 
-    /// <summary>
-    /// Get analyst recommendations for a ticker
-    /// </summary>
+    /// <inheritdoc />
     public async Task<AnalystRecommendationsSummary?> GetRecommendationsAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
@@ -57,9 +55,7 @@ public class AnalystRecommendationsService : IAnalystRecommendationsService
         }
     }
 
-    /// <summary>
-    /// Get recommendation trend data only
-    /// </summary>
+    /// <inheritdoc />
     public async Task<List<RecommendationData>?> GetRecommendationTrendAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))
@@ -78,9 +74,7 @@ public class AnalystRecommendationsService : IAnalystRecommendationsService
         }
     }
 
-    /// <summary>
-    /// Get rating change history
-    /// </summary>
+    /// <inheritdoc />
     public async Task<List<RatingChange>?> GetRatingChangeHistoryAsync(string ticker)
     {
         if (string.IsNullOrWhiteSpace(ticker))

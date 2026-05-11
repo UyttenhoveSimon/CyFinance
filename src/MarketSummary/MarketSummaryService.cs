@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
 using CyFinance.Models.MarketSummary;
@@ -27,8 +26,7 @@ public class MarketSummaryService : BaseService, IMarketSummaryService
         }
     }
 
-    [RequiresDynamicCode("Uses JsonSerializer to materialize Yahoo Finance market responses")]
-    [RequiresUnreferencedCode("Uses JsonSerializer to materialize Yahoo Finance market responses")]
+    /// <inheritdoc />
     public async Task<Dictionary<string, MarketSummaryItem>?> GetMarketSummaryAsync(string market = "US")
     {
         ValidateMarket(market);
@@ -43,7 +41,7 @@ public class MarketSummaryService : BaseService, IMarketSummaryService
                 throw new Exception($"Yahoo Market Summary API returned {(int) response.StatusCode}: {content}");
             }
 
-            var parsed = JsonSerializer.Deserialize<MarketSummaryRoot>(content, _jsonOptions);
+            var parsed = JsonSerializer.Deserialize(content, MarketSummaryJsonSerializerContext.Default.MarketSummaryRoot);
             var result = parsed?.MarketSummaryResponse?.Result;
             if (result is null)
             {
@@ -70,8 +68,7 @@ public class MarketSummaryService : BaseService, IMarketSummaryService
         }
     }
 
-    [RequiresDynamicCode("Uses JsonSerializer to materialize Yahoo Finance market responses")]
-    [RequiresUnreferencedCode("Uses JsonSerializer to materialize Yahoo Finance market responses")]
+    /// <inheritdoc />
     public async Task<MarketStatus?> GetMarketStatusAsync(string market = "US")
     {
         ValidateMarket(market);
@@ -86,7 +83,7 @@ public class MarketSummaryService : BaseService, IMarketSummaryService
                 throw new Exception($"Yahoo Market Time API returned {(int) response.StatusCode}: {content}");
             }
 
-            var parsed = JsonSerializer.Deserialize<MarketTimeRoot>(content, _jsonOptions);
+            var parsed = JsonSerializer.Deserialize(content, MarketSummaryJsonSerializerContext.Default.MarketTimeRoot);
             var entry = parsed?.Finance?.MarketTimes?.FirstOrDefault()?.MarketTime?.FirstOrDefault();
             if (entry is null)
             {
@@ -110,6 +107,7 @@ public class MarketSummaryService : BaseService, IMarketSummaryService
         }
     }
 
+    /// <inheritdoc />
     public async Task<MarketSnapshot?> GetMarketSnapshotAsync(string market = "US")
     {
         ValidateMarket(market);

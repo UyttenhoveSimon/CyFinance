@@ -1,5 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Net.Http.Json;
+using System.Text.Json;
 using CyFinance.Models.Currency;
 using CyFinance.Models.HistoricalData;
 
@@ -21,8 +20,7 @@ public class CurrencyService : BaseService, ICurrencyService
         }
     }
 
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
-    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
+    /// <inheritdoc />
     public async Task<CurrencyQuote?> GetExchangeRateAsync(string baseCurrency, string quoteCurrency)
     {
         var normalizedBase = NormalizeCurrencyCode(baseCurrency, nameof(baseCurrency));
@@ -61,8 +59,7 @@ public class CurrencyService : BaseService, ICurrencyService
         };
     }
 
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
-    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
+    /// <inheritdoc />
     public async Task<List<CurrencyHistoricalPoint>> GetHistoricalRatesAsync(
         string baseCurrency,
         string quoteCurrency,
@@ -100,23 +97,21 @@ public class CurrencyService : BaseService, ICurrencyService
         return points.OrderBy(p => p.Date).ToList();
     }
 
+    /// <inheritdoc />
     public async Task<double?> ConvertAsync(double amount, string baseCurrency, string quoteCurrency)
     {
         var quote = await GetExchangeRateAsync(baseCurrency, quoteCurrency);
         return quote?.Rate.HasValue == true ? amount * quote.Rate.Value : null;
     }
 
-    [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
     private async Task<ChartResponse?> GetQuoteChartAsync(string symbol)
     {
         await EnsureAuthenticatedAsync(symbol);
         var url = $"{BaseUrl}/v8/finance/chart/{Uri.EscapeDataString(symbol)}?interval=1m&range=1d&includePrePost=false";
-        return await Client.GetFromJsonAsync<ChartResponse>(url, _jsonOptions);
+        var content = await Client.GetStringAsync(url);
+        return JsonSerializer.Deserialize(content, HistoricalDataJsonSerializerContext.Default.ChartResponse);
     }
 
-    [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
     private async Task<ChartResponse?> GetHistoricalChartAsync(
         string symbol,
         DateTime? startDate,
@@ -132,7 +127,8 @@ public class CurrencyService : BaseService, ICurrencyService
             $"{BaseUrl}/v8/finance/chart/{Uri.EscapeDataString(symbol)}" +
             $"?period1={period1}&period2={period2}&interval={GetIntervalString(interval)}&includePrePost=false";
 
-        return await Client.GetFromJsonAsync<ChartResponse>(url, _jsonOptions);
+        var content = await Client.GetStringAsync(url);
+        return JsonSerializer.Deserialize(content, HistoricalDataJsonSerializerContext.Default.ChartResponse);
     }
 
     private static string BuildForexSymbol(string baseCurrency, string quoteCurrency)

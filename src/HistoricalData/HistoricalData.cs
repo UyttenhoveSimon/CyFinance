@@ -144,7 +144,7 @@ public class SplitInfo
     public DateTime Date { get; set; }
     public int Numerator { get; set; }
     public int Denominator { get; set; }
-    public string SplitRatio { get; set; }
+    public string? SplitRatio { get; set; }
 
     public double SplitFactor => Denominator != 0 ? (double) Numerator / Denominator : 1.0;
 

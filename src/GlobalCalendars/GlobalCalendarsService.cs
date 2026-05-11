@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 using System.Text;
@@ -85,8 +84,7 @@ public class GlobalCalendarsService : BaseService, IGlobalCalendarsService
         }
     }
 
-    [RequiresDynamicCode("Uses JsonSerializer to materialize Yahoo Finance visualization responses")]
-    [RequiresUnreferencedCode("Uses JsonSerializer to materialize Yahoo Finance visualization responses")]
+    /// <inheritdoc />
     public async Task<List<EarningsCalendarEvent>> GetEarningsCalendarAsync(
         DateTime? start = null,
         DateTime? end = null,
@@ -124,8 +122,7 @@ public class GlobalCalendarsService : BaseService, IGlobalCalendarsService
         return rows.Select(MapEarningsRow).ToList();
     }
 
-    [RequiresDynamicCode("Uses JsonSerializer to materialize Yahoo Finance visualization responses")]
-    [RequiresUnreferencedCode("Uses JsonSerializer to materialize Yahoo Finance visualization responses")]
+    /// <inheritdoc />
     public async Task<List<IpoCalendarEvent>> GetIpoCalendarAsync(
         DateTime? start = null,
         DateTime? end = null,
@@ -144,8 +141,7 @@ public class GlobalCalendarsService : BaseService, IGlobalCalendarsService
         return rows.Select(MapIpoRow).ToList();
     }
 
-    [RequiresDynamicCode("Uses JsonSerializer to materialize Yahoo Finance visualization responses")]
-    [RequiresUnreferencedCode("Uses JsonSerializer to materialize Yahoo Finance visualization responses")]
+    /// <inheritdoc />
     public async Task<List<EconomicEvent>> GetEconomicEventsCalendarAsync(
         DateTime? start = null,
         DateTime? end = null,
@@ -159,8 +155,7 @@ public class GlobalCalendarsService : BaseService, IGlobalCalendarsService
         return rows.Select(MapEconomicRow).ToList();
     }
 
-    [RequiresDynamicCode("Uses JsonSerializer to materialize Yahoo Finance visualization responses")]
-    [RequiresUnreferencedCode("Uses JsonSerializer to materialize Yahoo Finance visualization responses")]
+    /// <inheritdoc />
     public async Task<List<SplitCalendarEvent>> GetSplitsCalendarAsync(
         DateTime? start = null,
         DateTime? end = null,
@@ -182,18 +177,18 @@ public class GlobalCalendarsService : BaseService, IGlobalCalendarsService
     {
         await EnsureAuthenticatedAsync("AAPL");
 
-        var payload = new
+        var payload = new GlobalCalendarRequestPayload
         {
-            sortType = "DESC",
-            entityIdType = definition.CalendarType,
-            sortField = definition.SortField,
-            includeFields = definition.IncludeFields,
-            size = Math.Min(limit, 100),
-            offset,
-            query,
+            SortType = "DESC",
+            EntityIdType = definition.CalendarType,
+            SortField = definition.SortField,
+            IncludeFields = definition.IncludeFields.ToList(),
+            Size = Math.Min(limit, 100),
+            Offset = offset,
+            Query = query,
         };
 
-        var requestBody = JsonSerializer.Serialize(payload, _jsonOptions);
+        var requestBody = JsonSerializer.Serialize(payload, GlobalCalendarsJsonSerializerContext.Default.GlobalCalendarRequestPayload);
         var url = BuildCalendarUrl();
 
         try
@@ -222,7 +217,7 @@ public class GlobalCalendarsService : BaseService, IGlobalCalendarsService
                 throw new Exception($"Yahoo Global Calendars API returned {(int) response.StatusCode}: {content}");
             }
 
-            var parsed = JsonSerializer.Deserialize<GlobalCalendarResponse>(content, _jsonOptions);
+            var parsed = JsonSerializer.Deserialize(content, GlobalCalendarsJsonSerializerContext.Default.GlobalCalendarResponse);
             if (parsed?.Finance?.Error is not null)
             {
                 throw new Exception($"Yahoo Global Calendars API returned an error: {parsed.Finance.Error}");

@@ -1,5 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Net.Http.Json;
+using System.Text.Json;
 using CyFinance.Models.Crypto;
 using CyFinance.Models.HistoricalData;
 
@@ -21,8 +20,7 @@ public class CryptoService : BaseService, ICryptoService
         }
     }
 
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
-    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
+    /// <inheritdoc />
     public async Task<CryptoQuote?> GetCryptoQuoteAsync(string cryptoSymbol, string quoteCurrency = "USD")
     {
         var normalizedBase = NormalizeAssetCode(cryptoSymbol, nameof(cryptoSymbol));
@@ -60,8 +58,7 @@ public class CryptoService : BaseService, ICryptoService
         };
     }
 
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json extensions that may require unreferenced code preservation")]
-    [RequiresDynamicCode("Calls System.Net.Http.Json extensions that may require runtime code generation")]
+    /// <inheritdoc />
     public async Task<List<CryptoHistoricalPoint>> GetHistoricalPricesAsync(
         string cryptoSymbol,
         string quoteCurrency = "USD",
@@ -99,17 +96,14 @@ public class CryptoService : BaseService, ICryptoService
         return points.OrderBy(p => p.Date).ToList();
     }
 
-    [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
     private async Task<ChartResponse?> GetQuoteChartAsync(string symbol)
     {
         await EnsureAuthenticatedAsync(symbol);
         var url = $"{BaseUrl}/v8/finance/chart/{Uri.EscapeDataString(symbol)}?interval=1m&range=1d&includePrePost=false";
-        return await Client.GetFromJsonAsync<ChartResponse>(url, _jsonOptions);
+        var content = await Client.GetStringAsync(url);
+        return JsonSerializer.Deserialize(content, HistoricalDataJsonSerializerContext.Default.ChartResponse);
     }
 
-    [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
-    [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<TValue>(String, JsonSerializerOptions, CancellationToken)")]
     private async Task<ChartResponse?> GetHistoricalChartAsync(
         string symbol,
         DateTime? startDate,
@@ -125,7 +119,8 @@ public class CryptoService : BaseService, ICryptoService
             $"{BaseUrl}/v8/finance/chart/{Uri.EscapeDataString(symbol)}" +
             $"?period1={period1}&period2={period2}&interval={GetIntervalString(interval)}&includePrePost=false";
 
-        return await Client.GetFromJsonAsync<ChartResponse>(url, _jsonOptions);
+        var content = await Client.GetStringAsync(url);
+        return JsonSerializer.Deserialize(content, HistoricalDataJsonSerializerContext.Default.ChartResponse);
     }
 
     private static string BuildCryptoSymbol(string cryptoSymbol, string quoteCurrency)
