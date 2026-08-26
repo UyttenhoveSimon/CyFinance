@@ -160,7 +160,7 @@ internal sealed class FlexibleIntJsonConverter : JsonConverter<int>
     {
         if (reader.TokenType == JsonTokenType.Number)
         {
-            return reader.GetInt32();
+            return reader.TryGetInt32(out var number) ? number : (int) reader.GetDouble();
         }
 
         if (reader.TokenType == JsonTokenType.String && int.TryParse(reader.GetString(), out var parsed))
@@ -177,7 +177,7 @@ internal sealed class FlexibleIntJsonConverter : JsonConverter<int>
             {
                 if (raw.ValueKind == JsonValueKind.Number)
                 {
-                    return raw.GetInt32();
+                    return reader.TryGetInt32(out var number) ? number : (int) reader.GetDouble();
                 }
 
                 if (raw.ValueKind == JsonValueKind.String && int.TryParse(raw.GetString(), out var rawParsed))
