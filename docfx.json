@@ -41,7 +41,8 @@
     ],
     "template": [
       "default",
-      "modern"
+      "modern",
+      "templates/cyfinance"
     ],
     "resource": [
       {
