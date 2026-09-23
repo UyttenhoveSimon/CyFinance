@@ -160,7 +160,9 @@ internal sealed class FlexibleIntJsonConverter : JsonConverter<int>
     {
         if (reader.TokenType == JsonTokenType.Number)
         {
-            return reader.GetInt32();
+            // Yahoo writes whole numbers with a decimal point ("numerator": 2.0), which
+            // GetInt32 rejects outright.
+            return reader.TryGetInt32(out var number) ? number : (int) reader.GetDouble();
         }
 
         if (reader.TokenType == JsonTokenType.String && int.TryParse(reader.GetString(), out var parsed))
@@ -177,7 +179,7 @@ internal sealed class FlexibleIntJsonConverter : JsonConverter<int>
             {
                 if (raw.ValueKind == JsonValueKind.Number)
                 {
-                    return raw.GetInt32();
+                    return raw.TryGetInt32(out var number) ? number : (int) raw.GetDouble();
                 }
 
                 if (raw.ValueKind == JsonValueKind.String && int.TryParse(raw.GetString(), out var rawParsed))

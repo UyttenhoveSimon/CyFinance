@@ -29,6 +29,11 @@
       },
       {
         "files": [
+          "README.md"
+        ]
+      },
+      {
+        "files": [
           "api/**.yml",
           "api/**.md"
         ]

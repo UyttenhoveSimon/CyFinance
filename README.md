@@ -769,4 +769,4 @@ CyFinance is configured for **Native AOT compilation** via `PublishAot=true` in 
 
 ## NuGet Publishing (ModularPipelines)
 
-Publishing is implemented with [ModularPipelines](https://github.com/thomhurst/ModularPipelines) in [pipelines/CyFinance.Pipelines/Program.cs](pipelines/CyFinance.Pipelines/Program.cs), and executed by [.github/workflows/publish-nuget.yml](.github/workflows/publish-nuget.yml).
+Publishing is implemented with [ModularPipelines](https://github.com/thomhurst/ModularPipelines) in [pipelines/CyFinance.Pipelines/Program.cs](https://github.com/UyttenhoveSimon/CyFinance/blob/master/pipelines/CyFinance.Pipelines/Program.cs), and executed by [.github/workflows/publish-nuget.yml](https://github.com/UyttenhoveSimon/CyFinance/blob/master/.github/workflows/publish-nuget.yml).

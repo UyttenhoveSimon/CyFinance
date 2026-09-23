@@ -8,7 +8,6 @@ branches:
 
   master:
     regex: ^master$
-    label: 'beta'
     increment: Patch
     is-main-branch: true
 
