@@ -1,3 +1,15 @@
+/* Brand accent, matching the blue in docs/logo.svg. */
+body {
+  --bs-link-color-rgb: 0, 120, 212 !important;
+  --bs-link-hover-color-rgb: 0, 95, 168 !important;
+}
+
+/* The brand blue is too dark to read on the dark theme's background. */
+[data-bs-theme="dark"] body {
+  --bs-link-color-rgb: 90, 176, 245 !important;
+  --bs-link-hover-color-rgb: 130, 196, 250 !important;
+}
+
 /* A navbar entry with children renders as a menu with no height of its own, so a
    long one runs past the bottom of the viewport. Cap it and let it scroll. */
 #navbar .dropdown-menu {
