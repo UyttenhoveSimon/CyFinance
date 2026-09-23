@@ -48,19 +48,29 @@ public class MarketSummaryService : BaseService, IMarketSummaryService
                 return null;
             }
 
-            return result
-                .Where(item => !string.IsNullOrWhiteSpace(item.Exchange))
-                .ToDictionary(
-                    item => item.Exchange!,
-                    item => new MarketSummaryItem
-                    {
-                        Exchange = item.Exchange,
-                        ShortName = item.ShortName,
-                        RegularMarketPrice = item.RegularMarketPrice?.Raw,
-                        RegularMarketChange = item.RegularMarketChange?.Raw,
-                        RegularMarketChangePercent = item.RegularMarketChangePercent?.Raw,
-                    },
-                    StringComparer.OrdinalIgnoreCase);
+            var summaryByExchange = new Dictionary<string, MarketSummaryItem>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var item in result)
+            {
+                // Yahoo lists several instruments on the same exchange (the US summary carries
+                // multiple CME futures, for example), so the first quote per exchange wins
+                // instead of throwing on a duplicate key.
+                if (string.IsNullOrWhiteSpace(item.Exchange) || summaryByExchange.ContainsKey(item.Exchange))
+                {
+                    continue;
+                }
+
+                summaryByExchange[item.Exchange] = new MarketSummaryItem
+                {
+                    Exchange = item.Exchange,
+                    ShortName = item.ShortName,
+                    RegularMarketPrice = item.RegularMarketPrice?.Raw,
+                    RegularMarketChange = item.RegularMarketChange?.Raw,
+                    RegularMarketChangePercent = item.RegularMarketChangePercent?.Raw,
+                };
+            }
+
+            return summaryByExchange;
         }
         catch (HttpRequestException ex)
         {

@@ -69,6 +69,52 @@ public class MarketSummaryServiceTests
     }
 
     [Test]
+    public async Task GetMarketSummaryAsync_KeepsFirstQuoteWhenExchangeIsRepeated()
+    {
+        var client = new HttpClient(new FakeHttpMessageHandler((_, _) =>
+        {
+            const string payload = """
+            {
+              "marketSummaryResponse": {
+                "result": [
+                  {
+                    "exchange": "CME",
+                    "shortName": "S&P Futures",
+                    "regularMarketPrice": { "raw": 5100.25, "fmt": "5,100.25" }
+                  },
+                  {
+                    "exchange": "CME",
+                    "shortName": "Nasdaq Futures",
+                    "regularMarketPrice": { "raw": 17800.75, "fmt": "17,800.75" }
+                  },
+                  {
+                    "exchange": "DJI",
+                    "shortName": "Dow Jones Industrial Average",
+                    "regularMarketPrice": { "raw": 39000.5, "fmt": "39,000.5" }
+                  }
+                ],
+                "error": null
+              }
+            }
+            """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(payload, Encoding.UTF8, "application/json")
+            });
+        }));
+
+        var service = new MarketSummaryService(client);
+
+        var result = await service.GetMarketSummaryAsync("US");
+
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result!.Count).IsEqualTo(2);
+        await Assert.That(result["CME"].ShortName).IsEqualTo("S&P Futures");
+        await Assert.That(result["DJI"].ShortName).IsEqualTo("Dow Jones Industrial Average");
+    }
+
+    [Test]
     public async Task GetMarketStatusAsync_ReturnsParsedStatus()
     {
         var client = new HttpClient(new FakeHttpMessageHandler((request, _) =>
