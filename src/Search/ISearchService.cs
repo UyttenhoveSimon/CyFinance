@@ -3,34 +3,25 @@ using CyFinance.Models.Search;
 namespace CyFinance.Services.Search;
 
 /// <summary>
-/// Interface for Yahoo Finance Search API
-/// Provides search functionality for tickers, news, and other financial data
-/// Similar to yfinance.Ticker.info['search']
+/// Searches Yahoo Finance by free text, the equivalent of the site's search box.
 /// </summary>
 public interface ISearchService
 {
     /// <summary>
-    /// Search for tickers, news, and other financial data
+    /// Searches for quotes, news, research reports and navigation links at once.
     /// </summary>
-    /// <param name="query">The search query string</param>
-    /// <param name="quotesCount">Number of quote results to return (default: 8)</param>
-    /// <param name="newsCount">Number of news results to return (default: 4)</param>
-    /// <returns>SearchResponse containing quotes, news, research, and nav results</returns>
+    /// <param name="query">A ticker, a company name, or anything else you would type in the search box.</param>
     Task<SearchResponse?> SearchAsync(string query, int quotesCount = 8, int newsCount = 4);
 
     /// <summary>
-    /// Search for quotes/tickers only
+    /// Searches for matching instruments only.
     /// </summary>
-    /// <param name="query">The search query string</param>
-    /// <param name="quotesCount">Number of quote results to return (default: 8)</param>
-    /// <returns>List of matching quotes</returns>
+    /// <param name="query">A ticker, a company name, or anything else you would type in the search box.</param>
     Task<List<SearchQuote>?> SearchQuotesAsync(string query, int quotesCount = 8);
 
     /// <summary>
-    /// Search for news only
+    /// Searches for matching news only.
     /// </summary>
-    /// <param name="query">The search query string</param>
-    /// <param name="newsCount">Number of news results to return (default: 4)</param>
-    /// <returns>List of matching news items</returns>
+    /// <param name="query">A ticker, a company name, or anything else you would type in the search box.</param>
     Task<List<SearchNews>?> SearchNewsAsync(string query, int newsCount = 4);
 }

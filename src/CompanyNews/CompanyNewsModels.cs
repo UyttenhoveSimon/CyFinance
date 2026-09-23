@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace CyFinance.Models.CompanyNews;
 
 /// <summary>
-/// Top-level response model for Yahoo search-based company news.
+/// The news section of Yahoo's search response, which is where company news comes from.
 /// </summary>
 public class CompanyNewsResponse
 {
@@ -12,7 +12,7 @@ public class CompanyNewsResponse
 }
 
 /// <summary>
-/// Represents a company news article associated with a ticker.
+/// A news article.
 /// </summary>
 public class CompanyNewsItem
 {
@@ -28,6 +28,9 @@ public class CompanyNewsItem
     [JsonPropertyName("link")]
     public string? Link { get; set; }
 
+    /// <summary>
+    /// When the publisher released the article, as a Unix timestamp in seconds.
+    /// </summary>
     [JsonPropertyName("providerPublishTime")]
     public long? ProviderPublishTime { get; set; }
 

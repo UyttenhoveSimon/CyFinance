@@ -20,7 +20,6 @@ public class QuoteSummaryService : BaseService, IQuoteSummaryService
     public async Task<QuoteResponse?> GetQuoteSummaryAsync(
         string ticker, params string[] modules)
     {
-        // Ensure we have a valid crumb
         await EnsureAuthenticatedAsync(ticker);
 
         var modulesList = modules.Length > 0
@@ -34,13 +33,11 @@ public class QuoteSummaryService : BaseService, IQuoteSummaryService
             var response = await Client.GetAsync(url);
             var content = await response.Content.ReadAsStringAsync();
 
-            // Check for invalid crumb error
             if (response.StatusCode == HttpStatusCode.Unauthorized ||
                 content.Contains("Invalid Crumb", StringComparison.OrdinalIgnoreCase))
             {
                 Console.WriteLine("Crumb expired or invalid, refreshing...");
 
-                // Force refresh and retry once
                 _crumb = null;
                 await RefreshAuthTokenAsync(ticker);
                 url = BuildApiUrl(ticker, modulesList);
@@ -62,9 +59,6 @@ public class QuoteSummaryService : BaseService, IQuoteSummaryService
         }
     }
 
-    /// <summary>
-    /// Builds the API URL with crumb parameter
-    /// </summary>
     private string BuildApiUrl(string ticker, string[] modules)
     {
         var url = $"{BASE_URL}/v10/finance/quoteSummary/{ticker}?modules={string.Join(",", modules)}";

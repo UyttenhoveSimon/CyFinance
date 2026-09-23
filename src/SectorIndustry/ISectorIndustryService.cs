@@ -3,24 +3,27 @@ using CyFinance.Models.SectorIndustry;
 namespace CyFinance.Services.SectorIndustry;
 
 /// <summary>
-/// Service contract for sector and industry data.
+/// Provides sector and industry classification, and the members of each.
 /// </summary>
 public interface ISectorIndustryService
 {
     /// <summary>
-    /// Returns the sector and industry classification for a given ticker symbol.
+    /// Gets the sector and industry a ticker is classified under.
     /// </summary>
     Task<SectorIndustryInfo?> GetSectorInfoAsync(string ticker);
 
     /// <summary>
-    /// Returns stocks that belong to the given sector (e.g. "Technology").
-    /// Uses the Yahoo Finance screener under the hood.
+    /// Gets stocks in a sector, by running a screener query.
     /// </summary>
+    /// <param name="sector">A Yahoo sector name, for example "Technology".</param>
     Task<List<SectorScreenerEntry>> GetStocksInSectorAsync(string sector, int size = 25);
 
     /// <summary>
-    /// Returns stocks that belong to the given industry (e.g. "Software—Application").
-    /// Uses the Yahoo Finance screener under the hood.
+    /// Gets stocks in an industry, by running a screener query.
     /// </summary>
+    /// <param name="industry">
+    /// A Yahoo industry name, for example "Software—Application". Several of these are
+    /// spelled with an em dash, and the name has to match Yahoo's spelling exactly.
+    /// </param>
     Task<List<SectorScreenerEntry>> GetStocksInIndustryAsync(string industry, int size = 25);
 }

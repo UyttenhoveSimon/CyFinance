@@ -4,49 +4,37 @@ using CyFinance.Models.ShareholderInformation;
 namespace CyFinance.Services.ShareholderInformation;
 
 /// <summary>
-/// Interface for shareholder information operations.
+/// Provides who owns a company and what the insiders have been doing with their shares.
 /// </summary>
 public interface IShareholderInformationService
 {
     /// <summary>
-    /// Gets combined shareholder information for a ticker.
+    /// Gets everything the other methods return, in a single call.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <returns>The shareholder summary, or null when unavailable.</returns>
     Task<ShareholderInformationSummary?> GetShareholderInformationAsync(string ticker);
 
     /// <summary>
-    /// Gets major holders breakdown values for a ticker.
+    /// Gets the split between insiders, institutions and everyone else.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <returns>The major holders breakdown, or null when unavailable.</returns>
     Task<MajorHoldersBreakdown?> GetMajorHoldersBreakdownAsync(string ticker);
 
     /// <summary>
-    /// Gets institutional ownership entries for a ticker.
+    /// Gets the largest institutional holders.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <returns>A list of institutional ownership entries, or null when unavailable.</returns>
     Task<List<OwnershipEntry>?> GetInstitutionalOwnershipAsync(string ticker);
 
     /// <summary>
-    /// Gets fund ownership entries for a ticker.
+    /// Gets the largest fund holders.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <returns>A list of fund ownership entries, or null when unavailable.</returns>
     Task<List<OwnershipEntry>?> GetFundOwnershipAsync(string ticker);
 
     /// <summary>
-    /// Gets insider holder entries for a ticker.
+    /// Gets the insiders and what they hold.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <returns>A list of insider holder entries, or null when unavailable.</returns>
     Task<List<InsiderHolderEntry>?> GetInsiderHoldersAsync(string ticker);
 
     /// <summary>
-    /// Gets insider transaction entries for a ticker.
+    /// Gets the insiders' recent buys and sells.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <returns>A list of insider transaction entries, or null when unavailable.</returns>
     Task<List<InsiderTransactionEntry>?> GetInsiderTransactionsAsync(string ticker);
 }

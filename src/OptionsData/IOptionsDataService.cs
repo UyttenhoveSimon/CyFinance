@@ -5,58 +5,45 @@ using System.Threading.Tasks;
 
 namespace CyFinance.Services.OptionsData;
 
+/// <summary>
+/// Provides option chains. Expiration dates are Unix timestamps in seconds throughout,
+/// because that is what Yahoo expects back when requesting a specific expiry.
+/// </summary>
 public interface IOptionsDataService
 {
     /// <summary>
-    /// Gets options chain data for a ticker and optional expiration date.
+    /// Gets the chain payload as Yahoo returns it.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <param name="date">Optional expiration date as Unix seconds.</param>
-    /// <returns>The options chain response.</returns>
+    /// <param name="date">An expiration to fetch. Defaults to the nearest one.</param>
     Task<OptionsDataResponse> GetOptionsChainAsync(string ticker, long? date = null);
 
     /// <summary>
-    /// Gets available expiration dates for a ticker.
+    /// Gets every expiration Yahoo lists for the ticker.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <returns>A list of expiration dates as Unix seconds.</returns>
     Task<List<long>> GetExpirationDatesAsync(string ticker);
 
     /// <summary>
-    /// Gets option contracts for a specific expiration date.
+    /// Gets the calls and puts for one expiration.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <param name="expirationDate">The expiration date as Unix seconds.</param>
-    /// <returns>The options chain data for that expiration, or null if not found.</returns>
+    /// <param name="expirationDate">
+    /// An expiration taken from <see cref="GetExpirationDatesAsync" />. Yahoo matches it
+    /// exactly, so a timestamp that is merely close to one returns nothing.
+    /// </param>
     Task<OptionsChainData?> GetOptionsForExpirationAsync(string ticker, long expirationDate);
 
     /// <summary>
-    /// Gets call contracts for a ticker and optional expiration date.
+    /// Gets the call contracts.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <param name="date">Optional expiration date as Unix seconds.</param>
-    /// <returns>A list of call contracts.</returns>
+    /// <param name="date">An expiration to fetch. Defaults to the nearest one.</param>
     Task<List<OptionContract>> GetCallsAsync(string ticker, long? date = null);
 
     /// <summary>
-    /// Gets put contracts for a ticker and optional expiration date.
+    /// Gets the put contracts.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <param name="date">Optional expiration date as Unix seconds.</param>
-    /// <returns>A list of put contracts.</returns>
+    /// <param name="date">An expiration to fetch. Defaults to the nearest one.</param>
     Task<List<OptionContract>> GetPutsAsync(string ticker, long? date = null);
 
-    /// <summary>
-    /// Converts a DateTime value to Unix seconds.
-    /// </summary>
-    /// <param name="dateTime">The date and time value.</param>
-    /// <returns>The Unix timestamp in seconds.</returns>
     long DateTimeToUnixTimeStamp(DateTime dateTime);
 
-    /// <summary>
-    /// Converts Unix seconds to a DateTime value.
-    /// </summary>
-    /// <param name="unixTimeStamp">The Unix timestamp in seconds.</param>
-    /// <returns>The converted DateTime value.</returns>
     DateTime UnixTimeStampToDateTime(long unixTimeStamp);
 }

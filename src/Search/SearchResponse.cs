@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace CyFinance.Models.Search;
 
 /// <summary>
-/// Response from Yahoo Finance search API
+/// Everything one search returned, split by kind of result.
 /// </summary>
 public class SearchResponse
 {

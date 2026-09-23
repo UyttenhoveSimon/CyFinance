@@ -3,28 +3,22 @@ using CyFinance.Models.EarningsCalendar;
 namespace CyFinance.Services.EarningsCalendar;
 
 /// <summary>
-/// Interface for earnings calendar operations
+/// Provides past and upcoming earnings dates.
 /// </summary>
 public interface IEarningsCalendarService
 {
     /// <summary>
-    /// Get upcoming earnings dates for a ticker
+    /// Gets the announced earnings dates that have not happened yet.
     /// </summary>
-    /// <param name="ticker">Stock ticker symbol</param>
-    /// <returns>Upcoming earnings data or null if not found</returns>
     Task<UpcomingEarnings?> GetUpcomingEarningsAsync(string ticker);
 
     /// <summary>
-    /// Get historical earnings data for a ticker
+    /// Gets the quarterly earnings already reported, with the estimates they were measured against.
     /// </summary>
-    /// <param name="ticker">Stock ticker symbol</param>
-    /// <returns>Historical earnings data or null if not found</returns>
     Task<HistoricalEarnings?> GetHistoricalEarningsAsync(string ticker);
 
     /// <summary>
-    /// Get complete earnings calendar (upcoming dates and historical earnings)
+    /// Gets the upcoming dates and the reported earnings in a single call.
     /// </summary>
-    /// <param name="ticker">Stock ticker symbol</param>
-    /// <returns>Complete earnings calendar summary or null if not found</returns>
     Task<EarningsCalendarSummary?> GetEarningsCalendarAsync(string ticker);
 }

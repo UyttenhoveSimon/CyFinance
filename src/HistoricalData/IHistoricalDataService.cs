@@ -5,18 +5,17 @@ using CyFinance.Models.HistoricalData;
 
 namespace CyFinance.Services.HistoricalData;
 
+/// <summary>
+/// Provides price history, dividends and splits.
+/// </summary>
 public interface IHistoricalDataService
 {
     /// <summary>
-    /// Gets raw chart response data for a ticker.
+    /// Gets the chart payload as Yahoo returns it, including the events and metadata that
+    /// <see cref="GetHistoricalPricesAsync" /> discards.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <param name="startDate">Optional inclusive start date.</param>
-    /// <param name="endDate">Optional inclusive end date.</param>
-    /// <param name="interval">The chart interval.</param>
-    /// <param name="includeDividends">Whether to include dividend events.</param>
-    /// <param name="includeSplits">Whether to include split events.</param>
-    /// <returns>The full chart response payload.</returns>
+    /// <param name="startDate">Inclusive start date. Defaults to one year ago.</param>
+    /// <param name="endDate">Inclusive end date. Defaults to now.</param>
     Task<ChartResponse> GetHistoricalDataAsync(
         string ticker,
         DateTime? startDate = null,
@@ -26,15 +25,10 @@ public interface IHistoricalDataService
         bool includeSplits = true);
 
     /// <summary>
-    /// Gets normalized historical price records for a ticker.
+    /// Gets one OHLCV record per candle.
     /// </summary>
-    /// <param name="ticker">The ticker symbol.</param>
-    /// <param name="startDate">Optional inclusive start date.</param>
-    /// <param name="endDate">Optional inclusive end date.</param>
-    /// <param name="interval">The chart interval.</param>
-    /// <param name="includeDividends">Whether to include dividend events.</param>
-    /// <param name="includeSplits">Whether to include split events.</param>
-    /// <returns>A list of historical prices.</returns>
+    /// <param name="startDate">Inclusive start date. Defaults to one year ago.</param>
+    /// <param name="endDate">Inclusive end date. Defaults to now.</param>
     Task<List<HistoricalPrice>> GetHistoricalPricesAsync(
         string ticker,
         DateTime? startDate = null,
@@ -44,16 +38,14 @@ public interface IHistoricalDataService
         bool includeSplits = true);
 
     /// <summary>
-    /// Extracts dividend events from a chart response.
+    /// Reads the dividend events out of a chart payload. Empty unless it was fetched with
+    /// <c>includeDividends</c>.
     /// </summary>
-    /// <param name="chartResponse">The chart response to inspect.</param>
-    /// <returns>A list of dividend entries.</returns>
     List<DividendInfo> GetDividends(ChartResponse chartResponse);
 
     /// <summary>
-    /// Extracts split events from a chart response.
+    /// Reads the split events out of a chart payload. Empty unless it was fetched with
+    /// <c>includeSplits</c>.
     /// </summary>
-    /// <param name="chartResponse">The chart response to inspect.</param>
-    /// <returns>A list of split entries.</returns>
     List<SplitInfo> GetSplits(ChartResponse chartResponse);
 }

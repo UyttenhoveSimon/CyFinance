@@ -4,27 +4,24 @@ using CyFinance.Models.HistoricalData;
 namespace CyFinance.Services.Currency;
 
 /// <summary>
-/// Service contract for currency/forex rate retrieval.
+/// Provides foreign exchange rates.
 /// </summary>
 public interface ICurrencyService
 {
     /// <summary>
-    /// Gets the latest exchange-rate snapshot for a currency pair.
+    /// Gets the latest rate for a currency pair.
     /// </summary>
-    /// <param name="baseCurrency">The base 3-letter ISO currency code.</param>
-    /// <param name="quoteCurrency">The quote 3-letter ISO currency code.</param>
-    /// <returns>The current exchange-rate quote, or null when unavailable.</returns>
+    /// <param name="baseCurrency">A 3-letter ISO code, for example EUR.</param>
+    /// <param name="quoteCurrency">A 3-letter ISO code, for example USD.</param>
     Task<CurrencyQuote?> GetExchangeRateAsync(string baseCurrency, string quoteCurrency);
 
     /// <summary>
-    /// Gets historical OHLCV rate data for a currency pair.
+    /// Gets historical OHLCV rates for a currency pair.
     /// </summary>
-    /// <param name="baseCurrency">The base 3-letter ISO currency code.</param>
-    /// <param name="quoteCurrency">The quote 3-letter ISO currency code.</param>
-    /// <param name="startDate">Optional inclusive start date.</param>
-    /// <param name="endDate">Optional inclusive end date.</param>
-    /// <param name="interval">The candle interval.</param>
-    /// <returns>A list of historical currency points.</returns>
+    /// <param name="baseCurrency">A 3-letter ISO code, for example EUR.</param>
+    /// <param name="quoteCurrency">A 3-letter ISO code, for example USD.</param>
+    /// <param name="startDate">Inclusive start date. Defaults to one year ago.</param>
+    /// <param name="endDate">Inclusive end date. Defaults to now.</param>
     Task<List<CurrencyHistoricalPoint>> GetHistoricalRatesAsync(
         string baseCurrency,
         string quoteCurrency,
@@ -33,11 +30,9 @@ public interface ICurrencyService
         ChartInterval interval = ChartInterval.OneDay);
 
     /// <summary>
-    /// Converts an amount from one currency to another using the latest available rate.
+    /// Converts an amount at the latest available rate.
     /// </summary>
-    /// <param name="amount">The amount to convert.</param>
-    /// <param name="baseCurrency">The source 3-letter ISO currency code.</param>
-    /// <param name="quoteCurrency">The destination 3-letter ISO currency code.</param>
-    /// <returns>The converted amount, or null when conversion data is unavailable.</returns>
+    /// <param name="baseCurrency">A 3-letter ISO code, for example EUR.</param>
+    /// <param name="quoteCurrency">A 3-letter ISO code, for example USD.</param>
     Task<double?> ConvertAsync(double amount, string baseCurrency, string quoteCurrency);
 }

@@ -4,8 +4,8 @@ using CyFinance.Services.QuoteSummary;
 namespace CyFinance.Services.AnalystRecommendations;
 
 /// <summary>
-/// Analyst Recommendations Service for Yahoo Finance
-/// Retrieves analyst ratings and rating change history
+/// Backed by the <c>recommendationTrend</c> and <c>upgradeDowngradeHistory</c> quote
+/// summary modules.
 /// </summary>
 public class AnalystRecommendationsService : IAnalystRecommendationsService
 {
@@ -36,7 +36,6 @@ public class AnalystRecommendationsService : IAnalystRecommendationsService
 
             var result = response.QuoteSummary.Result[0];
 
-            // Extract recommendation data from the QuoteResult
             var summary = new AnalystRecommendationsSummary
             {
                 Ticker = ticker,
@@ -44,9 +43,6 @@ public class AnalystRecommendationsService : IAnalystRecommendationsService
                 RatingChangeHistory = result.UpgradeDowngradeHistory?.History
             };
 
-            // The QuoteResult doesn't directly have recommendation fields,
-            // so we need to check what's available and parse accordingly
-            // For now, return the basic structure
             return summary;
         }
         catch (Exception ex)

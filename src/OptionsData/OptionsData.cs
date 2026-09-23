@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 
-// This is the top-level object that wraps the entire JSON response.
 public class OptionsDataResponse
 {
     [JsonPropertyName("optionChain")]
@@ -34,7 +33,9 @@ public class OptionsResult
     public List<OptionsChainData>? Options { get; set; }
 }
 
-// Represents a single option chain for a specific expiration date.
+/// <summary>
+/// The calls and puts sharing one expiration date.
+/// </summary>
 public class OptionsChainData
 {
     [JsonPropertyName("expirationDate")]
@@ -50,7 +51,9 @@ public class OptionsChainData
     public List<OptionContract>? Puts { get; set; }
 }
 
-// Represents a single call or put option contract.
+/// <summary>
+/// One contract. Calls and puts carry the same fields.
+/// </summary>
 public class OptionContract
 {
     [JsonPropertyName("contractSymbol")]
@@ -99,7 +102,9 @@ public class OptionContract
     public bool InTheMoney { get; set; }
 }
 
-// Represents the detailed quote information for the underlying stock.
+/// <summary>
+/// The quote for the underlying instrument, not for any contract.
+/// </summary>
 public class Quote
 {
     [JsonPropertyName("language")]

@@ -27,13 +27,15 @@ public abstract class BaseService
     }
 
     /// <summary>
-    /// Fetches cookies and crumb from Yahoo Finance (mimics yfinance approach)
+    /// Obtains a fresh crumb, the token Yahoo's data endpoints require alongside a session
+    /// cookie. It is not served by an API: the cookie comes from one host and the crumb has
+    /// to be scraped out of a quote page, which is the same dance yfinance performs.
     /// </summary>
     protected async Task RefreshAuthTokenAsync(string ticker = "AAPL")
     {
         try
         {
-            // Step 1: Get cookies from fc.yahoo.com (like yfinance does)
+            // The cookie has to come from this host, not from finance.yahoo.com.
             var cookieResponse = await Client.GetAsync(COOKIE_URL);
 
             if (!cookieResponse.IsSuccessStatusCode)
@@ -41,14 +43,13 @@ public abstract class BaseService
                 Console.WriteLine($"Warning: fc.yahoo.com returned {cookieResponse.StatusCode}. Continuing anyway...");
             }
 
-            // Step 2: Visit a quote page to get the crumb from HTML
+            // The crumb is only in the HTML of a quote page.
             var quoteUrl = $"https://finance.yahoo.com/quote/{ticker}";
             var response = await Client.GetAsync(quoteUrl);
             response.EnsureSuccessStatusCode();
 
             var html = await response.Content.ReadAsStringAsync();
 
-            // Step 3: Extract crumb using multiple regex patterns (Yahoo's structure changes)
             _crumb = ExtractCrumb(html);
 
             if (string.IsNullOrEmpty(_crumb))
@@ -66,11 +67,11 @@ public abstract class BaseService
     }
 
     /// <summary>
-    /// Extracts crumb using multiple patterns to handle Yahoo's changing HTML structure
+    /// Pulls the crumb out of a quote page, trying each known shape of Yahoo's markup in
+    /// turn. Yahoo rewrites that page often enough that one pattern is not enough.
     /// </summary>
     protected string? ExtractCrumb(string html)
     {
-        // Pattern 1: CrumbStore object
         var patterns = new[]
         {
             @"""CrumbStore"":\s*\{\s*""crumb"":\s*""([^""]+)""",
@@ -95,7 +96,7 @@ public abstract class BaseService
     }
 
     /// <summary>
-    /// Ensures we have a valid crumb before making API calls
+    /// Fetches a crumb if there is none or the cached one has expired.
     /// </summary>
     protected async Task EnsureAuthenticatedAsync(string ticker)
     {

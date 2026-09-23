@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace CyFinance.Models.AnalystRecommendations;
 
 /// <summary>
-/// Container for analyst recommendation data
+/// The two quote summary modules analyst data comes from.
 /// </summary>
 public class AnalystRecommendationsResponse
 {
@@ -15,7 +15,7 @@ public class AnalystRecommendationsResponse
 }
 
 /// <summary>
-/// Trend of analyst recommendations over time
+/// One entry per period Yahoo reports.
 /// </summary>
 public class RecommendationTrend
 {
@@ -24,7 +24,7 @@ public class RecommendationTrend
 }
 
 /// <summary>
-/// Individual recommendation data point
+/// How many analysts sat in each bucket over one period.
 /// </summary>
 public class RecommendationData
 {
@@ -48,7 +48,7 @@ public class RecommendationData
 }
 
 /// <summary>
-/// History of rating changes (upgrades/downgrades)
+/// The upgrades and downgrades Yahoo has on file.
 /// </summary>
 public class UpgradeDowngradeHistory
 {
@@ -57,7 +57,7 @@ public class UpgradeDowngradeHistory
 }
 
 /// <summary>
-/// Individual rating change event
+/// One firm changing its rating, with the grades it moved between.
 /// </summary>
 public class RatingChange
 {
@@ -78,34 +78,31 @@ public class RatingChange
 }
 
 /// <summary>
-/// Summary of analyst recommendations for a ticker
+/// What analysts think of a ticker, and how that has changed.
 /// </summary>
 public class AnalystRecommendationsSummary
 {
     public string? Ticker { get; set; }
 
-    /// <summary>
-    /// Current recommendation trend data
-    /// </summary>
     public List<RecommendationData>? RecommendationTrend { get; set; }
 
-    /// <summary>
-    /// History of rating changes
-    /// </summary>
     public List<RatingChange>? RatingChangeHistory { get; set; }
 
     /// <summary>
-    /// Most recent rating change (if available)
+    /// The first entry of <see cref="RatingChangeHistory" />, which is the newest change.
     /// </summary>
     public RatingChange? LatestRatingChange => RatingChangeHistory?.FirstOrDefault();
 
     /// <summary>
-    /// Consensus recommendation count
+    /// The last entry of <see cref="RecommendationTrend" />, which is the current period.
+    /// Note that this takes the opposite end of the list from
+    /// <see cref="LatestRatingChange" />, because Yahoo orders the two modules differently.
     /// </summary>
     public RecommendationData? LatestRecommendation => RecommendationTrend?.LastOrDefault();
 
     /// <summary>
-    /// Calculate consensus rating
+    /// Reduces the current period's counts to a single label, from "Strong Buy" to
+    /// "Strong Sell". Returns "N/A" when no analyst covers the ticker.
     /// </summary>
     public string GetConsensusRating()
     {
@@ -126,7 +123,7 @@ public class AnalystRecommendationsSummary
             return "N/A";
         }
 
-        // Calculate weighted consensus
+        // Runs from +2 when every analyst says strong buy to -2 when they all say strong sell.
         var score = (strongBuy * 2.0 + buy * 1.0 - sell * 1.0 - strongSell * 2.0) / total;
 
         return score switch
@@ -140,7 +137,8 @@ public class AnalystRecommendationsSummary
     }
 
     /// <summary>
-    /// Get recommendation percentages
+    /// The share of analysts in each bucket for the current period, as percentages that
+    /// sum to 100. Empty when no analyst covers the ticker.
     /// </summary>
     public Dictionary<string, double> GetRecommendationPercentages()
     {

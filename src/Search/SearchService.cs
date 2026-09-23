@@ -4,8 +4,7 @@ using CyFinance.Models.Search;
 namespace CyFinance.Services.Search;
 
 /// <summary>
-/// Yahoo Finance Search API Service
-/// Implements search functionality similar to yfinance
+/// Backed by Yahoo's <c>v1/finance/search</c> endpoint, the one behind the site's search box.
 /// </summary>
 public class SearchService : BaseService, ISearchService
 {
@@ -66,9 +65,6 @@ public class SearchService : BaseService, ISearchService
         return result?.News;
     }
 
-    /// <summary>
-    /// Builds the search API URL with proper parameters
-    /// </summary>
     private string BuildSearchUrl(string query, int quotesCount, int newsCount)
     {
         var url = $"{BASE_URL}/v1/finance/search?q={Uri.EscapeDataString(query)}";
@@ -83,7 +79,6 @@ public class SearchService : BaseService, ISearchService
             url += $"&newsCount={newsCount}";
         }
 
-        // Optional: Include research and nav results
         url += "&enableFuzzyQuery=false&enableNewsDedup=true&enableResearchReports=true&enableCb=true&researchReportsCount=0";
 
         return url;

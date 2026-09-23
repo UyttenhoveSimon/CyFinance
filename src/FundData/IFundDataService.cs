@@ -3,25 +3,37 @@ using CyFinance.Models.FundData;
 namespace CyFinance.Services.FundData;
 
 /// <summary>
-/// Service contract for mutual fund and ETF data.
+/// Provides mutual fund and ETF data.
 /// </summary>
 public interface IFundDataService
 {
-    /// <summary>Returns an aggregated summary of a fund or ETF.</summary>
+    /// <summary>
+    /// Gets the profile, holdings, sector weightings and returns in a single call.
+    /// </summary>
     Task<FundSummary?> GetFundSummaryAsync(string ticker);
 
-    /// <summary>Returns profile / metadata (family, category, expense ratio, manager).</summary>
+    /// <summary>
+    /// Gets the fund family, category, expense ratio and managers.
+    /// </summary>
     Task<FundProfile?> GetFundProfileAsync(string ticker);
 
-    /// <summary>Returns the top holdings list for a fund or ETF.</summary>
+    /// <summary>
+    /// Gets the largest holdings Yahoo discloses, which is usually the top ten.
+    /// </summary>
     Task<List<FundTopHolding>?> GetTopHoldingsAsync(string ticker);
 
-    /// <summary>Returns sector allocation weightings for a fund or ETF.</summary>
+    /// <summary>
+    /// Gets the share of the fund in each sector.
+    /// </summary>
     Task<List<FundSectorWeighting>?> GetSectorWeightingsAsync(string ticker);
 
-    /// <summary>Returns trailing-period returns (1m, 3m, YTD, 1y, 3y, 5y, 10y).</summary>
+    /// <summary>
+    /// Gets returns over trailing periods, from one month to ten years, plus year to date.
+    /// </summary>
     Task<FundTrailingSummary?> GetTrailingReturnsAsync(string ticker);
 
-    /// <summary>Returns calendar-year annual returns.</summary>
+    /// <summary>
+    /// Gets one return per calendar year.
+    /// </summary>
     Task<List<FundAnnualReturnEntry>?> GetAnnualReturnsAsync(string ticker);
 }

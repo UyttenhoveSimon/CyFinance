@@ -8,6 +8,10 @@
     <PackageProjectUrl>https://uyttenhovesimon.github.io/CyFinance/</PackageProjectUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/CyFinance.xml</DocumentationFile>
+    <!-- CS1573 demands a <param> tag for every parameter as soon as one has one. We
+         document the parameters that need explaining and leave the self-evident ones
+         alone, so the all-or-nothing rule does not apply here. -->
+    <NoWarn>$(NoWarn);CS1573</NoWarn>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
   </PropertyGroup>

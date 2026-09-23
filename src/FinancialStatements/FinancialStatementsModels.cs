@@ -4,7 +4,8 @@ using CyFinance.Models.QuoteSummary;
 namespace CyFinance.Models.FinancialStatements;
 
 /// <summary>
-/// Financial statements response containing income, balance sheet, and cash flow data
+/// The raw quote summary modules behind the three statements. A module is null when it was
+/// not requested, and also when Yahoo has no data for it.
 /// </summary>
 public class FinancialStatementsResponse
 {
@@ -16,9 +17,6 @@ public class FinancialStatementsResponse
     public CashflowStatementHistory? CashflowStatementHistoryQuarterly { get; set; }
 }
 
-/// <summary>
-/// Income Statement container
-/// </summary>
 public class IncomeStatement
 {
     public string? Ticker { get; set; }
@@ -26,9 +24,6 @@ public class IncomeStatement
     public List<FinancialStatement>? QuarterlyStatements { get; set; }
 }
 
-/// <summary>
-/// Balance Sheet container
-/// </summary>
 public class BalanceSheet
 {
     public string? Ticker { get; set; }
@@ -36,9 +31,6 @@ public class BalanceSheet
     public List<FinancialStatement>? QuarterlyStatements { get; set; }
 }
 
-/// <summary>
-/// Cash Flow Statement container
-/// </summary>
 public class CashFlowStatement
 {
     public string? Ticker { get; set; }

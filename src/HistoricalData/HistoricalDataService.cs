@@ -105,7 +105,6 @@ public class HistoricalDataService : BaseService, IHistoricalDataService
         var url = $"{BASE_URL}/v8/finance/chart/{ticker}";
         var parameters = new List<string>();
 
-        // Date range
         if (startDate.HasValue)
         {
             parameters.Add($"period1={((DateTimeOffset) startDate.Value).ToUnixTimeSeconds()}");
@@ -124,10 +123,8 @@ public class HistoricalDataService : BaseService, IHistoricalDataService
             parameters.Add($"period2={((DateTimeOffset) DateTime.Now).ToUnixTimeSeconds()}"); // Default now
         }
 
-        // Interval
         parameters.Add($"interval={GetIntervalString(interval)}");
 
-        // Events
         var events = new List<string>();
         if (includeDividends)
         {
@@ -144,7 +141,6 @@ public class HistoricalDataService : BaseService, IHistoricalDataService
             parameters.Add($"events={string.Join(",", events)}");
         }
 
-        // Additional parameters
         parameters.Add("includePrePost=true");
         parameters.Add("includeTimestamps=true");
 

@@ -4,8 +4,9 @@ using CyFinance.Services.QuoteSummary;
 namespace CyFinance.Services.ShareholderInformation;
 
 /// <summary>
-/// Shareholder Information Service for Yahoo Finance.
-/// Provides major holders, institutional/fund ownership, and insider ownership data.
+/// Backed by the <c>majorHoldersBreakdown</c>, <c>institutionOwnership</c>,
+/// <c>fundOwnership</c>, <c>insiderHolders</c> and <c>insiderTransactions</c> quote
+/// summary modules.
 /// </summary>
 public class ShareholderInformationService : IShareholderInformationService
 {

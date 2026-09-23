@@ -2,26 +2,26 @@ using CyFinance.Models.MarketSummary;
 
 namespace CyFinance.Services.MarketSummary;
 
+/// <summary>
+/// Provides index levels and trading hours for a market.
+/// </summary>
 public interface IMarketSummaryService
 {
     /// <summary>
-    /// Gets market summary values keyed by exchange for a market code.
+    /// Gets the market's summary values, keyed by exchange.
     /// </summary>
-    /// <param name="market">The market code (for example, US).</param>
-    /// <returns>A dictionary of summary items by exchange, or null when unavailable.</returns>
+    /// <param name="market">A market code, for example US.</param>
     Task<Dictionary<string, MarketSummaryItem>?> GetMarketSummaryAsync(string market = "US");
 
     /// <summary>
-    /// Gets open and close status metadata for a market code.
+    /// Gets the market's session times and time zone.
     /// </summary>
-    /// <param name="market">The market code (for example, US).</param>
-    /// <returns>The market status, or null when unavailable.</returns>
+    /// <param name="market">A market code, for example US.</param>
     Task<MarketStatus?> GetMarketStatusAsync(string market = "US");
 
     /// <summary>
-    /// Gets a combined market snapshot containing both summary and status data.
+    /// Gets the summary and the status in a single call.
     /// </summary>
-    /// <param name="market">The market code (for example, US).</param>
-    /// <returns>The combined snapshot, or null when unavailable.</returns>
+    /// <param name="market">A market code, for example US.</param>
     Task<MarketSnapshot?> GetMarketSnapshotAsync(string market = "US");
 }

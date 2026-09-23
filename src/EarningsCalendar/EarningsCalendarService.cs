@@ -4,8 +4,7 @@ using CyFinance.Services.QuoteSummary;
 namespace CyFinance.Services.EarningsCalendar;
 
 /// <summary>
-/// Earnings Calendar Service for Yahoo Finance
-/// Retrieves upcoming earnings dates and historical earnings data
+/// Backed by the <c>calendarEvents</c> and <c>earnings</c> quote summary modules.
 /// </summary>
 public class EarningsCalendarService : IEarningsCalendarService
 {

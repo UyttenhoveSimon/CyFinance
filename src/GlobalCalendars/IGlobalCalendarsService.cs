@@ -2,18 +2,24 @@ using CyFinance.Models.GlobalCalendars;
 
 namespace CyFinance.Services.GlobalCalendars;
 
+/// <summary>
+/// Provides market-wide calendars, as opposed to the per-ticker
+/// <see cref="CyFinance.Services.EarningsCalendar.IEarningsCalendarService" />.
+/// </summary>
+/// <remarks>
+/// Every method covers the week starting today unless given a date range, and pages through
+/// results with <c>limit</c> and <c>offset</c>.
+/// </remarks>
 public interface IGlobalCalendarsService
 {
     /// <summary>
-    /// Gets upcoming earnings calendar events.
+    /// Gets companies reporting earnings in the window.
     /// </summary>
-    /// <param name="start">Optional inclusive start date.</param>
-    /// <param name="end">Optional inclusive end date.</param>
-    /// <param name="limit">The maximum number of results to return.</param>
-    /// <param name="offset">The paging offset.</param>
-    /// <param name="marketCap">Optional minimum market capitalization filter.</param>
-    /// <param name="filterMostActive">Whether to intersect with most-active symbols when possible.</param>
-    /// <returns>A list of earnings events.</returns>
+    /// <param name="marketCap">A minimum intraday market capitalisation to filter on.</param>
+    /// <param name="filterMostActive">
+    /// Narrows the results to the most actively traded symbols, which keeps a week of
+    /// earnings down to the names most people are watching. Ignored past the first page.
+    /// </param>
     Task<List<EarningsCalendarEvent>> GetEarningsCalendarAsync(
         DateTime? start = null,
         DateTime? end = null,
@@ -23,13 +29,8 @@ public interface IGlobalCalendarsService
         bool filterMostActive = true);
 
     /// <summary>
-    /// Gets IPO calendar events.
+    /// Gets companies going public in the window.
     /// </summary>
-    /// <param name="start">Optional inclusive start date.</param>
-    /// <param name="end">Optional inclusive end date.</param>
-    /// <param name="limit">The maximum number of results to return.</param>
-    /// <param name="offset">The paging offset.</param>
-    /// <returns>A list of IPO events.</returns>
     Task<List<IpoCalendarEvent>> GetIpoCalendarAsync(
         DateTime? start = null,
         DateTime? end = null,
@@ -37,13 +38,8 @@ public interface IGlobalCalendarsService
         int offset = 0);
 
     /// <summary>
-    /// Gets economic events calendar entries.
+    /// Gets macroeconomic releases in the window.
     /// </summary>
-    /// <param name="start">Optional inclusive start date.</param>
-    /// <param name="end">Optional inclusive end date.</param>
-    /// <param name="limit">The maximum number of results to return.</param>
-    /// <param name="offset">The paging offset.</param>
-    /// <returns>A list of economic events.</returns>
     Task<List<EconomicEvent>> GetEconomicEventsCalendarAsync(
         DateTime? start = null,
         DateTime? end = null,
@@ -51,13 +47,8 @@ public interface IGlobalCalendarsService
         int offset = 0);
 
     /// <summary>
-    /// Gets stock split calendar events.
+    /// Gets stock splits taking effect in the window.
     /// </summary>
-    /// <param name="start">Optional inclusive start date.</param>
-    /// <param name="end">Optional inclusive end date.</param>
-    /// <param name="limit">The maximum number of results to return.</param>
-    /// <param name="offset">The paging offset.</param>
-    /// <returns>A list of split events.</returns>
     Task<List<SplitCalendarEvent>> GetSplitsCalendarAsync(
         DateTime? start = null,
         DateTime? end = null,

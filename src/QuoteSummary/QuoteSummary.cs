@@ -158,7 +158,6 @@ public record AssetProfile
     public string? IrWebsite { get; init; } // ADDED
 }
 
-// Added new properties to the CompanyOfficer record
 public record CompanyOfficer(
     string? Name,
     int? Age,
@@ -204,7 +203,6 @@ public record FinancialData
     public string? FinancialCurrency { get; init; }
 }
 
-// Unchanged records below
 public record KeyStatistics
 {
     public YahooValue? EnterpriseToRevenue { get; init; }

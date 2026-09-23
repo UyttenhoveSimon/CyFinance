@@ -23,14 +23,10 @@ public class OptionsDataService : BaseService, IOptionsDataService
             throw new ArgumentException("Ticker cannot be null or empty", nameof(ticker));
         }
 
-        // This ensures _crumb is populated and valid
         await EnsureAuthenticatedAsync(ticker);
 
-        // --- FIX IS HERE ---
-        // Start building the URL with the required crumb parameter
         var url = $"{BaseUrl}/{ticker}?crumb={_crumb}";
 
-        // Append the date if it exists
         if (date.HasValue)
         {
             url += $"&date={date.Value}"; // Use '&' since '?' is already used

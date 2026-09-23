@@ -1,4 +1,3 @@
-// --- File: Models/ScreenerResponse.cs ---
 
 using System.Text.Json.Serialization;
 namespace CyFinance.Models.StockScreening;

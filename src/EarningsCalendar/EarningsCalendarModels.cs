@@ -3,88 +3,80 @@ using CyFinance.Models.QuoteSummary;
 namespace CyFinance.Models.EarningsCalendar;
 
 /// <summary>
-/// Represents upcoming earnings dates for a company
+/// Earnings dates a company has announced but not yet reported.
 /// </summary>
 public class UpcomingEarnings
 {
-    /// <summary>
-    /// Ticker symbol
-    /// </summary>
     public string? Ticker { get; set; }
 
     /// <summary>
-    /// List of upcoming earnings dates (Unix timestamps)
+    /// Announcement dates, as Unix timestamps in seconds.
     /// </summary>
     public List<YahooLongValue>? EarningsDates { get; set; }
 }
 
 /// <summary>
-/// Represents historical earnings data for a company
+/// Earnings a company has already reported.
 /// </summary>
 public class HistoricalEarnings
 {
-    /// <summary>
-    /// Ticker symbol
-    /// </summary>
     public string? Ticker { get; set; }
 
     /// <summary>
-    /// List of quarterly earnings with actual and estimate values
+    /// Reported quarters, in the order Yahoo sent them.
     /// </summary>
     public List<QuarterlyEarnings>? Quarterly { get; set; }
 }
 
 /// <summary>
-/// Represents complete earnings calendar data (upcoming dates and historical earnings)
+/// A company's announced and reported earnings together.
 /// </summary>
 public class EarningsCalendarSummary
 {
-    /// <summary>
-    /// Ticker symbol
-    /// </summary>
     public string? Ticker { get; set; }
 
     /// <summary>
-    /// Upcoming earnings dates
+    /// Announcement dates, as Unix timestamps in seconds.
     /// </summary>
     public List<YahooLongValue>? UpcomingEarningsDates { get; set; }
 
     /// <summary>
-    /// Historical quarterly earnings data
+    /// Reported quarters, in the order Yahoo sent them.
     /// </summary>
     public List<QuarterlyEarnings>? HistoricalEarnings { get; set; }
 
     /// <summary>
-    /// Get the next earnings date if available
+    /// Gets the soonest announced date, as a Unix timestamp in seconds.
     /// </summary>
-    /// <returns>Next earnings date as Unix timestamp or null</returns>
     public long? GetNextEarningsDate()
     {
         return UpcomingEarningsDates?.FirstOrDefault()?.Raw;
     }
 
     /// <summary>
-    /// Get the most recent earnings date from historical data if available
+    /// Gets the date of the first reported quarter Yahoo listed, in its own format such as "4Q2024".
     /// </summary>
-    /// <returns>Most recent earnings date or null</returns>
     public string? GetMostRecentEarningsDate()
     {
         return HistoricalEarnings?.FirstOrDefault()?.Date;
     }
 
     /// <summary>
-    /// Get the most recent earnings data with actual and estimate
+    /// Gets the first reported quarter Yahoo listed.
     /// </summary>
-    /// <returns>Most recent quarterly earnings or null</returns>
     public QuarterlyEarnings? GetMostRecentEarnings()
     {
         return HistoricalEarnings?.FirstOrDefault();
     }
 
     /// <summary>
-    /// Calculate average earnings surprise (difference between actual and estimate)
+    /// Averages how far each reported quarter landed from its estimate, as a percentage.
     /// </summary>
-    /// <returns>Average surprise percentage or 0 if no data</returns>
+    /// <remarks>
+    /// Quarters without both values, and those estimated at zero or below, are left out of
+    /// the average rather than counted as no surprise. Returns 0 when that leaves nothing,
+    /// which is indistinguishable from a company that met every estimate exactly.
+    /// </remarks>
     public double GetAverageEarningsSurprise()
     {
         if (HistoricalEarnings == null || HistoricalEarnings.Count == 0)
@@ -109,9 +101,12 @@ public class EarningsCalendarSummary
     }
 
     /// <summary>
-    /// Get earnings beat rate (percentage of times actual beat estimate)
+    /// The share of reported quarters that came in above estimate, from 0 to 100.
     /// </summary>
-    /// <returns>Beat rate as percentage (0-100) or 0 if no data</returns>
+    /// <remarks>
+    /// Meeting an estimate exactly does not count as a beat. Returns 0 when no quarter
+    /// carries both values, which is indistinguishable from a company that never beat.
+    /// </remarks>
     public double GetEarningsBeatRate()
     {
         if (HistoricalEarnings == null || HistoricalEarnings.Count == 0)

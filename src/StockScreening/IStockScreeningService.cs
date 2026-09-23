@@ -1,29 +1,24 @@
-
 using System.Threading.Tasks;
 using CyFinance.Models.StockScreening;
 
 namespace CyFinance.Services.StockScreening;
 
+/// <summary>
+/// Runs Yahoo's stock screener, either with your own query or with one of its saved screens.
+/// </summary>
 public interface IStockScreeningService
 {
     /// <summary>
-    /// Executes a custom screener request payload.
+    /// Runs a screener request you have built yourself.
     /// </summary>
-    /// <param name="request">The screener request body.</param>
-    /// <returns>The screener result, or null when no result is returned.</returns>
     Task<ScreenerResult?> ScreenAsync(ScreenerRequest request);
 
     /// <summary>
-    /// Executes a custom screener query built from typed query helpers.
+    /// Runs a screener query built from <see cref="EquityQuery" /> or <see cref="ScreenerQuery" />.
     /// </summary>
-    /// <param name="query">The query expression.</param>
-    /// <param name="size">Maximum number of rows to return.</param>
-    /// <param name="offset">Paging offset.</param>
-    /// <param name="sortField">Sort field name.</param>
-    /// <param name="sortAsc">Whether to sort ascending.</param>
-    /// <param name="userId">Optional user id forwarded to Yahoo.</param>
-    /// <param name="userIdType">Optional user id type.</param>
-    /// <returns>The screener result, or null when no result is returned.</returns>
+    /// <param name="sortField">A Yahoo field name, such as <c>ticker</c> or <c>intradaymarketcap</c>.</param>
+    /// <param name="userId">Forwarded to Yahoo as-is. Screening works without it.</param>
+    /// <param name="userIdType">Forwarded to Yahoo as-is. Screening works without it.</param>
     Task<ScreenerResult?> ScreenAsync(
         QueryBase query,
         int size = 25,
@@ -34,16 +29,15 @@ public interface IStockScreeningService
         string userIdType = "guid");
 
     /// <summary>
-    /// Executes a predefined screener by its Yahoo screener id.
+    /// Runs one of Yahoo's saved screens by id.
     /// </summary>
-    /// <param name="screenId">The predefined screener identifier.</param>
-    /// <param name="offset">Optional paging offset.</param>
-    /// <param name="count">Optional row count.</param>
-    /// <param name="sortField">Optional sort field name.</param>
-    /// <param name="sortAsc">Optional ascending sort flag.</param>
-    /// <param name="userId">Optional user id forwarded to Yahoo.</param>
-    /// <param name="userIdType">Optional user id type.</param>
-    /// <returns>The screener result, or null when no result is returned.</returns>
+    /// <param name="screenId">
+    /// A Yahoo screen id, such as <c>day_gainers</c>. <see cref="PredefinedScreeners" /> holds
+    /// the known ones, and the overload taking <see cref="PredefinedScreenersCatalogItem" />
+    /// avoids the string altogether.
+    /// </param>
+    /// <param name="userId">Forwarded to Yahoo as-is. Screening works without it.</param>
+    /// <param name="userIdType">Forwarded to Yahoo as-is. Screening works without it.</param>
     Task<ScreenerResult?> ScreenPredefinedAsync(
         string screenId,
         int? offset = null,
@@ -54,16 +48,10 @@ public interface IStockScreeningService
         string? userIdType = null);
 
     /// <summary>
-    /// Executes a predefined screener using a typed catalog value.
+    /// Runs one of Yahoo's saved screens.
     /// </summary>
-    /// <param name="screen">The predefined screener enum value.</param>
-    /// <param name="offset">Optional paging offset.</param>
-    /// <param name="count">Optional row count.</param>
-    /// <param name="sortField">Optional sort field name.</param>
-    /// <param name="sortAsc">Optional ascending sort flag.</param>
-    /// <param name="userId">Optional user id forwarded to Yahoo.</param>
-    /// <param name="userIdType">Optional user id type.</param>
-    /// <returns>The screener result, or null when no result is returned.</returns>
+    /// <param name="userId">Forwarded to Yahoo as-is. Screening works without it.</param>
+    /// <param name="userIdType">Forwarded to Yahoo as-is. Screening works without it.</param>
     Task<ScreenerResult?> ScreenPredefinedAsync(
         PredefinedScreenersCatalogItem screen,
         int? offset = null,
