@@ -11,6 +11,19 @@ public class CompanyNewsService : BaseService, ICompanyNewsService
 {
     private const string BaseUrl = "https://query2.finance.yahoo.com";
 
+    /// <summary>
+    /// How many items <see cref="GetLatestCompanyNewsAsync" /> asks for to be left with one.
+    /// </summary>
+    /// <remarks>
+    /// Yahoo applies <c>enableNewsDedup</c> after it caps the result at <c>newsCount</c>,
+    /// so a request is under-delivered whenever the window it cut contains near-duplicate
+    /// stories: asking for one item returns nothing at all often enough to matter. Probing
+    /// the endpoint, AAPL answered a request for 5 with 3 items and a request for 10 with 8,
+    /// while MSFT and TSLA answered 5 with 5. A window of 5 leaves enough room for the
+    /// heaviest deduplication observed to still yield a first item.
+    /// </remarks>
+    private const int LatestNewsWindow = 5;
+
     public CompanyNewsService(HttpClient client) : base(client)
     {
         if (!Client.DefaultRequestHeaders.Contains("User-Agent"))
@@ -56,7 +69,9 @@ public class CompanyNewsService : BaseService, ICompanyNewsService
     /// <inheritdoc />
     public async Task<CompanyNewsItem?> GetLatestCompanyNewsAsync(string ticker)
     {
-        var news = await GetCompanyNewsAsync(ticker, 1);
+        // Asking for a single item is what you want and what Yahoo answers badly.
+        // See LatestNewsWindow.
+        var news = await GetCompanyNewsAsync(ticker, LatestNewsWindow);
         return news?.FirstOrDefault();
     }
 
