@@ -1,5 +1,5 @@
-/* The API Reference entry lists every namespace, so its navbar menu is taller than
-   the viewport and the last entries end up out of reach. Cap it and let it scroll. */
+/* A navbar entry with children renders as a menu with no height of its own, so a
+   long one runs past the bottom of the viewport. Cap it and let it scroll. */
 #navbar .dropdown-menu {
   max-height: calc(100vh - 5rem);
   max-width: min(90vw, 26rem);

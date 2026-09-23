@@ -3,7 +3,7 @@
 - name: Library Guide
   href: ../README.md
 - name: API Reference
-  href: ../api/toc.yml
+  href: ../api/
 - name: Guides
   items:
     - name: Authentication
