@@ -4,8 +4,6 @@
   href: ../api/toc.yml
 - name: Guides
   items:
-    - name: Quick Start
-      href: quick-start.md
     - name: Authentication
       href: authentication.md
     - name: Common Patterns

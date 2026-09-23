@@ -22,7 +22,6 @@
         "src": "docs",
         "files": [
           "index.md",
-          "quick-start.md",
           "authentication.md",
           "common-patterns.md",
           "toc.yml"
