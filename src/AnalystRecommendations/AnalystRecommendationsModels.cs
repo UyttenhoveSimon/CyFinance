@@ -89,16 +89,17 @@ public class AnalystRecommendationsSummary
     public List<RatingChange>? RatingChangeHistory { get; set; }
 
     /// <summary>
-    /// The first entry of <see cref="RatingChangeHistory" />, which is the newest change.
+    /// The newest change. Yahoo sends this history newest first.
     /// </summary>
     public RatingChange? LatestRatingChange => RatingChangeHistory?.FirstOrDefault();
 
     /// <summary>
-    /// The last entry of <see cref="RecommendationTrend" />, which is the current period.
-    /// Note that this takes the opposite end of the list from
-    /// <see cref="LatestRatingChange" />, because Yahoo orders the two modules differently.
+    /// The current period, which Yahoo labels "0m". Falls back to the first entry if it ever
+    /// stops sending that label.
     /// </summary>
-    public RecommendationData? LatestRecommendation => RecommendationTrend?.LastOrDefault();
+    public RecommendationData? LatestRecommendation =>
+        RecommendationTrend?.FirstOrDefault(period => period.Period == "0m")
+        ?? RecommendationTrend?.FirstOrDefault();
 
     /// <summary>
     /// Reduces the current period's counts to a single label, from "Strong Buy" to
