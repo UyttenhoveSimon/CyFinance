@@ -10,8 +10,8 @@ body {
   --bs-link-hover-color-rgb: 130, 196, 250 !important;
 }
 
-/* A navbar entry with children renders as a menu with no height of its own, so a
-   long one runs past the bottom of the viewport. Cap it and let it scroll. */
+/* docfx puts no height limit on the menu it builds for a navbar entry with children,
+   so a long one runs off the bottom of the screen. */
 #navbar .dropdown-menu {
   max-height: calc(100vh - 5rem);
   max-width: min(90vw, 26rem);

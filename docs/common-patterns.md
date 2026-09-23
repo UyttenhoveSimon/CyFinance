@@ -12,33 +12,32 @@ Use the service interface directly when you want to wire up a narrower dependenc
 
 Most APIs return strongly typed models and follow the same async pattern, which keeps the surface area predictable across features.
 
-## Counts are a ceiling, not a promise
+## Item counts
 
-Yahoo's endpoints cap a result at the count you asked for and only then drop the
-items they consider redundant, so a call routinely answers with fewer rows than it
-was asked for. Company news is where this bites hardest, because a widely covered
-ticker produces many near-identical stories:
+Counts like `newsCount` are an upper bound. Yahoo trims the result to the number
+you asked for and then drops the stories it considers duplicates, so you normally
+get fewer items back than you asked for. How many fewer depends on the ticker --
+AAPL attracts far more near-identical coverage than MSFT or TSLA:
 
-| Request | AAPL | MSFT | TSLA |
+| Requested | AAPL | MSFT | TSLA |
 | :--- | :---: | :---: | :---: |
-| `newsCount: 1` | 0–1 | 1 | 1 |
-| `newsCount: 5` | 3 | 5 | 5 |
-| `newsCount: 10` | 8 | 8 | 9 |
+| 1 | 0-1 | 1 | 1 |
+| 5 | 3 | 5 | 5 |
+| 10 | 8 | 8 | 9 |
 
-A request for a single item is the one to avoid: it leaves no slack for
-deduplication to take anything away from, so the call comes back empty whenever the
-one story Yahoo picked is one it also decided to drop. Ask for a window and take what
-you need from it.
+Asking for a single item is the case to avoid. Nothing is left to fall back on, so
+if Yahoo drops the one story it picked you get an empty list instead of the latest
+headline. Ask for a handful and take the first, which is what
+`GetLatestCompanyNewsAsync` does for you.
 
 ```csharp
-// Fragile: an empty result here means "Yahoo deduplicated it away", not "no news".
+// Empty whenever Yahoo deduplicates away the one story it picked.
 var latest = (await client.CompanyNews.GetCompanyNewsAsync("AAPL", 1))?.FirstOrDefault();
 
-// Reliable, and what GetLatestCompanyNewsAsync does for you.
+// Same thing, but it actually comes back with something.
 var news = await client.CompanyNews.GetCompanyNewsAsync("AAPL", 5);
 var newest = news?.FirstOrDefault();
 ```
 
-The same caution applies to anything that filters a window client side, such as
-`GetCompanyNewsSinceAsync`: an empty list means nothing recent was in what Yahoo
-sent, not that nothing was published.
+`GetCompanyNewsSinceAsync` filters that same window in memory, so an empty list
+there means nothing recent came back, not that nothing was published.

@@ -10,12 +10,12 @@ namespace CyFinance.Tests.Integration;
 /// Helpers for the tests that talk to the real Yahoo endpoints.
 /// </summary>
 /// <remarks>
-/// Yahoo serves these endpoints without authentication and throttles shared CI
-/// runners, so a call can come back refused or empty for reasons that have nothing
-/// to do with this library. <see cref="RunAsync" /> retries the whole test a few
-/// times and, when Yahoo still has nothing to say, skips it with the reason instead
-/// of failing the build. Assertions about the shape of data Yahoo did return are
-/// left alone, so a genuine regression still fails.
+/// Yahoo serves these endpoints without authentication and throttles shared CI runners,
+/// so a call can be refused or come back empty for reasons that have nothing to do with
+/// this library. <see cref="RunAsync" /> retries the test and, if every attempt fails
+/// that way, skips it with the reason rather than failing the build. Only a missing
+/// payload is tolerated: an assertion about data Yahoo did return still fails, so a real
+/// regression is not swallowed.
 /// </remarks>
 internal static class LiveYahoo
 {
@@ -54,11 +54,11 @@ internal static class LiveYahoo
 
         throw new SkipTestException(
             $"Yahoo returned no usable data for {testName} ({string.Join("; ", failures)}). " +
-            "The library was not exercised, so this run proves nothing either way.");
+            "Nothing in the library was exercised, so this run says nothing about it.");
     }
 
     /// <summary>
-    /// Tells "Yahoo gave us nothing" apart from "Yahoo gave us something and it was wrong".
+    /// Whether the failure means Yahoo sent nothing back, rather than sending something wrong.
     /// </summary>
     private static bool IsYahooUnavailable(Exception exception) => exception switch
     {
@@ -70,9 +70,8 @@ internal static class LiveYahoo
     };
 
     /// <summary>
-    /// TUnit assertion failures carry no structured reason, so the message is all
-    /// there is to separate an absent payload from a wrong one. An assertion that
-    /// compares values keeps failing the build; only "nothing came back" is tolerated.
+    /// TUnit assertion failures carry no structured reason, so the message is the only way
+    /// to tell a missing value from a wrong one. Comparisons keep failing the build.
     /// </summary>
     private static bool IsMissingDataAssertion(Exception exception)
     {

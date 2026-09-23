@@ -8,7 +8,7 @@ This is a **C# client library** designed to interact with the **Yahoo Finance AP
 
 ## Documentation
 
-The documentation site lives at **<https://uyttenhovesimon.github.io/CyFinance/>**.
+The documentation site is at **<https://uyttenhovesimon.github.io/CyFinance/>**.
 
 It is published to GitHub Pages by the `.github/workflows/publish-nuget.yml` workflow. The first release includes the API reference plus a few short guides.
 
