@@ -770,3 +770,15 @@ CyFinance is configured for **Native AOT compilation** via `PublishAot=true` in 
 ## NuGet Publishing (ModularPipelines)
 
 Publishing is implemented with [ModularPipelines](https://github.com/thomhurst/ModularPipelines) in [pipelines/CyFinance.Pipelines/Program.cs](https://github.com/UyttenhoveSimon/CyFinance/blob/master/pipelines/CyFinance.Pipelines/Program.cs), and executed by [.github/workflows/publish-nuget.yml](https://github.com/UyttenhoveSimon/CyFinance/blob/master/.github/workflows/publish-nuget.yml).
+
+## Contributors
+
+Thanks to the people who have contributed to CyFinance:
+
+| | |
+| :--- | :--- |
+| [@UyttenhoveSimon](https://github.com/UyttenhoveSimon) | Simon Uyttenhove — maintainer |
+| [@sorait](https://github.com/sorait) | Søren Randrup Mikkelsen — found and reported the whole-number parsing bug in the historical-data reader ([#47](https://github.com/UyttenhoveSimon/CyFinance/pull/47)) |
+| [@dougdellolio](https://github.com/dougdellolio) | Doug Dellolio — author of [YahooFinanceAPI](https://github.com/dougdellolio/YahooFinanceAPI), the project this one was originally forked from |
+
+Contributions are welcome — open an issue or a pull request.
