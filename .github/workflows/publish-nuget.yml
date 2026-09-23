@@ -85,7 +85,9 @@ jobs:
         run: dotnet run --project pipelines/CyFinance.Pipelines/CyFinance.Pipelines.csproj --configuration Release
 
   deploy-docs:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    # The github-pages environment only accepts the default branch, so a tag push must not
+    # try to deploy: master already published these docs on the commit the tag points at.
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event_name == 'workflow_dispatch'
     needs: validate
     runs-on: ubuntu-latest
 
