@@ -2,12 +2,15 @@
 
 [![NuGet version](https://img.shields.io/nuget/v/CyFinance.svg)](https://www.nuget.org/packages/CyFinance)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://www.mozilla.org/MPL/2.0/)
+[![Documentation](https://img.shields.io/badge/docs-github.io-blue.svg)](https://uyttenhovesimon.github.io/CyFinance/)
 
 This is a **C# client library** designed to interact with the **Yahoo Finance API**.
 
 ## Documentation
 
-Static documentation is published to GitHub Pages by the `.github/workflows/publish-nuget.yml` workflow. The first release includes the API reference plus a few short guides.
+The documentation site lives at **<https://uyttenhovesimon.github.io/CyFinance/>**.
+
+It is published to GitHub Pages by the `.github/workflows/publish-nuget.yml` workflow. The first release includes the API reference plus a few short guides.
 
 To generate the site locally:
 
