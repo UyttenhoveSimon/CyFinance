@@ -5,6 +5,7 @@
     <AssemblyTitle>C# Yahoo Finance Client</AssemblyTitle>
     <Product>C# Yahoo Finance Client</Product>
     <description>C# Client Library used to interact with the Yahoo Finance API</description>
+    <PackageProjectUrl>https://uyttenhovesimon.github.io/CyFinance/</PackageProjectUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/CyFinance.xml</DocumentationFile>
     <IsAotCompatible>true</IsAotCompatible>
