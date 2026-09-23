@@ -8,7 +8,7 @@ namespace CyFinance.Services.CompanyNews;
 public interface ICompanyNewsService
 {
     /// <summary>
-    /// Gets recent news, in the order Yahoo sent it.
+    /// Gets recent news, newest first.
     /// </summary>
     /// <param name="newsCount">
     /// An upper bound. Yahoo trims the result to that many items and only then drops the
