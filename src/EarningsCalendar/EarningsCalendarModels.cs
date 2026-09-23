@@ -23,7 +23,7 @@ public class HistoricalEarnings
     public string? Ticker { get; set; }
 
     /// <summary>
-    /// Reported quarters, in the order Yahoo sent them.
+    /// Reported quarters, oldest first, which is the order Yahoo sends them in.
     /// </summary>
     public List<QuarterlyEarnings>? Quarterly { get; set; }
 }
@@ -41,7 +41,7 @@ public class EarningsCalendarSummary
     public List<YahooLongValue>? UpcomingEarningsDates { get; set; }
 
     /// <summary>
-    /// Reported quarters, in the order Yahoo sent them.
+    /// Reported quarters, oldest first, which is the order Yahoo sends them in.
     /// </summary>
     public List<QuarterlyEarnings>? HistoricalEarnings { get; set; }
 
@@ -54,19 +54,19 @@ public class EarningsCalendarSummary
     }
 
     /// <summary>
-    /// Gets the date of the first reported quarter Yahoo listed, in its own format such as "4Q2024".
+    /// Gets the date of the last reported quarter, in Yahoo's own format such as "2Q2026".
     /// </summary>
     public string? GetMostRecentEarningsDate()
     {
-        return HistoricalEarnings?.FirstOrDefault()?.Date;
+        return HistoricalEarnings?.LastOrDefault()?.Date;
     }
 
     /// <summary>
-    /// Gets the first reported quarter Yahoo listed.
+    /// Gets the last reported quarter.
     /// </summary>
     public QuarterlyEarnings? GetMostRecentEarnings()
     {
-        return HistoricalEarnings?.FirstOrDefault();
+        return HistoricalEarnings?.LastOrDefault();
     }
 
     /// <summary>
