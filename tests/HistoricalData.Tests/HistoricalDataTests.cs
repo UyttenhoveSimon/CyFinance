@@ -109,6 +109,46 @@ public class HistoricalDataServiceTests
     }
 
     [Test]
+    public async Task SplitNumerator_ParsesWholeNumberWrittenWithADecimalPoint()
+    {
+        // Yahoo writes "numerator": 2.0 rather than 2, which GetInt32 rejects outright.
+        const string json = """
+        { "date": 1700000000, "numerator": 2.0, "denominator": 1.0, "splitRatio": "2:1" }
+        """;
+
+        var split = JsonSerializer.Deserialize<Split>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+
+        await Assert.That(split).IsNotNull();
+        await Assert.That(split!.Numerator).IsEqualTo(2);
+        await Assert.That(split.Denominator).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task SplitNumerator_ParsesDecimalPointValueInsideARawWrapper()
+    {
+        const string json = """
+        {
+          "date": 1700000000,
+          "numerator": { "raw": 3.0, "fmt": "3" },
+          "denominator": { "raw": 1.0, "fmt": "1" },
+          "splitRatio": "3:1"
+        }
+        """;
+
+        var split = JsonSerializer.Deserialize<Split>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+
+        await Assert.That(split).IsNotNull();
+        await Assert.That(split!.Numerator).IsEqualTo(3);
+        await Assert.That(split.Denominator).IsEqualTo(1);
+    }
+
+    [Test]
     public async Task GetSplits_ShouldReturnSplits()
     {
         // Arrange
