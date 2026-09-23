@@ -36,7 +36,7 @@ public class IntegrationTests
     }
 
     [Test]
-    public async Task GetQuoteSummaryAsync_ValidTicker_ReturnsQuoteResponse()
+    public Task GetQuoteSummaryAsync_ValidTicker_ReturnsQuoteResponse() => LiveYahoo.RunAsync(nameof(GetQuoteSummaryAsync_ValidTicker_ReturnsQuoteResponse), async () =>
     {
         // Arrange
         var ticker = "AAPL";
@@ -50,10 +50,10 @@ public class IntegrationTests
         await Assert.That(result?.QuoteSummary?.Result).IsNotNull();
         await Assert.That(result?.QuoteSummary?.Result).IsNotEmpty();
         await Assert.That(ticker).IsEqualTo(result?.QuoteSummary?.Result?.FirstOrDefault().Price?.Symbol);
-    }
+    });
 
     [Test]
-    public async Task GetHistoryDataAsync_ValidTicker_ReturnsHistoricalDataResponse()
+    public Task GetHistoryDataAsync_ValidTicker_ReturnsHistoricalDataResponse() => LiveYahoo.RunAsync(nameof(GetHistoryDataAsync_ValidTicker_ReturnsHistoricalDataResponse), async () =>
     {
         // Arrange
         var ticker = "AMZN";
@@ -67,10 +67,10 @@ public class IntegrationTests
         await Assert.That(result?.Chart?.Result).IsNotNull();
         await Assert.That(result?.Chart?.Result).IsNotEmpty();
         await Assert.That(ticker).IsEqualTo(result?.Chart?.Result?.FirstOrDefault().Meta?.Symbol);
-    }
+    });
 
     [Test]
-    public async Task GetOptionsDataAsync_ValidTicker_ReturnsOptionsData()
+    public Task GetOptionsDataAsync_ValidTicker_ReturnsOptionsData() => LiveYahoo.RunAsync(nameof(GetOptionsDataAsync_ValidTicker_ReturnsOptionsData), async () =>
     {
         // Arrange
         var ticker = "MSFT";
@@ -85,5 +85,5 @@ public class IntegrationTests
         await Assert.That(result?.OptionChain?.Result).IsNotNull();
         await Assert.That(result?.OptionChain?.Result).IsNotEmpty();
         await Assert.That(ticker).IsEqualTo(result?.OptionChain?.Result?.FirstOrDefault()?.UnderlyingSymbol);
-    }
+    });
 }
