@@ -102,7 +102,7 @@ public class BuildAndTestModule : Module
 public class GenerateDocsModule : Module
 {
 	protected override ModuleConfiguration Configure() => ModuleConfiguration.Create()
-		.WithTimeout(TimeSpan.FromSeconds(120))
+		.WithTimeout(TimeSpan.FromSeconds(600))
 		.Build();
 
 	protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
@@ -111,6 +111,14 @@ public class GenerateDocsModule : Module
 		if (Directory.Exists(docsOutputDirectory))
 		{
 			Directory.Delete(docsOutputDirectory, true);
+		}
+
+		// docfx metadata only overwrites files, so stale API yml from removed types would
+		// otherwise survive into the published site.
+		var apiMetadataDirectory = Path.GetFullPath("./api");
+		if (Directory.Exists(apiMetadataDirectory))
+		{
+			Directory.Delete(apiMetadataDirectory, true);
 		}
 
 		await context.Shell.Command.ExecuteCommandLineTool(

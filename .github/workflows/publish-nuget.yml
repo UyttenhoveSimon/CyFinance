@@ -13,8 +13,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   validate:
@@ -38,6 +36,11 @@ jobs:
           RUN_LIVE_YAHOO_TESTS: '1'
         run: dotnet run --project pipelines/CyFinance.Pipelines/CyFinance.Pipelines.csproj --configuration Release
 
+      - name: Verify documentation site was generated
+        run: |
+          test -f artifacts/docs/index.html || { echo "::error::artifacts/docs/index.html missing — the docs site would deploy as a 404."; exit 1; }
+          test -f artifacts/docs/api/toc.html || { echo "::error::artifacts/docs/api/toc.html missing — the API reference was not generated."; exit 1; }
+
       - name: Upload NuGet artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v6
         with:
@@ -54,9 +57,6 @@ jobs:
     if: github.event_name == 'push'
     needs: validate
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
@@ -75,18 +75,36 @@ jobs:
           name: nuget-packages
           path: artifacts/nuget
 
-      - name: Download Docs artifacts
-        uses: actions/download-artifact@484a0b528fb4d7bd804637ccb632e47a0e638317 # v6
-        with:
-          name: docs-site
-          path: artifacts/docs
-
       - name: Run ModularPipelines publish pipeline
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
           PIPELINE_MODE: publish
           RUN_LIVE_YAHOO_TESTS: '1'
         run: dotnet run --project pipelines/CyFinance.Pipelines/CyFinance.Pipelines.csproj --configuration Release
+
+  deploy-docs:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download Docs artifacts
+        uses: actions/download-artifact@484a0b528fb4d7bd804637ccb632e47a0e638317 # v6
+        with:
+          name: docs-site
+          path: artifacts/docs
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
