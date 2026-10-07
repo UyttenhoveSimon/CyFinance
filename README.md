@@ -1,7 +1,7 @@
 # Yahoo Finance API Client Library
 
 [![NuGet version](https://img.shields.io/nuget/v/CyFinance.svg)](https://www.nuget.org/packages/CyFinance)
-[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://www.mozilla.org/MPL/2.0/)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENCE.txt)
 [![Documentation](https://img.shields.io/badge/docs-github.io-blue.svg)](https://uyttenhovesimon.github.io/CyFinance/)
 
 This is a **C# client library** designed to interact with the **Yahoo Finance API**.
