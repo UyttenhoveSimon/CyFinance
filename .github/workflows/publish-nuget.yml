@@ -42,13 +42,13 @@ jobs:
           test -f artifacts/docs/api/toc.html || { echo "::error::artifacts/docs/api/toc.html missing — the API reference was not generated."; exit 1; }
 
       - name: Upload NuGet artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v6
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v6
         with:
           name: nuget-packages
           path: artifacts/nuget/*.nupkg
 
       - name: Upload Docs artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v6
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v6
         with:
           name: docs-site
           path: artifacts/docs
