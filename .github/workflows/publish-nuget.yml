@@ -130,9 +130,25 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      checks: read
     steps:
       - id: meta
         uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+      - name: Wait for CodeQL
+        if: steps.meta.outputs.update-type != 'version-update:semver-major'
+        # CodeQL lives in its own workflow, so it can't be a `needs:` dependency.
+        run: |
+          for _ in $(seq 60); do
+            c=$(gh api "repos/$GITHUB_REPOSITORY/commits/$SHA/check-runs?check_name=Analyze%20(csharp)" \
+                -q '.check_runs[0] | if . == null then "" else (.conclusion // "") end')
+            [ "$c" = success ] && exit 0
+            [ -n "$c" ] && { echo "CodeQL concluded: $c"; exit 1; }
+            sleep 30
+          done
+          echo "CodeQL did not finish within 30 minutes"; exit 1
+        env:
+          SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Approve and merge
         if: steps.meta.outputs.update-type != 'version-update:semver-major'
         run: |
