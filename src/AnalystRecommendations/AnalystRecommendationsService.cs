@@ -1,5 +1,6 @@
 using CyFinance.Models.AnalystRecommendations;
 using CyFinance.Services.QuoteSummary;
+using System.Text.Json;
 
 namespace CyFinance.Services.AnalystRecommendations;
 
@@ -45,9 +46,9 @@ public class AnalystRecommendationsService : IAnalystRecommendationsService
 
             return summary;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get analyst recommendations for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get analyst recommendations for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -64,9 +65,9 @@ public class AnalystRecommendationsService : IAnalystRecommendationsService
             var recommendations = await GetRecommendationsAsync(ticker);
             return recommendations?.RecommendationTrend;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get recommendation trend for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get recommendation trend for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -83,9 +84,9 @@ public class AnalystRecommendationsService : IAnalystRecommendationsService
             var recommendations = await GetRecommendationsAsync(ticker);
             return recommendations?.RatingChangeHistory;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get rating change history for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get rating change history for {ticker}: {ex.Message}", ex);
         }
     }
 }

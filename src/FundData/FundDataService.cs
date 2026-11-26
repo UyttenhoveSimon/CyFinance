@@ -1,6 +1,7 @@
 using CyFinance.Models.FundData;
 using CyFinance.Models.QuoteSummary;
 using CyFinance.Services.QuoteSummary;
+using System.Text.Json;
 
 namespace CyFinance.Services.FundData;
 
@@ -50,9 +51,9 @@ public class FundDataService : IFundDataService
                 TrailingReturns = MapTrailingReturns(result.FundPerformance)
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get fund summary for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get fund summary for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -85,9 +86,9 @@ public class FundDataService : IFundDataService
                 FrontEndSalesLoad = fp.FeesExpensesInvestment?.FrontEndSalesLoad?.Raw
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get fund profile for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get fund profile for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -104,9 +105,9 @@ public class FundDataService : IFundDataService
             var result = GetResult(response);
             return result is null ? null : MapHoldings(result.TopHoldings);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get top holdings for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get top holdings for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -123,9 +124,9 @@ public class FundDataService : IFundDataService
             var result = GetResult(response);
             return result is null ? null : MapSectorWeightings(result.TopHoldings);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get sector weightings for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get sector weightings for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -142,9 +143,9 @@ public class FundDataService : IFundDataService
             var result = GetResult(response);
             return result is null ? null : MapTrailingReturns(result.FundPerformance);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get trailing returns for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get trailing returns for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -173,9 +174,9 @@ public class FundDataService : IFundDataService
                 })
                 .ToList();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get annual returns for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get annual returns for {ticker}: {ex.Message}", ex);
         }
     }
 

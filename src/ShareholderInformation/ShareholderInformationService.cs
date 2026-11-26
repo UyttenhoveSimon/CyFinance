@@ -1,5 +1,6 @@
 using CyFinance.Models.ShareholderInformation;
 using CyFinance.Services.QuoteSummary;
+using System.Text.Json;
 
 namespace CyFinance.Services.ShareholderInformation;
 
@@ -51,9 +52,9 @@ public class ShareholderInformationService : IShareholderInformationService
                 InsiderTransactions = result.InsiderTransactions?.Transactions
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get shareholder information for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get shareholder information for {ticker}: {ex.Message}", ex);
         }
     }
 

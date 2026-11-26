@@ -38,7 +38,7 @@ public class MarketSummaryService : BaseService, IMarketSummaryService
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Yahoo Market Summary API returned {(int) response.StatusCode}: {content}");
+                throw new CyFinanceException($"Yahoo Market Summary API returned {(int) response.StatusCode}: {content}");
             }
 
             var parsed = JsonSerializer.Deserialize(content, MarketSummaryJsonSerializerContext.Default.MarketSummaryRoot);
@@ -74,7 +74,7 @@ public class MarketSummaryService : BaseService, IMarketSummaryService
         }
         catch (HttpRequestException ex)
         {
-            throw new Exception($"Failed to get market summary for '{market}': {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get market summary for '{market}': {ex.Message}", ex);
         }
     }
 
@@ -90,7 +90,7 @@ public class MarketSummaryService : BaseService, IMarketSummaryService
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Yahoo Market Time API returned {(int) response.StatusCode}: {content}");
+                throw new CyFinanceException($"Yahoo Market Time API returned {(int) response.StatusCode}: {content}");
             }
 
             var parsed = JsonSerializer.Deserialize(content, MarketSummaryJsonSerializerContext.Default.MarketTimeRoot);
@@ -113,7 +113,7 @@ public class MarketSummaryService : BaseService, IMarketSummaryService
         }
         catch (HttpRequestException ex)
         {
-            throw new Exception($"Failed to get market status for '{market}': {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get market status for '{market}': {ex.Message}", ex);
         }
     }
 

@@ -52,7 +52,7 @@ public class CompanyNewsService : BaseService, ICompanyNewsService
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Yahoo API returned {(int) response.StatusCode}");
+                throw new CyFinanceException($"Yahoo API returned {(int) response.StatusCode}");
             }
 
             var content = await response.Content.ReadAsStringAsync();
@@ -61,7 +61,7 @@ public class CompanyNewsService : BaseService, ICompanyNewsService
         }
         catch (HttpRequestException ex)
         {
-            throw new Exception($"Failed to get company news for '{ticker}': {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get company news for '{ticker}': {ex.Message}", ex);
         }
     }
 

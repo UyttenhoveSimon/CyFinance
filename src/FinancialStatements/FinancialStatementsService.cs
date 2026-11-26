@@ -47,9 +47,9 @@ public class FinancialStatementsService : IFinancialStatementsService
                     ?? result.IncomeStatementHistory?.IncomeStatementStatements
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get income statement for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get income statement for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -82,9 +82,9 @@ public class FinancialStatementsService : IFinancialStatementsService
                     ?? result.BalanceSheetHistory?.BalanceSheetStatements
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get balance sheet for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get balance sheet for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -117,9 +117,9 @@ public class FinancialStatementsService : IFinancialStatementsService
                     ?? result.CashflowStatementHistory?.CashflowStatements
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get cash flow statement for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get cash flow statement for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -174,9 +174,9 @@ public class FinancialStatementsService : IFinancialStatementsService
                 CashflowStatementHistoryQuarterly = result.CashflowStatementHistoryQuarterly
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get financial statements for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get financial statements for {ticker}: {ex.Message}", ex);
         }
     }
 }

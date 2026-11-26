@@ -54,15 +54,15 @@ public abstract class BaseService
 
             if (string.IsNullOrEmpty(_crumb))
             {
-                throw new Exception("Failed to extract crumb from Yahoo HTML. Structure may have changed.");
+                throw new CyFinanceException("Failed to extract crumb from Yahoo HTML. Structure may have changed.");
             }
 
             _crumbExpiry = DateTime.UtcNow.Add(CrumbValidDuration);
             Console.WriteLine($"Successfully obtained crumb: {_crumb.Substring(0, Math.Min(10, _crumb.Length))}...");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to refresh auth token: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to refresh auth token: {ex.Message}", ex);
         }
     }
 

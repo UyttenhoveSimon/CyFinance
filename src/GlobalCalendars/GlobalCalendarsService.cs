@@ -214,20 +214,20 @@ public class GlobalCalendarsService : BaseService, IGlobalCalendarsService
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Yahoo Global Calendars API returned {(int) response.StatusCode}: {content}");
+                throw new CyFinanceException($"Yahoo Global Calendars API returned {(int) response.StatusCode}: {content}");
             }
 
             var parsed = JsonSerializer.Deserialize(content, GlobalCalendarsJsonSerializerContext.Default.GlobalCalendarResponse);
             if (parsed?.Finance?.Error is not null)
             {
-                throw new Exception($"Yahoo Global Calendars API returned an error: {parsed.Finance.Error}");
+                throw new CyFinanceException($"Yahoo Global Calendars API returned an error: {parsed.Finance.Error}");
             }
 
             return parsed?.Finance?.Result?.FirstOrDefault()?.Documents?.FirstOrDefault()?.Rows ?? [];
         }
         catch (HttpRequestException ex)
         {
-            throw new Exception($"Failed to retrieve {definition.CalendarType} calendar: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to retrieve {definition.CalendarType} calendar: {ex.Message}", ex);
         }
     }
 

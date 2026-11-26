@@ -32,9 +32,9 @@ public class HistoricalDataService : BaseService, IHistoricalDataService
             return JsonSerializer.Deserialize(content, HistoricalDataJsonSerializerContext.Default.ChartResponse)
                 ?? new ChartResponse(new Chart(new List<ChartResult>(), new object()));
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to retrieve chart data for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to retrieve chart data for {ticker}: {ex.Message}", ex);
         }
     }
     /// <inheritdoc />

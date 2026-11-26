@@ -2,6 +2,7 @@ using CyFinance.Models.SectorIndustry;
 using CyFinance.Models.StockScreening;
 using CyFinance.Services.QuoteSummary;
 using CyFinance.Services.StockScreening;
+using System.Text.Json;
 
 namespace CyFinance.Services.SectorIndustry;
 
@@ -58,9 +59,9 @@ public class SectorIndustryService : ISectorIndustryService
                 FullTimeEmployees = profile.FullTimeEmployees
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get sector info for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get sector info for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -86,9 +87,9 @@ public class SectorIndustryService : ISectorIndustryService
             var result = await _screeningService.ScreenAsync(request);
             return MapQuotes(result);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get stocks in sector '{sector}': {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get stocks in sector '{sector}': {ex.Message}", ex);
         }
     }
 
@@ -114,9 +115,9 @@ public class SectorIndustryService : ISectorIndustryService
             var result = await _screeningService.ScreenAsync(request);
             return MapQuotes(result);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get stocks in industry '{industry}': {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get stocks in industry '{industry}': {ex.Message}", ex);
         }
     }
 

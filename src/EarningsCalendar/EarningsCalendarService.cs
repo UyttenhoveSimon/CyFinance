@@ -1,5 +1,6 @@
 using CyFinance.Models.EarningsCalendar;
 using CyFinance.Services.QuoteSummary;
+using System.Text.Json;
 
 namespace CyFinance.Services.EarningsCalendar;
 
@@ -46,9 +47,9 @@ public class EarningsCalendarService : IEarningsCalendarService
                 EarningsDates = earningsCalendar.EarningsDate
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get upcoming earnings for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get upcoming earnings for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -83,9 +84,9 @@ public class EarningsCalendarService : IEarningsCalendarService
                 Quarterly = earnings
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get historical earnings for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get historical earnings for {ticker}: {ex.Message}", ex);
         }
     }
 
@@ -116,9 +117,9 @@ public class EarningsCalendarService : IEarningsCalendarService
                 HistoricalEarnings = result.Earnings?.EarningsChart?.Quarterly
             };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
         {
-            throw new Exception($"Failed to get earnings calendar for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get earnings calendar for {ticker}: {ex.Message}", ex);
         }
     }
 }

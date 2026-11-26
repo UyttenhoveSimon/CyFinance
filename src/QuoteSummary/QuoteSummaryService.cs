@@ -48,14 +48,14 @@ public class QuoteSummaryService : BaseService, IQuoteSummaryService
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Yahoo API returned {(int) response.StatusCode}: {content}");
+                throw new CyFinanceException($"Yahoo API returned {(int) response.StatusCode}: {content}");
             }
 
             return JsonSerializer.Deserialize(content, QuoteSummaryJsonSerializerContext.Default.QuoteResponse);
         }
         catch (HttpRequestException ex)
         {
-            throw new Exception($"Failed to get quote summary for {ticker}: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to get quote summary for {ticker}: {ex.Message}", ex);
         }
     }
 

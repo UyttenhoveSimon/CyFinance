@@ -39,7 +39,7 @@ public class SearchService : BaseService, ISearchService
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Yahoo API returned {(int) response.StatusCode}");
+                throw new CyFinanceException($"Yahoo API returned {(int) response.StatusCode}");
             }
 
             var content = await response.Content.ReadAsStringAsync();
@@ -47,7 +47,7 @@ public class SearchService : BaseService, ISearchService
         }
         catch (HttpRequestException ex)
         {
-            throw new Exception($"Failed to search for '{query}': {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to search for '{query}': {ex.Message}", ex);
         }
     }
 

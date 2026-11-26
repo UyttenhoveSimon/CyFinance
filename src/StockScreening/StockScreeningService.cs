@@ -49,7 +49,7 @@ public class StockScreeningService : BaseService, IStockScreeningService
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Yahoo Screener API returned {(int) response.StatusCode}: {responseBody}");
+                throw new CyFinanceException($"Yahoo Screener API returned {(int) response.StatusCode}: {responseBody}");
             }
 
             var parsed = JsonSerializer.Deserialize(responseBody, StockScreeningJsonSerializerContext.Default.ScreenerResponse);
@@ -57,7 +57,7 @@ public class StockScreeningService : BaseService, IStockScreeningService
         }
         catch (HttpRequestException ex)
         {
-            throw new Exception($"Failed to execute screener query: {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to execute screener query: {ex.Message}", ex);
         }
     }
 
@@ -182,7 +182,7 @@ public class StockScreeningService : BaseService, IStockScreeningService
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Yahoo Screener predefined API returned {(int) response.StatusCode}: {responseBody}");
+                throw new CyFinanceException($"Yahoo Screener predefined API returned {(int) response.StatusCode}: {responseBody}");
             }
 
             var parsed = JsonSerializer.Deserialize(responseBody, StockScreeningJsonSerializerContext.Default.ScreenerResponse);
@@ -190,7 +190,7 @@ public class StockScreeningService : BaseService, IStockScreeningService
         }
         catch (HttpRequestException ex)
         {
-            throw new Exception($"Failed to execute predefined screener query '{screenId}': {ex.Message}", ex);
+            throw new CyFinanceException($"Failed to execute predefined screener query '{screenId}': {ex.Message}", ex);
         }
     }
 
