@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -93,6 +94,15 @@ public abstract class BaseService
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Posts <paramref name="json"/> to <paramref name="url"/>, disposing the request body once sent.
+    /// </summary>
+    protected async Task<HttpResponseMessage> PostJsonAsync(string url, string json)
+    {
+        using var body = new StringContent(json, Encoding.UTF8, "application/json");
+        return await Client.PostAsync(url, body);
     }
 
     /// <summary>

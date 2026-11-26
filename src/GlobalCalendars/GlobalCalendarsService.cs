@@ -193,9 +193,7 @@ public class GlobalCalendarsService : BaseService, IGlobalCalendarsService
 
         try
         {
-            var response = await Client.PostAsync(
-                url,
-                new StringContent(requestBody, Encoding.UTF8, "application/json"));
+            var response = await PostJsonAsync(url, requestBody);
             var content = await response.Content.ReadAsStringAsync();
 
             if (response.StatusCode == HttpStatusCode.Unauthorized ||
@@ -206,9 +204,7 @@ public class GlobalCalendarsService : BaseService, IGlobalCalendarsService
                 await RefreshAuthTokenAsync("AAPL");
                 url = BuildCalendarUrl();
 
-                response = await Client.PostAsync(
-                    url,
-                    new StringContent(requestBody, Encoding.UTF8, "application/json"));
+                response = await PostJsonAsync(url, requestBody);
                 content = await response.Content.ReadAsStringAsync();
             }
 

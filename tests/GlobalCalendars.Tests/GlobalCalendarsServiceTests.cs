@@ -40,9 +40,12 @@ public class GlobalCalendarsServiceTests
     public async Task GetEarningsCalendarAsync_MapsRowsAndAddsMostActiveFilter()
     {
         HttpRequestMessage? capturedRequest = null;
+        string? capturedBody = null;
       var client = CreateMockHttpClient((request, _) =>
         {
             capturedRequest = request;
+            // read now: the service disposes the request body once the call returns
+            capturedBody = request.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
             const string payload = """
             {
               "finance": {
@@ -100,7 +103,7 @@ public class GlobalCalendarsServiceTests
         await Assert.That(result[0].Timing).IsEqualTo("AMC");
         await Assert.That(result[0].ReportedEps).IsEqualTo(1.6);
 
-        var body = JsonNode.Parse(await capturedRequest!.Content!.ReadAsStringAsync());
+        var body = JsonNode.Parse(capturedBody!);
         await Assert.That(body?["entityIdType"]?.GetValue<string>()).IsEqualTo("sp_earnings");
         await Assert.That(body?["query"]?["operands"]?.ToJsonString()).Contains("AAPL");
         await Assert.That(body?["query"]?["operands"]?.ToJsonString()).Contains("intradaymarketcap");

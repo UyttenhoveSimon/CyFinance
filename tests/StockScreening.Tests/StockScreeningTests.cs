@@ -185,6 +185,7 @@ public class StockScreeningTests
     {
         // Arrange
         HttpRequestMessage? capturedRequest = null;
+        string? capturedBody = null;
         var okPayload = new ScreenerResponse
         {
             Finance = new FinanceResult
@@ -206,6 +207,8 @@ public class StockScreeningTests
         var handler = new FakeHttpMessageHandler((req, ct) =>
         {
             capturedRequest = req;
+            // read now: the service disposes the request body once the call returns
+            capturedBody = req.Content?.ReadAsStringAsync(ct).GetAwaiter().GetResult();
             var json = JsonSerializer.Serialize(okPayload);
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -228,7 +231,7 @@ public class StockScreeningTests
         await Assert.That(result).IsNotNull();
         await Assert.That(capturedRequest).IsNotNull();
 
-        var requestBody = await capturedRequest!.Content!.ReadAsStringAsync();
+        var requestBody = capturedBody!;
         var root = JsonNode.Parse(requestBody);
         var quoteType = root?["quoteType"]?.GetValue<string>();
         await Assert.That(quoteType).IsEqualTo("MUTUALFUND");

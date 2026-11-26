@@ -32,7 +32,7 @@ public class StockScreeningService : BaseService, IStockScreeningService
 
         try
         {
-            var response = await Client.PostAsync(url, new StringContent(payload, Encoding.UTF8, "application/json"));
+            var response = await PostJsonAsync(url, payload);
             var responseBody = await response.Content.ReadAsStringAsync();
 
             if (response.StatusCode == HttpStatusCode.Unauthorized ||
@@ -43,7 +43,7 @@ public class StockScreeningService : BaseService, IStockScreeningService
                 await RefreshAuthTokenAsync("AAPL");
                 url = BuildScreenerUrl();
 
-                response = await Client.PostAsync(url, new StringContent(payload, Encoding.UTF8, "application/json"));
+                response = await PostJsonAsync(url, payload);
                 responseBody = await response.Content.ReadAsStringAsync();
             }
 
