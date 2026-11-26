@@ -8,6 +8,13 @@ updates:
       time: "04:00"
       timezone: "UTC"
     open-pull-requests-limit: 10
+    groups:
+      nuget:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
     labels:
       - "dependencies"
     commit-message:
@@ -29,6 +36,9 @@ updates:
       prefix: "chore"
       include: "scope"
     groups:
-      codeql-action:
+      github-actions:
         patterns:
-          - "github/codeql-action/*"
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
