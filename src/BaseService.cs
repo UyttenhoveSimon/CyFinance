@@ -80,9 +80,8 @@ public abstract class BaseService
             @"CrumbStore"":\{""crumb"":""([^""]+)""",
         };
 
-        foreach (var pattern in patterns)
+        foreach (var match in patterns.Select(pattern => Regex.Match(html, pattern, RegexOptions.IgnoreCase)))
         {
-            var match = Regex.Match(html, pattern, RegexOptions.IgnoreCase);
             if (match.Success && match.Groups.Count > 1)
             {
                 var crumb = match.Groups[1].Value;
