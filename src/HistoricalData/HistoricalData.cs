@@ -119,8 +119,8 @@ public class HistoricalPrice
 
     // Calculated properties
     public double? Change => Close.HasValue && Open.HasValue ? Close - Open : null;
-    public double? ChangePercent => Change.HasValue && Open.HasValue && Open.Value != 0
-        ? (Change.Value / Open.Value) * 100 : null;
+    public double? ChangePercent => Change is double change && Open is double open && Math.Abs(open) > double.Epsilon
+        ? change / open * 100 : null;
 
     public override string ToString()
     {

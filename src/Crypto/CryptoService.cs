@@ -38,12 +38,16 @@ public class CryptoService : BaseService, ICryptoService
 
         var (latestPrice, asOf) = GetLatestClose(quote.Close, result.Timestamp);
         var previousClose = result.Meta?.PreviousClose;
-        double? change = latestPrice.HasValue && previousClose.HasValue
-            ? latestPrice.Value - previousClose.Value
-            : null;
-        double? changePercent = change.HasValue && previousClose.HasValue && previousClose.Value != 0
-            ? (change.Value / previousClose.Value) * 100
-            : null;
+        double? change = null;
+        double? changePercent = null;
+        if (latestPrice is double price && previousClose is double prev)
+        {
+            change = price - prev;
+            if (Math.Abs(prev) > double.Epsilon)
+            {
+                changePercent = (price - prev) / prev * 100;
+            }
+        }
 
         return new CryptoQuote
         {

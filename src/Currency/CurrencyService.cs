@@ -38,12 +38,16 @@ public class CurrencyService : BaseService, ICurrencyService
 
         var (latestRate, asOf) = GetLatestClose(quote.Close, result.Timestamp);
         var previousClose = result.Meta?.PreviousClose;
-        double? change = latestRate.HasValue && previousClose.HasValue
-            ? latestRate.Value - previousClose.Value
-            : null;
-        double? changePercent = change.HasValue && previousClose.HasValue && previousClose.Value != 0
-            ? (change.Value / previousClose.Value) * 100
-            : null;
+        double? change = null;
+        double? changePercent = null;
+        if (latestRate is double rate && previousClose is double prev)
+        {
+            change = rate - prev;
+            if (Math.Abs(prev) > double.Epsilon)
+            {
+                changePercent = (rate - prev) / prev * 100;
+            }
+        }
 
         return new CurrencyQuote
         {
