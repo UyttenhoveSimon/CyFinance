@@ -10,13 +10,14 @@ on:
   schedule:
     - cron: '0 3 * * 1'
 
-permissions:
-  contents: read
-  security-events: write
-  actions: read
+permissions: {}
 
 jobs:
   analyze:
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
     name: Analyze (csharp)
     runs-on: ubuntu-latest
 
