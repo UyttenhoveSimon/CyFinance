@@ -5,8 +5,21 @@ using System.Text.RegularExpressions;
 
 namespace CyFinance;
 
-public abstract class BaseService
+public abstract partial class BaseService
 {
+    // Crumb patterns, compiled at build time (no runtime Regex construction; AOT and trim friendly).
+    [GeneratedRegex(@"""CrumbStore"":\s*\{\s*""crumb"":\s*""([^""]+)""", RegexOptions.IgnoreCase)]
+    private static partial Regex CrumbStorePattern();
+
+    [GeneratedRegex(@"""crumb"":\s*""([^""]+)""", RegexOptions.IgnoreCase)]
+    private static partial Regex CrumbPattern();
+
+    [GeneratedRegex(@"CrumbStore"":\{""crumb"":""([^""]+)""", RegexOptions.IgnoreCase)]
+    private static partial Regex CompactCrumbStorePattern();
+
+    [GeneratedRegex(@"\\u([0-9A-Fa-f]{4})")]
+    private static partial Regex UnicodeEscapePattern();
+
     private const string SkipAuthHeader = "X-CyFinance-SkipAuth";
     protected readonly HttpClient Client;
     protected readonly JsonSerializerOptions _jsonOptions = new()
@@ -73,20 +86,15 @@ public abstract class BaseService
     /// </summary>
     protected string? ExtractCrumb(string html)
     {
-        var patterns = new[]
-        {
-            @"""CrumbStore"":\s*\{\s*""crumb"":\s*""([^""]+)""",
-            @"""crumb"":\s*""([^""]+)""",
-            @"CrumbStore"":\{""crumb"":""([^""]+)""",
-        };
+        Regex[] patterns = [CrumbStorePattern(), CrumbPattern(), CompactCrumbStorePattern()];
 
-        foreach (var match in patterns.Select(pattern => Regex.Match(html, pattern, RegexOptions.IgnoreCase)))
+        foreach (var match in patterns.Select(pattern => pattern.Match(html)))
         {
             if (match.Success && match.Groups.Count > 1)
             {
                 var crumb = match.Groups[1].Value;
                 // Unescape unicode sequences
-                crumb = Regex.Replace(crumb, @"\\u([0-9A-Fa-f]{4})",
+                crumb = UnicodeEscapePattern().Replace(crumb,
                     m => ((char) Convert.ToInt32(m.Groups[1].Value, 16)).ToString());
                 return crumb.Trim();
             }
