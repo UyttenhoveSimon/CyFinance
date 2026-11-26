@@ -768,11 +768,21 @@ Console.WriteLine($"Splits: {splits.Count}, Economic events: {economics.Count}")
 
 ## Native AOT Support
 
-CyFinance is configured for **Native AOT compilation** via `PublishAot=true` in the project file. This enables the library to be compiled into native code ahead-of-time for improved performance and reduced memory footprint. Currently, the library compiles successfully with warnings about JSON serialization that can be addressed by implementing `JsonSerializerContext` for full Native AOT compatibility.
+CyFinance is marked `IsAotCompatible` and `IsTrimmable`, and all JSON goes through source-generated `JsonSerializerContext`s, so it builds with no trimming or AOT warnings. Apps that publish with Native AOT can reference it as is.
 
 ## NuGet Publishing (ModularPipelines)
 
-Publishing is implemented with [ModularPipelines](https://github.com/thomhurst/ModularPipelines) in [pipelines/CyFinance.Pipelines/Program.cs](https://github.com/UyttenhoveSimon/CyFinance/blob/master/pipelines/CyFinance.Pipelines/Program.cs), and executed by [.github/workflows/publish-nuget.yml](https://github.com/UyttenhoveSimon/CyFinance/blob/master/.github/workflows/publish-nuget.yml).
+Publishing is implemented with [ModularPipelines](https://github.com/thomhurst/ModularPipelines) in [pipelines/CyFinance.Pipelines/Program.cs](https://github.com/UyttenhoveSimon/CyFinance/blob/master/pipelines/CyFinance.Pipelines/Program.cs), and executed by [.github/workflows/publish-nuget.yml](https://github.com/UyttenhoveSimon/CyFinance/blob/master/.github/workflows/publish-nuget.yml). It pushes to nuget.org with [trusted publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing), so no API key is stored.
+
+Releases are automatic. On every push to `master`, [.github/workflows/release.yml](https://github.com/UyttenhoveSimon/CyFinance/blob/master/.github/workflows/release.yml) reads the [Conventional Commits](https://www.conventionalcommits.org/) since the last tag:
+
+| Commits since the last tag | Release |
+| :--- | :--- |
+| a `feat:` | minor, e.g. 1.1.0 → 1.2.0 |
+| a `type!:` or a `BREAKING CHANGE:` footer | major, e.g. 1.1.0 → 2.0.0 |
+| only `fix:`, `docs:`, `chore:`, … | none: they ship with the next minor or major |
+
+It then creates the tag and the GitHub release, with notes grouped from the commits, and runs the publish workflow for that tag.
 
 ## Contributors
 
