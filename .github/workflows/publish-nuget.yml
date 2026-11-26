@@ -98,7 +98,8 @@ jobs:
   deploy-docs:
     # The github-pages environment only accepts the default branch, so a tag push must not
     # try to deploy: master already published these docs on the commit the tag points at.
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event_name == 'workflow_dispatch'
+    # release.yml dispatches this workflow on the new tag, which must skip the deploy too.
+    if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: validate
     runs-on: ubuntu-latest
 
