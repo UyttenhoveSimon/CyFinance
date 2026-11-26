@@ -36,6 +36,12 @@ jobs:
         with:
           languages: csharp
           queries: security-extended,security-and-quality
+          # The System.Text.Json source generator (src/obj/**/*.g.cs) emits redundant casts;
+          # paths-ignore has no effect on compiled C#, so drop this quality-only rule.
+          config: |
+            query-filters:
+              - exclude:
+                  id: cs/useless-cast-to-self
 
       - name: Restore dependencies
         run: dotnet restore CyFinance.sln
