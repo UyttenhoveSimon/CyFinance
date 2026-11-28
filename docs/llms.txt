@@ -1,0 +1,18 @@
+# CyFinance
+
+> CyFinance is an unofficial, strongly typed Yahoo Finance API client for C# and .NET 10, modelled on Python's yfinance. Install with `dotnet add package CyFinance`.
+
+It covers quotes, historical prices, dividends and splits, financial statements, analyst recommendations, shareholders, earnings and global calendars, news, options chains, search, screeners, market status, sectors and industries, mutual funds and ETFs, forex and crypto. Register it with `services.AddCyFinance()` and resolve `CyFinanceClient`, a facade exposing one property per service (e.g. `client.QuoteSummary`, `client.HistoricalData`, `client.OptionsData`).
+
+## Docs
+
+- [Overview](https://uyttenhovesimon.github.io/CyFinance/index.html): install, quick start, features, FAQ
+- [Library guide](https://uyttenhovesimon.github.io/CyFinance/README.html): every endpoint with C# examples and the yfinance feature parity table
+- [Authentication](https://uyttenhovesimon.github.io/CyFinance/authentication.html): how the Yahoo cookie and crumb flow is handled
+- [Common patterns](https://uyttenhovesimon.github.io/CyFinance/common-patterns.html): facade versus individual services, DI
+- [API reference](https://uyttenhovesimon.github.io/CyFinance/api/CyFinance.html): every public type and method
+
+## Source
+
+- [GitHub repository](https://github.com/UyttenhoveSimon/CyFinance)
+- [NuGet package](https://www.nuget.org/packages/CyFinance)

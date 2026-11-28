@@ -48,7 +48,8 @@
       {
         "src": "docs",
         "files": [
-          "logo.svg"
+          "logo.svg",
+          "llms.txt"
         ]
       }
     ],
@@ -58,8 +59,14 @@
       "_appFooter": "CyFinance — released under the <a href=\"https://www.apache.org/licenses/LICENSE-2.0\">Apache License 2.0</a>.",
       "_enableSearch": true,
       "_disableContribution": true,
-      "_appLogoPath": "logo.svg"
+      "_appLogoPath": "logo.svg",
+      "description": "CyFinance is an unofficial, strongly typed Yahoo Finance API client for C# and .NET 10: stock quotes, historical prices, financial statements, options chains, screeners, ETFs, forex and crypto, modelled on Python's yfinance."
     },
-    "dest": "artifacts/docs"
+    "dest": "artifacts/docs",
+    "sitemap": {
+      "baseUrl": "https://uyttenhovesimon.github.io/CyFinance/",
+      "changefreq": "weekly",
+      "priority": 0.5
+    }
   }
 }
