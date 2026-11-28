@@ -55,7 +55,7 @@
     "globalMetadata": {
       "_appTitle": "CyFinance",
       "_appName": "CyFinance",
-      "_appFooter": "CyFinance — released under the <a href=\"https://www.mozilla.org/MPL/2.0/\">MPL 2.0</a>.",
+      "_appFooter": "CyFinance — released under the <a href=\"https://www.apache.org/licenses/LICENSE-2.0\">Apache License 2.0</a>.",
       "_enableSearch": true,
       "_disableContribution": true,
       "_appLogoPath": "logo.svg"
